@@ -2,9 +2,9 @@ import { NextRequest, NextResponse } from 'next/server';
 
 export async function POST(req: NextRequest) {
     const { agent_mobile, agent_pass, employee_mobile } = await req.json();
+    console.log('test', agent_mobile, agent_pass, employee_mobile)
 
-    const url = `https://api.rahnamayefarda.ir/api/agentlogin?command=login_agent&agent_mobile=${agent_mobile}&agent_pass=${agent_pass}&employee_mobile=${employee_mobile}`;
-
+    const url = `https://api.rahnamayefarda.ir/api/agentlogin?command=login_agent&agent_mobile=${agent_mobile}&agent_pass=${agent_pass}&employee_mobile=${employee_mobile}&agent_token_app_version=1.1.1&agent_token_mode=app&agent_token_device_name=sumsong&agent_token_device_version=4.2.2&agent_token_ip=192.168.1.1`;
     const res = await fetch(url, {
         method: 'POST',
         redirect: 'follow',
