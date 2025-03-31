@@ -32,9 +32,9 @@ layer(base);
   --text-title-sm--line-height: 38px;
   --text-theme-xl: 20px;
   --text-theme-xl--line-height: 30px;
-  --text-theme-sm: 14px;
+  --text-theme-sm: 12px;
   --text-theme-sm--line-height: 20px;
-  --text-theme-xs: 12px;
+  --text-theme-xs: 14px;
   --text-theme-xs--line-height: 18px;
 
   --color-current: currentColor;
@@ -593,4 +593,16 @@ layer(base);
     0px 1px 2px 0px rgba(16, 24, 40, 0.06);
   opacity: 0.8;
   cursor: grabbing; /* Changes the cursor to indicate dragging */
+}
+
+.mr-auto {
+  margin-right: auto;
+}
+
+.ml-auto {
+  margin-left: auto;
+}
+
+.flip-y {
+  transform: rotateY(180deg);
 }
