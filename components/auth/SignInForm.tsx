@@ -1,6 +1,6 @@
 "use client";
 
-import Checkbox from "@/components/form/input/Checkbox";
+// import Checkbox from "@/components/form/input/Checkbox";
 import Input from "@/components/form/input/InputField";
 import Label from "@/components/form/Label";
 import Button from "@/components/ui/button/Button";
@@ -8,6 +8,7 @@ import {ChevronLeftIcon, EyeCloseIcon, EyeIcon} from "@/icons";
 import Link from "next/link";
 import React, {useState} from "react";
 import {useRouter} from "next/navigation";
+import Alert from "@/components/ui/alert/Alert";
 
 export default function SignInForm() {
     const router = useRouter();
@@ -19,7 +20,15 @@ export default function SignInForm() {
     const [error, setError] = useState('');
     const [showLoader, setShowLoader] = useState(false)
 
-    const handleLogin = async () => {
+    async function handleLogin(e) {
+        e.preventDefault()
+        if (!agentMobile ||
+            !agentPass ||
+            !employeeMobile) {
+            setError('فیلد اجباری است');
+            return
+        }
+
         setShowLoader(true)
         setError('');
 
@@ -38,11 +47,13 @@ export default function SignInForm() {
 
             if (!res.ok) {
                 const err = await res.json();
-                setError(err.error || 'خطا در ورود');
+                setError(err.desc || err.error || 'خطا در ورود');
                 setShowLoader(false)
                 return;
             }
 
+            // todo: success alert
+            console.log('login success',res)
             router.push('/');
         } catch (err) {
             console.log(err)
@@ -76,29 +87,42 @@ export default function SignInForm() {
                         <form>
                             <div className="space-y-6">
                                 <div>
-                                    <Label>
+                                    <Label htmlFor="agentPhone">
                                         شماره همراه نماینده
                                     </Label>
                                     <Input
-                                        id="phone"
+                                        id="agentPhone"
                                         type="tel"
+                                        error={error && !agentMobile}
+                                        hint={error && !agentMobile ? error : ''}
                                         value={agentMobile}
                                         onChange={(e) => setAgentMobile(e.target.value)}
                                     />
                                 </div>
                                 <div>
-                                    <Label>
-                                        رمز عبور نماینده
-                                    </Label>
+                                    <div className="flex justify-between">
+                                        <Label htmlFor="agentPass">
+                                            رمز عبور نماینده
+                                        </Label>
+                                        <Link
+                                            href="/reset-password"
+                                            className="text-sm text-brand-500 hover:text-brand-600 dark:text-brand-400"
+                                        >
+                                            فراموشی رمز عبور؟
+                                        </Link>
+                                    </div>
                                     <div className="relative">
                                         <Input
+                                            error={error && !agentPass}
+                                            hint={error && !agentPass ? error : ''}
+                                            id="agentPass"
                                             type={showPassword ? "text" : "password"}
                                             value={agentPass}
                                             onChange={(e) => setAgentPass(e.target.value)}
                                         />
                                         <span
                                             onClick={() => setShowPassword(!showPassword)}
-                                            className="absolute z-30 -translate-y-1/2 cursor-pointer left-4 top-1/2"
+                                            className="absolute z-30 cursor-pointer left-4 top-3"
                                         >
                                           {showPassword ? (
                                               <EyeIcon className="fill-gray-500 dark:fill-gray-400"/>
@@ -108,33 +132,30 @@ export default function SignInForm() {
                                         </span>
                                     </div>
                                 </div>
+
                                 <div>
-                                    <Label>
+                                    <Label htmlFor="employeeMobile">
                                         شماره همراه کارمند
                                     </Label>
                                     <Input
+                                        error={error && !employeeMobile}
+                                        hint={error && !employeeMobile ? error : ''}
+                                        id="employeeMobile"
                                         type="tel"
                                         value={employeeMobile}
                                         onChange={(e) => setEmployeeMobile(e.target.value)}
                                     />
                                 </div>
-                                <div className="flex items-center justify-between">
-                                    {/*<div className="flex items-center gap-3">*/}
-                                    {/*    <Checkbox checked={isChecked} onChange={setIsChecked}/>*/}
-                                    {/*    <span*/}
-                                    {/*        className="block font-normal text-gray-700 text-theme-sm dark:text-gray-400">*/}
-                                    {/*      Keep me logged in*/}
-                                    {/*    </span>*/}
-                                    {/*</div>*/}
-                                    <Link
-                                        href="/reset-password"
-                                        className="text-sm text-brand-500 hover:text-brand-600 dark:text-brand-400"
-                                    >
-                                        فراموشی رمز عبور؟
-                                    </Link>
-                                </div>
+
+                                {error && employeeMobile && agentMobile && agentPass && <Alert
+                                    variant="error"
+                                    title="خطا"
+                                    message={error}
+                                />}
+
                                 <div>
-                                    <Button className="w-full" size="sm" onSubmit={handleLogin} loading={showLoader} disabled={showLoader}>
+                                    <Button className="w-full" size="sm" onClick={handleLogin} loading={showLoader}
+                                            disabled={showLoader}>
                                         ورود
                                     </Button>
                                 </div>

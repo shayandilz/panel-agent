@@ -16,6 +16,7 @@ import {
   PlugInIcon,
   TableIcon,
   UserCircleIcon,
+  LockIcon,
 } from "@/icons/index";
 // import SidebarWidget from "./SidebarWidget";
 
@@ -43,9 +44,16 @@ const navItems: NavItem[] = [
     path: "/profile",
   },
   {
-    icon: <UserCircleIcon />,
-    name: "اطلاعات",
-    path: "/basic-tables",
+    icon: <LockIcon />,
+    name: "تغییر رمز",
+    path: "/change-password",
+  },
+  {
+    name: "درخواست های نماینده",
+    icon: <TableIcon />,
+    subItems: [
+        { name: "همه درخواست ها", path: "/requests/all", pro: false }
+    ],
   },
 
   {
@@ -53,11 +61,6 @@ const navItems: NavItem[] = [
     icon: <ListIcon />,
     subItems: [{ name: "Form Elements", path: "/form-elements", pro: false }],
   },
-  // {
-  //   name: "Tables",
-  //   icon: <TableIcon />,
-  //   subItems: [{ name: "Basic Tables", path: "/basic-tables", pro: false }],
-  // },
   // {
   //   name: "Pages",
   //   icon: <PageIcon />,
@@ -137,7 +140,7 @@ const AppSidebar: React.FC = () => {
               )}
               {(isExpanded || isHovered || isMobileOpen) && (
                 <ChevronDownIcon
-                  className={`ml-auto w-5 h-5 transition-transform duration-200  ${
+                  className={`mr-auto w-5 h-5 transition-transform duration-200  ${
                     openSubmenu?.type === menuType &&
                     openSubmenu?.index === index
                       ? "rotate-180 text-brand-500"
@@ -295,7 +298,7 @@ const AppSidebar: React.FC = () => {
 
   return (
     <aside
-      className={`fixed mt-16 flex flex-col lg:mt-0 top-0 px-5 right-0 bg-white dark:bg-gray-900 dark:border-gray-800 text-gray-900 h-screen transition-all duration-300 ease-in-out z-50 border-l border-gray-200 
+      className={`fixed mt-16 flex flex-col lg:mt-0 top-0 px-5 start-0 bg-white dark:bg-gray-900 dark:border-gray-800 text-gray-900 h-screen transition-all duration-300 ease-in-out z-50 border-l border-gray-200 
         ${
           isExpanded || isMobileOpen
             ? "w-[290px]"
@@ -303,7 +306,7 @@ const AppSidebar: React.FC = () => {
             ? "w-[290px]"
             : "w-[90px]"
         }
-        ${isMobileOpen ? "translate-x-0" : "-translate-x-full"}
+        ${isMobileOpen ? "translate-x-0" : "translate-x-full"}
         lg:translate-x-0`}
       onMouseEnter={() => !isExpanded && setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
@@ -343,7 +346,9 @@ const AppSidebar: React.FC = () => {
       </div>
       <div className="flex flex-col overflow-y-auto duration-300 ease-linear no-scrollbar">
         <nav className="mb-6">
-          <div className="flex flex-col gap-4">
+          <div className={`flex flex-col gap-4 ${
+          !isExpanded && !isHovered ? " items-center" : ""
+        }`}>
             <div>
               <h2
                 className={`mb-4 text-xs uppercase flex leading-[20px] text-gray-400 ${
@@ -353,7 +358,7 @@ const AppSidebar: React.FC = () => {
                 }`}
               >
                 {isExpanded || isHovered || isMobileOpen ? (
-                  "Menu"
+                  "منو"
                 ) : (
                   <HorizontaLDots />
                 )}
@@ -370,7 +375,7 @@ const AppSidebar: React.FC = () => {
                 }`}
               >
                 {isExpanded || isHovered || isMobileOpen ? (
-                  "Others"
+                  "بقیه"
                 ) : (
                   <HorizontaLDots />
                 )}

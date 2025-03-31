@@ -1,34 +1,34 @@
-import { NextRequest, NextResponse } from 'next/server';
+import {NextRequest, NextResponse} from 'next/server';
 
 export async function POST(req: NextRequest) {
-    const { agent_mobile, agent_pass, employee_mobile } = await req.json();
-    console.log('test', agent_mobile, agent_pass, employee_mobile)
+    const {agent_mobile, agent_pass, employee_mobile} = await req.json();
 
-    const url = `https://api.rahnamayefarda.ir/api/agentlogin?command=login_agent&agent_mobile=${agent_mobile}&agent_pass=${agent_pass}&employee_mobile=${employee_mobile}&agent_token_app_version=1.1.1&agent_token_mode=app&agent_token_device_name=sumsong&agent_token_device_version=4.2.2&agent_token_ip=192.168.1.1`;
-    const res = await fetch(url, {
-        method: 'POST',
-        redirect: 'follow',
-    });
-
-    const data = await res.json();
-
-    if (data.result === 'ok') {
-        const response = NextResponse.json(data);
-
-        response.cookies.set('agent_token', data.data.agent_token_str, {
-            path: '/',
-            httpOnly: true,
-            maxAge: 60 * 60 * 24 * 7,
+    try {
+        const url = `https://api.rahnamayefarda.ir/api/agentlogin?command=login_agent&agent_mobile=${agent_mobile}&agent_pass=${agent_pass}&employee_mobile=${employee_mobile}`;
+        const res = await fetch(url, {
+            method: 'POST',
+            redirect: 'follow',
         });
 
-        response.cookies.set('agent_name', data.data.agent_name, { path: '/' });
-        response.cookies.set('agent_family', data.data.agent_family, { path: '/' });
-        response.cookies.set('agent_mobile', data.data.agent_mobile, { path: '/' });
-        response.cookies.set('employee_name', data.data.employee_name, { path: '/' });
-        response.cookies.set('employee_family', data.data.employee_family, { path: '/' });
+        const data = await res.json();
 
-        return response;
-    } else {
-        return NextResponse.json({ error: data.desc }, { status: 401 });
+        console.log('login response', data)
+        if (data.result === 'ok') {
+            const response = NextResponse.json(data);
+
+            response.cookies.set('server_agent_token', data.data.agent_token_str);
+            response.cookies.set('agent_data', JSON.stringify(data.data));
+            response.cookies.set('agent_id', data.data.agent_id);
+
+            return response;
+        } else {
+            return NextResponse.json({error: data.desc}, {status: 401});
+        }
+    } catch (err) {
+        console.error('Logout API Error:', err);
+        return NextResponse.json(
+            {error: 'خطا در ارتباط با سرور'},
+            {status: 500}
+        );
     }
 }
