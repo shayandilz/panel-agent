@@ -9,6 +9,7 @@ import Link from "next/link";
 import React, {useState} from "react";
 import {useRouter} from "next/navigation";
 import Alert from "@/components/ui/alert/Alert";
+import {toast} from "react-toastify";
 
 export default function SignInForm() {
     const router = useRouter();
@@ -26,6 +27,7 @@ export default function SignInForm() {
             !agentPass ||
             !employeeMobile) {
             setError('فیلد اجباری است');
+            toast.error( 'تمامی فیلد ها اجباری است');
             return
         }
 
@@ -45,19 +47,18 @@ export default function SignInForm() {
                 }),
             });
 
-            if (!res.ok) {
-                const err = await res.json();
-                setError(err.desc || err.error || 'خطا در ورود');
-                setShowLoader(false)
+            const data = await res.json();
+            if (data.result != 'ok') {
+                toast.error(data.desc || 'مشکلی پیش آمد. دوباره تلاش کنید.');
                 return;
             }
 
-            // todo: success alert
-            console.log('login success',res)
+            toast.success(data.desc || 'با موفقیت وارد شدید');
             router.push('/');
         } catch (err) {
             console.log(err)
-            setError('مشکلی پیش آمد. دوباره تلاش کنید.');
+            toast.error(err || 'مشکلی پیش آمد. دوباره تلاش کنید.');
+        } finally {
             setShowLoader(false)
         }
     };
@@ -147,11 +148,11 @@ export default function SignInForm() {
                                     />
                                 </div>
 
-                                {error && employeeMobile && agentMobile && agentPass && <Alert
-                                    variant="error"
-                                    title="خطا"
-                                    message={error}
-                                />}
+                                {/*{error && employeeMobile && agentMobile && agentPass && <Alert*/}
+                                {/*    variant="error"*/}
+                                {/*    title="خطا"*/}
+                                {/*    message={error}*/}
+                                {/*/>}*/}
 
                                 <div>
                                     <Button className="w-full" size="sm" onClick={handleLogin} loading={showLoader}

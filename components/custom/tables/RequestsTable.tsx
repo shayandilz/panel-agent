@@ -7,11 +7,13 @@ import {
     TableCell,
     TableHeader,
     TableRow,
-} from "../ui/table";
+} from "../../ui/table";
 
-import Badge from "../ui/badge/Badge";
+import Badge from "../../ui/badge/Badge";
 import Image from "next/image";
 import {useAgent} from "@/context/AgentContext";
+import services from "@/core/service";
+import {toast} from "react-toastify";
 
 interface RequestData {
     request_id: string;
@@ -42,27 +44,22 @@ export default function RequestsTable() {
         const fetchRequestsData = async () => {
             setIsLoading(true);
             try {
-                const res = await fetch('https://api.rahnamayefarda.ir/api/agentrequestreport?command=getagent_request', {
-                    method: 'POST',
-                    headers: {
-                        'Authorization': tokenData,
-                    },
-                });
+                const res = await services.Requests.getReport('?command=getagent_request')
+                if (res) {
+                    let data = res.data
 
-                const data = await res.json();
-                if (data.result != 'ok') {
-                    console.error(data.desc)
-                    setError(data.desc);
-                    return;
-                }
+                    console.log('getagent_request', data)
+                    if (data.result != 'ok') {
+                        toast.error(data.desc);
+                        return;
+                    }
 
-                // todo: success alert
-                if(data.data != '') setRequestData(data.data)
-                else setRequestData([])
-                setError(null); // Clear any previous errors
-                console.log(data.desc)
+                    // toast.success(data.desc);
+                    if (data.data != '') setRequestData(data.data)
+                    else setRequestData([])
+                } else toast.error('مشکلی پیش آمد. دوباره تلاش کنید.');
             } catch (err) {
-                setError(err || 'مشکلی پیش آمد. دوباره تلاش کنید.');
+                toast.error(err || 'مشکلی پیش آمد. دوباره تلاش کنید.');
             } finally {
                 setIsLoading(false);
             }
