@@ -12,6 +12,7 @@ import {
     LockIcon,
 } from "@/icons/index";
 import {UserCircleIcon} from "@/app2/icons";
+import {toast} from "react-toastify";
 
 export default function UserDropdown() {
     const router = useRouter();
@@ -42,21 +43,21 @@ export default function UserDropdown() {
     }
 
     async function signOut() {
+        closeDropdown()
         try {
             const res = await fetch('/api/logout', {
                 method: 'POST',
                 credentials: 'include', // Required for cookies to be sent
             });
 
-            console.log(res)
-
-            if (!res.ok) {
-                const err = await res.json();
-                setError(err.error || 'خطا در خروج');
+            const data = await res.json();
+            if (data.result != 'ok') {
+                toast.error(data.error || 'مشکلی پیش آمد. دوباره تلاش کنید.');
                 return;
             }
 
             Cookies.remove('agent_data')
+            toast.success(data.desc || 'با موفقیت خارج شدید');
             router.push('/signin');
         } catch (err) {
             console.log(err)

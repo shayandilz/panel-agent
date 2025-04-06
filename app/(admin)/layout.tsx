@@ -6,6 +6,9 @@ import AppSidebar from "@/layout/AppSidebar";
 import Backdrop from "@/layout/Backdrop";
 import React, {useEffect} from "react";
 import {useAgent} from "@/context/AgentContext";
+import {toast} from "react-toastify";
+import services from "@/core/service";
+import Cookies from "js-cookie";
 
 export default function AdminLayout({
                                         children,
@@ -18,17 +21,18 @@ export default function AdminLayout({
     useEffect(() => {
         const fetchAgentData = async () => {
             try {
-                const res = await fetch(`/api/user`, {
-                    method: 'POST',
-                });
-                if (!res.ok) {
+                const agentId = Cookies.get('agent_id');
+                const res = await services.General.agentData(agentId);
+                const data = res.data
+                console.log(data)
+                if (data.result != 'ok') {
                     throw new Error('خطا در دریافت اطلاعات کاربر');
                 }
-                const data = await res.json();
                 setAgentData(data.data);
                 setTokenData(data.token);
             } catch (err) {
-                console.log(err.message);
+                console.error('catch',err.message);
+                toast.error(err.message);
             }
         };
 
@@ -53,7 +57,7 @@ export default function AdminLayout({
                 {/* Header */}
                 <AppHeader/>
                 {/* Page Content */}
-                <div className="p-4 mx-auto max-w-(--breakpoint-2xl) md:p-6">{children}</div>
+                <div className="py-4 mx-auto md:p-6">{children}</div>
             </div>
             <AppSidebar/>
         </div>
