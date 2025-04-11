@@ -7,9 +7,9 @@ import {
     TableCell,
     TableHeader,
     TableRow,
-} from "../../ui/table";
-
-import Badge from "../../ui/badge/Badge";
+} from "@/components/ui/table";
+import Link from "next/link";
+import Badge from "@/components/ui/badge/Badge";
 import Image from "next/image";
 import {useAgent} from "@/context/AgentContext";
 import services from "@/core/service";
@@ -39,6 +39,10 @@ export default function RequestsTable() {
     const [requestData, setRequestData] = useState<RequestData[]>([]);
     const [error, setError] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState(true);
+
+    const OpenRequestDetail = async () => {
+        window.location.href = ''
+    }
 
     useEffect(() => {
         const fetchRequestsData = async () => {
@@ -113,32 +117,38 @@ export default function RequestsTable() {
                                             تاریخ درخواست
                                         </TableCell>
 
+                                        <TableCell
+                                            isHeader
+                                            className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
+                                        >
+                                       </TableCell>
+
                                     </TableRow>
                                 </TableHeader>
 
                                 {/* Table Body */}
                                 <TableBody className="divide-y divide-gray-100 dark:divide-white/[0.05]">
-                                    {requestData?.map((test) => (
+                                    {requestData?.map((request) => (
 
-                                        <TableRow key={test.request_id}>
+                                        <TableRow key={request.request_id}>
                                             {/* User Name */}
                                             <TableCell className="px-5 py-4 sm:px-6 text-start">
-                                          <span
-                                              className="block font-medium text-gray-800 text-theme-sm dark:text-white/90">
-                                            {test.user_name} {test.user_family}
-                                          </span>
+                                                  <span
+                                                      className="block font-medium text-gray-800 text-theme-sm dark:text-white/90">
+                                                    {request.user_name} {request.user_family}
+                                                  </span>
                                             </TableCell>
 
                                             {/* User Mobile */}
                                             <TableCell
                                                 className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">
-                                                {test.user_mobile}
+                                                {request.user_mobile}
                                             </TableCell>
 
                                             {/* Insurance Name */}
                                             <TableCell
                                                 className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">
-                                                {test.request_fieldinsurance_fa}
+                                                {request.request_fieldinsurance_fa}
                                             </TableCell>
 
                                             {/* Insurance Logo */}
@@ -148,8 +158,8 @@ export default function RequestsTable() {
                                                     <Image
                                                         width={40}
                                                         height={40}
-                                                        src={test.fieldinsurance_logo_url}
-                                                        alt={test.request_fieldinsurance_fa}
+                                                        src={request.fieldinsurance_logo_url}
+                                                        alt={request.request_fieldinsurance_fa}
 
                                                     />
                                                 </div>
@@ -158,7 +168,14 @@ export default function RequestsTable() {
                                             {/* Request Date */}
                                             <TableCell
                                                 className="px-4 py-3 text-gray-500 text-theme-sm dark:text-gray-400">
-                                                {test.staterequest_last_timestamp}
+                                                {request.staterequest_last_timestamp}
+                                            </TableCell>
+
+                                            {/* Request Detail */}
+                                            <TableCell
+                                                className="px-4 py-3 text-gray-500 text-theme-sm dark:text-gray-400">
+                                                <Link className="block px-4 py-2 mt-3 text-sm font-medium text-center text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-gray-700"
+                                                      href={'/requests/' + request.request_id}>انتخاب</Link>
                                             </TableCell>
                                         </TableRow>
                                     ))}
