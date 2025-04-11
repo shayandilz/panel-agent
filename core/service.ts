@@ -138,6 +138,7 @@ const axiosRequests = {
 
 const General = {
     logout: () => axiosRequests.post(`${AppConstants.base_url_api}/agentlogin?command=logout`,{}),
+    getData: (params: string = '',data: any = {}) => axiosRequests.post(`${AppConstants.base_url_api}/agentlogin${params}`,data),
     agentData: (agentId: number) => axiosRequests.post(`${AppConstants.base_url_api}/agentlogin?command=getagent&agent_id=${agentId}`,{}),
     provinceList: () => axiosRequests.get(`${AppConstants.base_url_api}province-list`),
     cityList: (province_id: string) => axiosRequests.get(`${AppConstants.base_url_api}city-list/${province_id}`),
@@ -161,7 +162,7 @@ const User = {
 }
 
 const Agent = {
-    edit: (params: string = '',data: any) => axiosRequests.postForm(`${AppConstants.base_url_api}/agentlogin${params}`, data),
+    edit: (params: string = '',data: any = {}) => axiosRequests.postForm(`${AppConstants.base_url_api}/agentlogin${params}`, data),
     create: (data: any) => axiosRequests.post(`${AppConstants.base_url_api}brag/create/`, data),
     upload: (data: any) => axiosRequests.post(`${AppConstants.base_url_api}brag-upload/`, data),
     uploadList: (data: any) => axiosRequests.post(`${AppConstants.base_url_api}brag-upload-lists/`, data),

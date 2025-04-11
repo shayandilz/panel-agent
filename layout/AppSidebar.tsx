@@ -49,6 +49,11 @@ const navItems: NavItem[] = [
     path: "/change-password",
   },
   {
+    name: "سوابق وضعیت نماینده",
+    icon: <TableIcon />,
+    path: "/agent-status"
+  },
+  {
     name: "کارتابل درخواست ها",
     icon: <TableIcon />,
     path: "/requests/all"
