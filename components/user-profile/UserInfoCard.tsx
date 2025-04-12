@@ -3,6 +3,7 @@ import React from "react";
 import {useModal} from "../../hooks/useModal";
 import {Modal} from "../ui/modal";
 import Button from "../ui/button/Button";
+import Link from "next/link";
 import Input from "../form/input/InputField";
 import TextArea from "../form/input/TextArea";
 import Label from "../form/Label";
@@ -12,6 +13,7 @@ import {useAgent} from "@/context/AgentContext";
 import {as} from "@fullcalendar/core/internal-common";
 import {toast} from "react-toastify";
 import services from "@/core/service"
+import {LockIcon} from "@/icons";
 
 export default function UserInfoCard() {
     const {isOpen, openModal, closeModal} = useModal();
@@ -62,7 +64,7 @@ export default function UserInfoCard() {
             <div className="p-5 border border-gray-200 rounded-2xl dark:border-gray-800 lg:p-6">
                 <div className="flex mb-8 flex-col gap-5 xl:flex-row xl:items-center xl:justify-between">
                     <div className="flex flex-col items-center w-full gap-6 xl:flex-row">
-                        <div className="h-20 overflow-hidden">
+                        <div className="h-20 overflow-hidden bg-white">
                             <img
                                 className="h-full"
                                 height="100%"
@@ -91,9 +93,8 @@ export default function UserInfoCard() {
                             </div>
                         </div>
                     </div>
-                    <button
+                    <Button className="text-nowrap" variant="primary"
                         onClick={openModal}
-                        className="flex w-full items-center justify-center gap-2 rounded-full border border-gray-300 bg-white px-4 py-3  font-medium text-gray-700 shadow-theme-xs hover:bg-gray-50 hover:text-gray-800 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] dark:hover:text-gray-200 lg:inline-flex lg:w-auto"
                     >
                         <svg
                             className="fill-current"
@@ -110,8 +111,14 @@ export default function UserInfoCard() {
                                 fill=""
                             />
                         </svg>
-                        ویرایش
-                    </button>
+                        ویرایش پروفایل
+                    </Button>
+                    <Button className="text-nowrap" variant="outline"
+                        onClick={()=>location.href = "/change-password"}
+                    >
+                        <LockIcon/>
+                        تغییر پسورد
+                    </Button>
                 </div>
 
                 <div>
@@ -237,23 +244,23 @@ export default function UserInfoCard() {
                                     <div className="grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
                                         <div className="col-span-2 lg:col-span-1">
                                             <Label>تلفن ضروری</Label>
-                                            <Input type="tel" defaultValue={newAgentData?.agent_required_phone}/>
+                                            <Input type="tel" defaultValue={newAgentData?.agent_required_phone} onChange={(e) => newAgentData.agent_required_phone = e.target.value}/>
                                         </div>
                                         <div className="col-span-2 lg:col-span-1">
                                             <Label>تلفن</Label>
-                                            <Input type="tel" defaultValue={newAgentData?.agent_tell}/>
+                                            <Input type="tel" defaultValue={newAgentData?.agent_tell} onChange={(e) => newAgentData.agent_tell = e.target.value}/>
                                         </div>
                                         <div className="col-span-2 lg:col-span-1">
                                             <Label>ایمیل</Label>
-                                            <Input type="email" defaultValue={newAgentData?.agent_email}/>
+                                            <Input type="email" defaultValue={newAgentData?.agent_email} onChange={(e) => newAgentData.agent_email = e.target.value}/>
                                         </div>
                                         <div className="col-span-2 lg:col-span-1">
                                             <Label>منطقه</Label>
-                                            <Input type="text" defaultValue={newAgentData?.agent_sector_name}/>
+                                            <Input type="text" defaultValue={newAgentData?.agent_sector_name} onChange={(e) => newAgentData.agent_sector_name = e.target.value}/>
                                         </div>
                                         <div className="col-span-2 lg:col-span-2">
                                             <Label>آدرس</Label>
-                                            <Input type="text" defaultValue={newAgentData?.agent_address}/>
+                                            <Input type="text" defaultValue={newAgentData?.agent_address} onChange={(e) => newAgentData.agent_address = e.target.value}/>
                                         </div>
                                     </div>
                                 </div>

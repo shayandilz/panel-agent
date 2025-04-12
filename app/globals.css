@@ -47,13 +47,13 @@ layer(base);
     --color-brand-100: #dde9ff;
     --color-brand-200: #c2d6ff;
     --color-brand-300: #9cb9ff;
-    --color-brand-400: #7592ff;
-    --color-brand-500: #465fff;
-    --color-brand-600: #3641f5;
-    --color-brand-700: #2a31d8;
-    --color-brand-800: #252dae;
-    --color-brand-900: #262e89;
-    --color-brand-950: #161950;
+    --color-brand-400: #3e7ee0;
+    --color-brand-500: #2569d0;
+    --color-brand-600: #1a53aa;
+    --color-brand-700:#13428a;
+    --color-brand-800:#0f3875;
+    --color-brand-900:#0c3067;
+    --color-brand-950:#072450;
 
     --color-blue-light-25: #f5fbff;
     --color-blue-light-50: #f0f9ff;
@@ -87,10 +87,10 @@ layer(base);
     --color-orange-100: #ffead5;
     --color-orange-200: #fddcab;
     --color-orange-300: #feb273;
-    --color-orange-400: #fd853a;
-    --color-orange-500: #fb6514;
-    --color-orange-600: #ec4a0a;
-    --color-orange-700: #c4320a;
+    --color-orange-400: #ffc863;
+    --color-orange-500: #ffb334;
+    --color-orange-600: #f7aa21;
+    --color-orange-700: #d57311;
     --color-orange-800: #9c2a10;
     --color-orange-900: #7e2410;
     --color-orange-950: #511c10;
@@ -171,6 +171,10 @@ layer(base);
     --z-index-999999: 999999;
     --toastify-z-index: 100000;
     --toastify-toast-top: 50px !important;
+}
+
+.Toastify * {
+    font-family: BYekan, Arial, Helvetica, sans-serif;
 }
 
 .Toastify__toast-container  {

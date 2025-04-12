@@ -6,6 +6,7 @@ import Label from "@/components/form/Label";
 import Button from "@/components/ui/button/Button";
 import {ChevronLeftIcon, EyeCloseIcon, EyeIcon} from "@/icons";
 import Link from "next/link";
+import Image from "next/image";
 import React, {useState} from "react";
 import {useRouter} from "next/navigation";
 import Alert from "@/components/ui/alert/Alert";
@@ -77,6 +78,13 @@ export default function SignInForm() {
             <div className="flex flex-col justify-center flex-1 w-full max-w-md mx-auto">
                 <div>
                     <div className="mb-5 sm:mb-8">
+
+                        <Image
+                            width={154}
+                            height={32}
+                            src="/images/logo/logo.png"
+                            alt="Logo"
+                        />
                         <h1 className="mb-2 font-semibold text-gray-800 text-title-sm dark:text-white/90 sm:text-title-md">
                             خوش آمدید :)
                         </h1>

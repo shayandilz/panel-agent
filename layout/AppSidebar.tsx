@@ -43,11 +43,11 @@ const navItems: NavItem[] = [
     name: "پروفایل کاربر",
     path: "/profile",
   },
-  {
-    icon: <LockIcon />,
-    name: "تغییر رمز",
-    path: "/change-password",
-  },
+  // {
+  //   icon: <LockIcon />,
+  //   name: "تغییر رمز",
+  //   path: "/change-password",
+  // },
   {
     name: "سوابق وضعیت نماینده",
     icon: <TableIcon />,
@@ -336,25 +336,32 @@ const AppSidebar: React.FC = () => {
       >
         <Link href="/">
           {isExpanded || isHovered || isMobileOpen ? (
-            <>
+            <div className="inline-flex items-center">
+              <Image
+                  className="me-4"
+                  src="/images/logo/logo-icon.png"
+                  alt="Logo"
+                  width={40}
+                  height={40}
+              />
               <Image
                 className="dark:hidden"
-                src="/images/logo/logo.svg"
+                src="/images/logo/logo.png"
                 alt="Logo"
                 width={150}
                 height={40}
               />
               <Image
                 className="hidden dark:block"
-                src="/images/logo/logo-dark.svg"
+                src="/images/logo/logo.png"
                 alt="Logo"
                 width={150}
                 height={40}
               />
-            </>
+            </div>
           ) : (
             <Image
-              src="/images/logo/logo-icon.svg"
+              src="/images/logo/logo-icon.png"
               alt="Logo"
               width={32}
               height={32}
