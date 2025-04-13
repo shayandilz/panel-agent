@@ -116,7 +116,7 @@ export function parsePersianDate(dateString: any) {
 }
 
 export function calculateTimestamp(timestamp: any) {
-    return timestamp ? new Date(Number(timestamp) * 1000).toLocaleDateString('fa-IR') : 'نا مشخص'
+    return timestamp ? new Date(timestamp).toLocaleDateString('fa-IR') : 'نا مشخص'
 }
 
 export const planTypeList = [
