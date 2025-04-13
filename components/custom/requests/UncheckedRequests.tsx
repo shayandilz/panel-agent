@@ -1,7 +1,7 @@
 "use client";
 
 import React, {useState, useEffect} from "react";
-import {Table, TableBody, TableCell, TableHeader, TableRow} from "@/components/ui/table";
+import {Table, TableBody, TableCell, TableHeader, TableRow} from "@/components/custom/tables";
 import Image from "next/image";
 import services from "@/core/service";
 import {toast} from "react-toastify";
@@ -104,7 +104,7 @@ export default function UncheckedRequests() {
                                     <TableCell>{request.request_ready[0]['requst_ready_end_price']}</TableCell>
                                     <TableCell>{request.user_pey_amount}</TableCell>
                                     <TableCell>{request.user_pey_amount}</TableCell>
-                                    <TableCell>{request.request_ready[0]['requst_ready_start_date']}</TableCell>
+                                    <TableCell>{request.request_ready[0]['requst_ready_start_date'].toLocaleDateString('fa-IR') || '-'}</TableCell>
 
                                 </TableRow>
                             )))

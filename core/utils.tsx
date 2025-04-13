@@ -1,18 +1,18 @@
-import {
-    BillCheck2,
-    CardTransfer,
-    Folder,
-    LetterUnread,
-    Messagequestion,
-    OfferFolder,
-    Peyment,
-    StatusUp,
-    Wiki,
-    Inquery1,
-    Inquery2,
-    Inquery3
-} from "../assets";
-import routes from "./routes";
+// import {
+//     BillCheck2,
+//     CardTransfer,
+//     Folder,
+//     LetterUnread,
+//     Messagequestion,
+//     OfferFolder,
+//     Peyment,
+//     StatusUp,
+//     Wiki,
+//     Inquery1,
+//     Inquery2,
+//     Inquery3
+// } from "../assets";
+// import routes from "./routes";
 import {DateObject} from 'react-multi-date-picker';
 import persian from "react-date-object/calendars/persian"
 
@@ -30,18 +30,18 @@ export function getPersianDate() {
     return today;
 }
 
-export function policyIcon(name: any) {
-    switch (name) {
-        case "universal" :
-            return Inquery1;
-        case "UniversalFound" :
-            return Inquery2;
-        case "UniversalHousing" :
-            return Inquery3;
-        default:
-            return Inquery1;
-    }
-}
+// export function policyIcon(name: any) {
+//     switch (name) {
+//         case "universal" :
+//             return Inquery1;
+//         case "UniversalFound" :
+//             return Inquery2;
+//         case "UniversalHousing" :
+//             return Inquery3;
+//         default:
+//             return Inquery1;
+//     }
+// }
 
 export const menuItems = [
     // {name: "س  ", path :`${routes.DASHBOARD}`, type:'shallow' , icon:<Dashboard/> },
@@ -56,17 +56,17 @@ export const menuItems = [
 
     //             ]
     //         },
-    {name: ' استعلام حق بیمه  ', path: `${routes.INSURANCERATE}`, type: 'shallow', icon: <StatusUp/>},
-
-    {name: "بیمه نامه  ", path: `${routes.INSURANCEPOLICY}`, type: 'shallow', icon: <Folder/>},
-    {name: "پیشنهاد بیمه نامه  ", path: `${routes.OFFERSLIST}`, type: 'shallow', icon: <OfferFolder/>},
-    {name: "اقساط سررسیده شده", path: `${routes.INSTALLMENT}`, type: 'shallow', icon: <CardTransfer/>},
-    {name: "تراکنش ها  ", path: `${routes.TRANSACTIONS}`, type: 'shallow', icon: <Peyment/>},
-    {name: "کارمزد", path: `${routes.COMMISSION}`, type: 'shallow', icon: <BillCheck2/>},
-    {name: " مشاوره ها ", path: `${routes.CONSULTATION}`, type: 'shallow', icon: <LetterUnread/>},
+    // {name: ' استعلام حق بیمه  ', path: `${routes.INSURANCERATE}`, type: 'shallow', icon: <StatusUp/>},
+    //
+    // {name: "بیمه نامه  ", path: `${routes.INSURANCEPOLICY}`, type: 'shallow', icon: <Folder/>},
+    // {name: "پیشنهاد بیمه نامه  ", path: `${routes.OFFERSLIST}`, type: 'shallow', icon: <OfferFolder/>},
+    // {name: "اقساط سررسیده شده", path: `${routes.INSTALLMENT}`, type: 'shallow', icon: <CardTransfer/>},
+    // {name: "تراکنش ها  ", path: `${routes.TRANSACTIONS}`, type: 'shallow', icon: <Peyment/>},
+    // {name: "کارمزد", path: `${routes.COMMISSION}`, type: 'shallow', icon: <BillCheck2/>},
+    // {name: " مشاوره ها ", path: `${routes.CONSULTATION}`, type: 'shallow', icon: <LetterUnread/>},
     // {name: " سامانه تیکت ", path :`${routes.Ticketing}`, type:'shallow', icon:<Messagequestion/>},
-    {name: "آموزش", path: `${routes.TOTURIAL}`, type: 'shallow', icon: <Wiki/>},
-    {name: "سوالات متداول", path: `${routes.FAQ}`, type: 'shallow', icon: <Messagequestion/>},
+    // {name: "آموزش", path: `${routes.TOTURIAL}`, type: 'shallow', icon: <Wiki/>},
+    // {name: "سوالات متداول", path: `${routes.FAQ}`, type: 'shallow', icon: <Messagequestion/>},
     // {name: "تنظیمات", path :'/consultation-request', type:'shallow',icon:<Settings/>},
 
 ]
@@ -113,6 +113,10 @@ export function parsePersianDate(dateString: any) {
         });
 
     }
+}
+
+export function calculateTimestamp(timestamp: any) {
+    return timestamp ? new Date(timestamp).toLocaleDateString('fa-IR') : 'نا مشخص'
 }
 
 export const planTypeList = [

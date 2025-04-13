@@ -17,6 +17,7 @@ import {
   TableIcon,
   UserCircleIcon,
   LockIcon,
+  InfoIcon, FileIcon, TimeIcon, DollarLineIcon,
 } from "@/icons/index";
 // import SidebarWidget from "./SidebarWidget";
 
@@ -38,34 +39,34 @@ const navItems: NavItem[] = [
   //   name: "Calendar",
   //   path: "/calendar",
   // },
-  {
-    icon: <UserCircleIcon />,
-    name: "پروفایل کاربر",
-    path: "/profile",
-  },
-  {
-    icon: <LockIcon />,
-    name: "تغییر رمز",
-    path: "/change-password",
-  },
+  // {
+  //   icon: <UserCircleIcon />,
+  //   name: "پروفایل کاربر",
+  //   path: "/profile",
+  // },
+  // {
+  //   icon: <LockIcon />,
+  //   name: "تغییر رمز",
+  //   path: "/change-password",
+  // },
   {
     name: "سوابق وضعیت نماینده",
-    icon: <TableIcon />,
+    icon: <InfoIcon />,
     path: "/agent-status"
   },
   {
     name: "کارتابل درخواست ها",
-    icon: <TableIcon />,
+    icon: <PageIcon />,
     path: "/requests/all"
   },
   {
     name: "سوابق مالی درخواست ها",
-    icon: <TableIcon />,
+    icon: <DollarLineIcon />,
     path: "/records/financial-requests"
   },
   {
     name: "سوابق مالی اسناد مالی",
-    icon: <TableIcon />,
+    icon: <FileIcon />,
     path: "/records/financial-documents"
   },
     // subItems: [
@@ -336,25 +337,32 @@ const AppSidebar: React.FC = () => {
       >
         <Link href="/">
           {isExpanded || isHovered || isMobileOpen ? (
-            <>
+            <div className="inline-flex items-center">
+              <Image
+                  className="me-4"
+                  src="/images/logo/logo-icon.png"
+                  alt="Logo"
+                  width={40}
+                  height={40}
+              />
               <Image
                 className="dark:hidden"
-                src="/images/logo/logo.svg"
+                src="/images/logo/logo.png"
                 alt="Logo"
                 width={150}
                 height={40}
               />
               <Image
                 className="hidden dark:block"
-                src="/images/logo/logo-dark.svg"
+                src="/images/logo/logo.png"
                 alt="Logo"
                 width={150}
                 height={40}
               />
-            </>
+            </div>
           ) : (
             <Image
-              src="/images/logo/logo-icon.svg"
+              src="/images/logo/logo-icon.png"
               alt="Logo"
               width={32}
               height={32}
@@ -384,22 +392,22 @@ const AppSidebar: React.FC = () => {
               {renderMenuItems(navItems, "main")}
             </div>
 
-            {/*<div className="">*/}
-            {/*  <h2*/}
-            {/*    className={`mb-4 text-xs uppercase flex leading-[20px] text-gray-400 ${*/}
-            {/*      !isExpanded && !isHovered*/}
-            {/*        ? "lg:justify-center"*/}
-            {/*        : "justify-start"*/}
-            {/*    }`}*/}
-            {/*  >*/}
-            {/*    {isExpanded || isHovered || isMobileOpen ? (*/}
-            {/*      "بقیه"*/}
-            {/*    ) : (*/}
-            {/*      <HorizontaLDots />*/}
-            {/*    )}*/}
-            {/*  </h2>*/}
-            {/*  /!*{renderMenuItems(othersItems, "others")}*!/*/}
-            {/*</div>*/}
+            <div className="">
+              <h2
+                className={`mb-4 text-xs uppercase flex leading-[20px] text-gray-400 ${
+                  !isExpanded && !isHovered
+                    ? "lg:justify-center"
+                    : "justify-start"
+                }`}
+              >
+                {isExpanded || isHovered || isMobileOpen ? (
+                  "بقیه"
+                ) : (
+                  <HorizontaLDots />
+                )}
+              </h2>
+              {renderMenuItems(othersItems, "others")}
+            </div>
           </div>
         </nav>
         {/*{isExpanded || isHovered || isMobileOpen ? <SidebarWidget /> : null}*/}

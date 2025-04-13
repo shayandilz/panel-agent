@@ -1,7 +1,7 @@
 "use client";
 import { ThemeToggleButton } from "@/components/common/ThemeToggleButton";
 import NotificationDropdown from "@/components/header/NotificationDropdown";
-import UserDropdown from "@/components/header/UserDropdown";
+import UserDropdown from "@/components/custom/user/UserDropdown";
 import { useSidebar } from "@/context/SidebarContext";
 import Image from "next/image";
 import Link from "next/link";
@@ -88,7 +88,7 @@ const AppHeader: React.FC = () => {
               width={154}
               height={32}
               className="dark:hidden"
-              src="/images/logo/logo.svg"
+              src="/images/logo/logo.png"
               alt="Logo"
               priority
             />

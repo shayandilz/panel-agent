@@ -5,7 +5,7 @@ import {
   TableCell,
   TableHeader,
   TableRow,
-} from "../ui/table";
+} from "@/components/custom/tables";
 
 import Badge from "../ui/badge/Badge";
 import Image from "next/image";

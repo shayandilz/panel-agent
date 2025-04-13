@@ -1,7 +1,7 @@
 "use client"
 
 import React, {useState, useEffect} from "react";
-import {Table, TableBody, TableCell, TableHeader, TableRow} from "../../ui/table";
+import {Table, TableBody, TableCell, TableHeader, TableRow} from "@/components/custom/tables";
 import services from "@/core/service";
 import {toast} from "react-toastify";
 import DocumentFilterComponent from "@/components/custom/filters/DocumentFilterComponent";

@@ -145,7 +145,9 @@ const General = {
 }
 
 const Requests = {
+    getState: (params: string = '') => axiosRequests.post(`${AppConstants.base_url_api}/statecity${params}`,{}),
     getReport: (params: string = '') => axiosRequests.post(`${AppConstants.base_url_api}/agentrequestreport${params}`,{}),
+    sendRequest: (params: string = '') => axiosRequests.post(`${AppConstants.base_url_api}/agentrequestreport${params}`,{}),
     getDoc: (command) => axiosRequests.post(`${AppConstants.base_url_api}/agentrequestreport?command=${command}`,{}),
     provinceList: () => axiosRequests.get(`${AppConstants.base_url_api}province-list`),
     cityList: (province_id: string) => axiosRequests.get(`${AppConstants.base_url_api}city-list/${province_id}`),

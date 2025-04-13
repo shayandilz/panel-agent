@@ -6,6 +6,7 @@ import Label from "@/components/form/Label";
 import Button from "@/components/ui/button/Button";
 import {ChevronLeftIcon, EyeCloseIcon, EyeIcon} from "@/icons";
 import Link from "next/link";
+import Image from "next/image";
 import React, {useState} from "react";
 import {useRouter} from "next/navigation";
 import Alert from "@/components/ui/alert/Alert";
@@ -49,6 +50,7 @@ export default function SignInForm() {
 
             const data = await res.json();
             if (data.result != 'ok') {
+                setShowLoader(false)
                 toast.error(data.desc || 'مشکلی پیش آمد. دوباره تلاش کنید.');
                 return;
             }
@@ -58,7 +60,6 @@ export default function SignInForm() {
         } catch (err) {
             console.log(err)
             toast.error(err || 'مشکلی پیش آمد. دوباره تلاش کنید.');
-        } finally {
             setShowLoader(false)
         }
     };
@@ -77,9 +78,18 @@ export default function SignInForm() {
             <div className="flex flex-col justify-center flex-1 w-full max-w-md mx-auto">
                 <div>
                     <div className="mb-5 sm:mb-8">
-                        <h1 className="mb-2 font-semibold text-gray-800 text-title-sm dark:text-white/90 sm:text-title-md">
-                            خوش آمدید :)
-                        </h1>
+
+                        <div className="mb-5 text-center">
+                            <Image
+                                width={300}
+                                height={50}
+                                src="/images/logo/logo.png"
+                                alt="Logo"
+                            />
+                        </div>
+                        {/*<h1 className="mb-2 mt-5 font-semibold text-gray-800 text-title-sm dark:text-white/90 sm:text-title-md">*/}
+                        {/*    خوش آمدید :)*/}
+                        {/*</h1>*/}
                         <p className="text-sm text-gray-500 dark:text-gray-400">
                             برای ورود، اطلاعات خود را وارد کنید
                         </p>
@@ -92,6 +102,7 @@ export default function SignInForm() {
                                         شماره همراه نماینده
                                     </Label>
                                     <Input
+                                        disabled={showLoader}
                                         id="agentPhone"
                                         type="tel"
                                         error={error && !agentMobile}
@@ -114,6 +125,7 @@ export default function SignInForm() {
                                     </div>
                                     <div className="relative">
                                         <Input
+                                            disabled={showLoader}
                                             error={error && !agentPass}
                                             hint={error && !agentPass ? error : ''}
                                             id="agentPass"
@@ -139,6 +151,7 @@ export default function SignInForm() {
                                         شماره همراه کارمند
                                     </Label>
                                     <Input
+                                        disabled={showLoader}
                                         error={error && !employeeMobile}
                                         hint={error && !employeeMobile ? error : ''}
                                         id="employeeMobile"
