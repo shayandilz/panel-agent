@@ -1,6 +1,6 @@
 "use client";
 
-import Image from "next/image";
+// import Image from "next/image";
 import Link from "next/link";
 import React, {useState, useEffect} from "react";
 import {Dropdown} from "@/components/ui/dropdown/Dropdown";
@@ -11,14 +11,16 @@ import Cookies from 'js-cookie';
 import {
     LockIcon,
 } from "@/icons/index";
-import {UserCircleIcon} from "@/app2/icons";
+import {UserCircleIcon} from "@/icons";
 import {toast} from "react-toastify";
+import Avatar from "@/components/custom/user/Avatar";
+import services from "@/core/service";
 
 export default function UserDropdown() {
     const router = useRouter();
     const [isOpen, setIsOpen] = useState(false);
     const [error, setError] = useState(false);
-    const {agentData, setAgentData} = useAgent();
+    const {agentData, setAgentData, agentStatus, setAgentStatus} = useAgent();
 
     useEffect(() => {
         const fetchUserData = () => {
@@ -27,6 +29,21 @@ export default function UserDropdown() {
             if (agentDataFromCookie) {
                 const parsedData = JSON.parse(agentDataFromCookie);
                 setAgentData(parsedData);
+            }
+            fetchUserStatus();
+        }
+        const fetchUserStatus = async () => {
+            try {
+                const response = await services.General.getData(`?command=get_status`);
+                if (response) {
+                    console.log('setAgentStatus')
+                    const data = response.data;
+                    if (data.result !== "ok") throw new Error(data.desc);
+                    let status = data?.data?.agent_status == '0' ? 'offline' : 'online'
+                    setAgentStatus(status)
+                } else setAgentStatus('none')
+            } catch (err) {
+                setAgentStatus('none')
             }
         }
 
@@ -71,14 +88,11 @@ export default function UserDropdown() {
             onClick={toggleDropdown}
             className="flex items-center text-gray-700 dark:text-gray-400 dropdown-toggle"
         >
-            <span className="mr-3 overflow-hidden rounded-full h-11 w-11">
-              <Image
-                  width={44}
-                  height={44}
-                  src="/images/user/owner.jpg"
-                  alt="User"
-              />
-            </span>
+            <Avatar
+                src="/images/user/user-01.jpg"
+                size="medium"
+                status={agentStatus}
+            />
 
             <span className="block mx-2 font-medium text-theme-sm">{agentData ? agentData.agent_name : ''}</span>
 

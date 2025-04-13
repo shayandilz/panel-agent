@@ -1,6 +1,6 @@
 "use client";
 import React from "react";
-import {useModal} from "@/components/hooks/useModal";
+import {useModal} from "@/hooks/useModal";
 import {Modal} from "@/components/ui/modal";
 import Button from "@/components/ui/button/Button";
 import Input from "@/components/form/input/InputField";
@@ -12,10 +12,12 @@ import {useAgent} from "@/context/AgentContext";
 import {as} from "@fullcalendar/core/internal-common";
 import {toast} from "react-toastify";
 import services from "@/core/service"
+import {InfoIcon, LockIcon} from "@/icons";
+import Badge from "@/components/ui/badge/Badge";
 
 export default function UserInfoCard() {
     const {isOpen, openModal, closeModal} = useModal();
-    const {agentData, setAgentData} = useAgent();
+    const {agentData, setAgentData, agentStatus} = useAgent();
     const [newAgentData, setNewAgentData] = useState({});
     const [error, setError] = useState(null);
     const [showLoader, setShowLoader] = useState(false)
@@ -37,6 +39,11 @@ export default function UserInfoCard() {
         closeModal();
     };
 
+    const calculateTimestamp = (timestamp) => {
+        // return timestamp
+        return (timestamp ? new Date(Number(timestamp) * 1000).toLocaleDateString('fa-IR') : 'نا مشخص').toString()
+    }
+
     const handleSave = async () => {
         setShowLoader(true)
 
@@ -51,9 +58,28 @@ export default function UserInfoCard() {
             toast.success(data.desc || 'با موفقیت انجام شد.');
             closeModal();
         } catch (err) {
-            toast.error(err|| 'مشکلی پیش آمد. دوباره تلاش کنید.');
+            toast.error(err || 'مشکلی پیش آمد. دوباره تلاش کنید.');
         } finally {
             setShowLoader(false)
+        }
+
+    };
+
+    const changeAgentStatus = async () => {
+        setShowLoader(true)
+
+        try {
+            const res = await services.Agent.edit('?command=change_status')
+            const data = res.data;
+            if (data.result != 'ok') {
+                toast.error(data.desc || 'مشکلی پیش آمد. دوباره تلاش کنید.');
+                return;
+            }
+
+            toast.success(data.desc || 'با موفقیت انجام شد.');
+            setTimeout(()=> window.location.reload(),2000)
+        } catch (err) {
+            toast.error(err || 'مشکلی پیش آمد. دوباره تلاش کنید.');
         }
 
     };
@@ -62,7 +88,7 @@ export default function UserInfoCard() {
             <div className="p-5 border border-gray-200 rounded-2xl dark:border-gray-800 lg:p-6">
                 <div className="flex mb-8 flex-col gap-5 xl:flex-row xl:items-center xl:justify-between">
                     <div className="flex flex-col items-center w-full gap-6 xl:flex-row">
-                        <div className="h-20 overflow-hidden">
+                        <div className="h-20 overflow-hidden bg-white">
                             <img
                                 className="h-full"
                                 height="100%"
@@ -73,7 +99,13 @@ export default function UserInfoCard() {
                         </div>
                         <div className="order-3 xl:order-2">
                             <h4 className="mb-2 text-lg font-semibold text-center text-gray-800 dark:text-white/90 xl:text-start">
-                                {agentData.agent_gender} {agentData.agent_name} {agentData.agent_family}
+                                <span className="me-3">{agentData.agent_gender} {agentData.agent_name} {agentData.agent_family}</span>
+                                {agentStatus == 'online' && (<Badge variant="solid" color="success">
+                                    فعال
+                                </Badge>)}
+                                {agentStatus == 'offline' && (<Badge variant="solid" color="light">
+                                    غیر فعال
+                                </Badge>)}
                             </h4>
                             <div
                                 className="flex flex-col items-center gap-1 text-center xl:flex-row xl:gap-3 xl:text-start">
@@ -91,9 +123,8 @@ export default function UserInfoCard() {
                             </div>
                         </div>
                     </div>
-                    <button
-                        onClick={openModal}
-                        className="flex w-full items-center justify-center gap-2 rounded-full border border-gray-300 bg-white px-4 py-3  font-medium text-gray-700 shadow-theme-xs hover:bg-gray-50 hover:text-gray-800 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] dark:hover:text-gray-200 lg:inline-flex lg:w-auto"
+                    <Button disabled={showLoader} className="text-nowrap" variant="primary"
+                            onClick={openModal}
                     >
                         <svg
                             className="fill-current"
@@ -110,114 +141,128 @@ export default function UserInfoCard() {
                                 fill=""
                             />
                         </svg>
-                        ویرایش
-                    </button>
+                        ویرایش پروفایل
+                    </Button>
+                    <Button disabled={showLoader} className="text-nowrap" variant="outline"
+                            onClick={() => location.href = "/change-password"}
+                    >
+                        <LockIcon/>
+                        تغییر رمز عبور
+                    </Button>
+                    <Button disabled={showLoader} className="text-nowrap" variant="outline"
+                            onClick={changeAgentStatus}
+                    >
+                        <InfoIcon/>
+                        تغییر وضعیت
+                    </Button>
                 </div>
 
-                <div>
-                    <div className="grid grid-cols-2 gap-4 lg:grid-cols-3 lg:gap-8 2xl:gap-x-32">
-                        {/*<div>*/}
-                        {/*    <p className="mb-2  leading-normal text-gray-500 dark:text-gray-400">*/}
-                        {/*        نام*/}
-                        {/*    </p>*/}
-                        {/*    <p className=" font-medium text-gray-800 dark:text-white/90">*/}
-                        {/*        {agentData.agent_name}*/}
-                        {/*    </p>*/}
-                        {/*</div>*/}
+                <div className="grid grid-cols-2 gap-4 lg:grid-cols-3 lg:gap-8 2xl:gap-x-32">
+                    {/*<div>*/}
+                    {/*    <p className="mb-2  leading-normal text-gray-500 dark:text-gray-400">*/}
+                    {/*        نام*/}
+                    {/*    </p>*/}
+                    {/*    <p className=" font-medium text-gray-800 dark:text-white/90">*/}
+                    {/*        {agentData.agent_name}*/}
+                    {/*    </p>*/}
+                    {/*</div>*/}
 
-                        {/*<div>*/}
-                        {/*    <p className="mb-2  leading-normal text-gray-500 dark:text-gray-400">*/}
-                        {/*        نام خانوادگی*/}
-                        {/*    </p>*/}
-                        {/*    <p className=" font-medium text-gray-800 dark:text-white/90">*/}
-                        {/*        {agentData.agent_family}*/}
-                        {/*    </p>*/}
-                        {/*</div>*/}
+                    {/*<div>*/}
+                    {/*    <p className="mb-2  leading-normal text-gray-500 dark:text-gray-400">*/}
+                    {/*        نام خانوادگی*/}
+                    {/*    </p>*/}
+                    {/*    <p className=" font-medium text-gray-800 dark:text-white/90">*/}
+                    {/*        {agentData.agent_family}*/}
+                    {/*    </p>*/}
+                    {/*</div>*/}
 
-                        <div>
-                            <p className="mb-2  leading-normal text-gray-500 dark:text-gray-400">
-                                کد کاربر
-                            </p>
-                            <p className=" font-medium text-gray-800 dark:text-white/90">
-                                {agentData.agent_code}
-                            </p>
-                        </div>
-                        <div>
-                            <p className="mb-2  leading-normal text-gray-500 dark:text-gray-400">
-                                ایمیل
-                            </p>
-                            <p className=" font-medium text-gray-800 dark:text-white/90">
-                                {agentData.agent_email}
-                            </p>
-                        </div>
-
-                        <div>
-                            <p className="mb-2  leading-normal text-gray-500 dark:text-gray-400">
-                                شماره همراه
-                            </p>
-                            <p className=" font-medium text-gray-800 dark:text-white/90">
-                                {agentData.agent_mobile}
-                            </p>
-                        </div>
-
-                        <div>
-                            <p className="mb-2  leading-normal text-gray-500 dark:text-gray-400">
-                                تلفن
-                            </p>
-                            <p className=" font-medium text-gray-800 dark:text-white/90">
-                                {agentData.agent_tell}
-                            </p>
-                        </div>
-                        <div>
-                            <p className="mb-2  leading-normal text-gray-500 dark:text-gray-400">
-                                تلفن ضروری
-                            </p>
-                            <p className=" font-medium text-gray-800 dark:text-white/90">
-                                {agentData?.agent_required_phone}
-                            </p>
-                        </div>
-                        <div>
-                            <p className="mb-2 leading-normal text-gray-500 dark:text-gray-400">آدرس</p>
-                            <p className="font-medium text-gray-800 dark:text-white/90">{agentData.agent_address}</p>
-                        </div>
-                        <div>
-                            <p className="mb-2 leading-normal text-gray-500 dark:text-gray-400">استان</p>
-                            <p className="font-medium text-gray-800 dark:text-white/90">{agentData.agent_state_name}</p>
-                        </div>
-                        <div>
-                            <p className="mb-2 leading-normal text-gray-500 dark:text-gray-400">شهر</p>
-                            <p className="font-medium text-gray-800 dark:text-white/90">{agentData.agent_city_name}</p>
-                        </div>
-                        <div>
-                            <p className="mb-2 leading-normal text-gray-500 dark:text-gray-400">منطقه</p>
-                            <p className="font-medium text-gray-800 dark:text-white/90">{agentData.agent_sector_name}</p>
-                        </div>
-
-                        <div>
-                            <p className="mb-2 leading-normal text-gray-500 dark:text-gray-400">شماره حساب بانکی</p>
-                            <p className="font-medium text-gray-800 dark:text-white/90">{agentData.agent_banknum}</p>
-                        </div>
-                        <div>
-                            <p className="mb-2 leading-normal text-gray-500 dark:text-gray-400">نام بانک</p>
-                            <p className="font-medium text-gray-800 dark:text-white/90">{agentData.agent_bankname}</p>
-                        </div>
-                        <div>
-                            <p className="mb-2 leading-normal text-gray-500 dark:text-gray-400">شماره شبا</p>
-                            <p className="font-medium text-gray-800 dark:text-white/90">{agentData.agent_banksheba}</p>
-                        </div>
-
-                        <div>
-                            <p className="mb-2 leading-normal text-gray-500 dark:text-gray-400">تاریخ ثبت نام</p>
-                            <p className="font-medium text-gray-800 dark:text-white/90">{agentData.agent_register_date}</p>
-                        </div>
-
-                        <div>
-                            <p className="mb-2 leading-normal text-gray-500 dark:text-gray-400">وضعیت کاربر</p>
-                            <p className="font-medium text-gray-800 dark:text-white/90">
-                                {agentData.agent_deactive === "0" ? "غیرفعال" : "فعال"}
-                            </p>
-                        </div>
+                    {/*<div>*/}
+                    {/*    <p className="mb-2  leading-normal text-gray-500 dark:text-gray-400">*/}
+                    {/*        کد کاربر*/}
+                    {/*    </p>*/}
+                    {/*    <p className=" font-medium text-gray-800 dark:text-white/90">*/}
+                    {/*        {agentData.agent_code}*/}
+                    {/*    </p>*/}
+                    {/*</div>*/}
+                    <div>
+                        <p className="mb-2  leading-normal text-gray-500 dark:text-gray-400">
+                            ایمیل
+                        </p>
+                        <p className=" font-medium text-gray-800 dark:text-white/90">
+                            {agentData.agent_email}
+                        </p>
                     </div>
+
+                    <div>
+                        <p className="mb-2  leading-normal text-gray-500 dark:text-gray-400">
+                            شماره همراه
+                        </p>
+                        <p className=" font-medium text-gray-800 dark:text-white/90">
+                            {agentData.agent_mobile}
+                        </p>
+                    </div>
+
+                    <div>
+                        <p className="mb-2  leading-normal text-gray-500 dark:text-gray-400">
+                            تلفن
+                        </p>
+                        <p className=" font-medium text-gray-800 dark:text-white/90">
+                            {agentData.agent_tell}
+                        </p>
+                    </div>
+                    <div>
+                        <p className="mb-2  leading-normal text-gray-500 dark:text-gray-400">
+                            تلفن ضروری
+                        </p>
+                        <p className=" font-medium text-gray-800 dark:text-white/90">
+                            {agentData?.agent_required_phone}
+                        </p>
+                    </div>
+                    <div>
+                        <p className="mb-2 leading-normal text-gray-500 dark:text-gray-400">آدرس</p>
+                        <p className="font-medium text-gray-800 dark:text-white/90">{agentData.agent_address}</p>
+                    </div>
+                    <div>
+                        <p className="mb-2 leading-normal text-gray-500 dark:text-gray-400">استان</p>
+                        <p className="font-medium text-gray-800 dark:text-white/90">{agentData.agent_state_name}</p>
+                    </div>
+                    <div>
+                        <p className="mb-2 leading-normal text-gray-500 dark:text-gray-400">شهر</p>
+                        <p className="font-medium text-gray-800 dark:text-white/90">{agentData.agent_city_name}</p>
+                    </div>
+                    <div>
+                        <p className="mb-2 leading-normal text-gray-500 dark:text-gray-400">منطقه</p>
+                        <p className="font-medium text-gray-800 dark:text-white/90">{agentData.agent_sector_name}</p>
+                    </div>
+
+                    <div>
+                        <p className="mb-2 leading-normal text-gray-500 dark:text-gray-400">شماره حساب بانکی</p>
+                        <p className="font-medium text-gray-800 dark:text-white/90">{agentData.agent_banknum}</p>
+                    </div>
+                    <div>
+                        <p className="mb-2 leading-normal text-gray-500 dark:text-gray-400">نام بانک</p>
+                        <p className="font-medium text-gray-800 dark:text-white/90">{agentData.agent_bankname}</p>
+                    </div>
+                    <div>
+                        <p className="mb-2 leading-normal text-gray-500 dark:text-gray-400">شماره شبا</p>
+                        <p className="font-medium text-gray-800 dark:text-white/90">{agentData.agent_banksheba}</p>
+                    </div>
+
+                    <div>
+                        <p className="mb-2 leading-normal text-gray-500 dark:text-gray-400">تاریخ ثبت نام</p>
+                        <p className="font-medium text-gray-800 dark:text-white/90">{calculateTimestamp(agentData.agent_register_date)}</p>
+                    </div>
+                    <div>
+                        <p className="mb-2 leading-normal text-gray-500 dark:text-gray-400">موقعیت روی نقشه</p>
+                        <p className="font-medium text-gray-800 dark:text-white/90">{agentData.agent_lat} - {agentData.agent_long}</p>
+                    </div>
+
+                    {/*<div>*/}
+                    {/*    <p className="mb-2 leading-normal text-gray-500 dark:text-gray-400">وضعیت کاربر</p>*/}
+                    {/*    <p className="font-medium text-gray-800 dark:text-white/90">*/}
+                    {/*        {agentData.agent_deactive === "1" ? "غیرفعال" : "فعال"}*/}
+                    {/*    </p>*/}
+                    {/*</div>*/}
                 </div>
 
                 <Modal isOpen={isOpen} onClose={closeModal} className="max-w-[700px] m-4">
@@ -237,23 +282,28 @@ export default function UserInfoCard() {
                                     <div className="grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
                                         <div className="col-span-2 lg:col-span-1">
                                             <Label>تلفن ضروری</Label>
-                                            <Input type="tel" defaultValue={newAgentData?.agent_required_phone}/>
+                                            <Input type="tel" defaultValue={newAgentData?.agent_required_phone}
+                                                   onChange={(e) => newAgentData.agent_required_phone = e.target.value}/>
                                         </div>
                                         <div className="col-span-2 lg:col-span-1">
                                             <Label>تلفن</Label>
-                                            <Input type="tel" defaultValue={newAgentData?.agent_tell}/>
+                                            <Input type="tel" defaultValue={newAgentData?.agent_tell}
+                                                   onChange={(e) => newAgentData.agent_tell = e.target.value}/>
                                         </div>
                                         <div className="col-span-2 lg:col-span-1">
                                             <Label>ایمیل</Label>
-                                            <Input type="email" defaultValue={newAgentData?.agent_email}/>
+                                            <Input type="email" defaultValue={newAgentData?.agent_email}
+                                                   onChange={(e) => newAgentData.agent_email = e.target.value}/>
                                         </div>
                                         <div className="col-span-2 lg:col-span-1">
                                             <Label>منطقه</Label>
-                                            <Input type="text" defaultValue={newAgentData?.agent_sector_name}/>
+                                            <Input type="text" defaultValue={newAgentData?.agent_sector_name}
+                                                   onChange={(e) => newAgentData.agent_sector_name = e.target.value}/>
                                         </div>
                                         <div className="col-span-2 lg:col-span-2">
                                             <Label>آدرس</Label>
-                                            <Input type="text" defaultValue={newAgentData?.agent_address}/>
+                                            <Input type="text" defaultValue={newAgentData?.agent_address}
+                                                   onChange={(e) => newAgentData.agent_address = e.target.value}/>
                                         </div>
                                     </div>
                                 </div>

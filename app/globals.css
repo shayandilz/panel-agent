@@ -205,7 +205,10 @@ layer(base);
         cursor: pointer;
     }
     body {
-        @apply relative font-normal font-outfit z-1 bg-gray-50;
+        @apply relative font-normal font-outfit z-1 bg-gray-50 dark:text-white/90 text-gray-800;
+    }
+    hr {
+        @apply my-4 border-gray-200 dark:border-gray-800;
     }
 }
 
@@ -295,8 +298,6 @@ layer(base);
 .dark .custom-scrollbar::-webkit-scrollbar-thumb {
     background-color: #344054;
 }
-
-
 
 @layer utilities {
     /* For Remove Date Icon */
@@ -580,6 +581,10 @@ layer(base);
 .jvectormap-zoomin,
 .jvectormap-zoomout {
     @apply hidden!;
+}
+
+table {
+    @apply text-gray-700 dark:text-gray-300;
 }
 
 .form-check-input:checked ~ span {

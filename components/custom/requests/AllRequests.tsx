@@ -7,12 +7,13 @@ import {
     TableCell,
     TableHeader,
     TableRow,
-} from "@/components/ui/table";
+} from "@/components/custom/tables";
 import Link from "next/link";
 import Badge from "@/components/ui/badge/Badge";
 import Image from "next/image";
 import {useAgent} from "@/context/AgentContext";
 import services from "@/core/service";
+import {calculateTimestamp} from "@/core/utils";
 import {toast} from "react-toastify";
 
 interface RequestData {
@@ -34,7 +35,7 @@ interface RequestData {
     staterequest_last_timestamp: string;
 }
 
-export default function RequestsTable() {
+export default function AllRequests() {
     const {tokenData, setTokenData} = useAgent();
     const [requestData, setRequestData] = useState<RequestData[]>([]);
     const [error, setError] = useState<string | null>(null);
@@ -168,7 +169,7 @@ export default function RequestsTable() {
                                             {/* Request Date */}
                                             <TableCell
                                                 className="px-4 py-3 text-gray-500 text-theme-sm dark:text-gray-400">
-                                                {request.staterequest_last_timestamp}
+                                                {calculateTimestamp(request?.staterequest_last_timestamp)}
                                             </TableCell>
 
                                             {/* Request Detail */}

@@ -1,5 +1,6 @@
 "use client"
 import React, {createContext, useState, useContext} from 'react';
+import services from "@/core/service";
 
 interface TokenData {
     token: String,
@@ -39,19 +40,23 @@ interface AgentData {
 const AgentContext = createContext<{
     agentData: AgentData | null;
     setAgentData: (data: AgentData) => void;
+    agentStatus: false;
+    setAgentStatus: (data) => void;
     tokenData: TokenData | null;
     setTokenData: (data: TokenData) => void;
 }>({
     agentData: null, setAgentData: () => {},
+    agentStatus: false, setAgentStatus: () => {},
     tokenData: null, setTokenData: () => {}
 });
 
 export const AgentProvider: React.FC<{ children: React.ReactNode }> = ({children}) => {
     const [agentData, setAgentData] = useState<AgentData | null>(null);
+    const [agentStatus, setAgentStatus] = useState(false);
     const [tokenData, setTokenData] = useState<TokenData | null>(null);
 
     return (
-        <AgentContext.Provider value={{agentData, setAgentData, tokenData, setTokenData}}>
+        <AgentContext.Provider value={{agentData, setAgentData, agentStatus, setAgentStatus, tokenData, setTokenData}}>
             {children}
         </AgentContext.Provider>
     );

@@ -17,6 +17,7 @@ import {
   TableIcon,
   UserCircleIcon,
   LockIcon,
+  InfoIcon, FileIcon, TimeIcon, DollarLineIcon,
 } from "@/icons/index";
 // import SidebarWidget from "./SidebarWidget";
 
@@ -38,11 +39,11 @@ const navItems: NavItem[] = [
   //   name: "Calendar",
   //   path: "/calendar",
   // },
-  {
-    icon: <UserCircleIcon />,
-    name: "پروفایل کاربر",
-    path: "/profile",
-  },
+  // {
+  //   icon: <UserCircleIcon />,
+  //   name: "پروفایل کاربر",
+  //   path: "/profile",
+  // },
   // {
   //   icon: <LockIcon />,
   //   name: "تغییر رمز",
@@ -50,22 +51,22 @@ const navItems: NavItem[] = [
   // },
   {
     name: "سوابق وضعیت نماینده",
-    icon: <TableIcon />,
+    icon: <InfoIcon />,
     path: "/agent-status"
   },
   {
     name: "کارتابل درخواست ها",
-    icon: <TableIcon />,
+    icon: <PageIcon />,
     path: "/requests/all"
   },
   {
     name: "سوابق مالی درخواست ها",
-    icon: <TableIcon />,
+    icon: <DollarLineIcon />,
     path: "/records/financial-requests"
   },
   {
     name: "سوابق مالی اسناد مالی",
-    icon: <TableIcon />,
+    icon: <FileIcon />,
     path: "/records/financial-documents"
   },
     // subItems: [
@@ -391,22 +392,22 @@ const AppSidebar: React.FC = () => {
               {renderMenuItems(navItems, "main")}
             </div>
 
-            {/*<div className="">*/}
-            {/*  <h2*/}
-            {/*    className={`mb-4 text-xs uppercase flex leading-[20px] text-gray-400 ${*/}
-            {/*      !isExpanded && !isHovered*/}
-            {/*        ? "lg:justify-center"*/}
-            {/*        : "justify-start"*/}
-            {/*    }`}*/}
-            {/*  >*/}
-            {/*    {isExpanded || isHovered || isMobileOpen ? (*/}
-            {/*      "بقیه"*/}
-            {/*    ) : (*/}
-            {/*      <HorizontaLDots />*/}
-            {/*    )}*/}
-            {/*  </h2>*/}
-            {/*  /!*{renderMenuItems(othersItems, "others")}*!/*/}
-            {/*</div>*/}
+            <div className="">
+              <h2
+                className={`mb-4 text-xs uppercase flex leading-[20px] text-gray-400 ${
+                  !isExpanded && !isHovered
+                    ? "lg:justify-center"
+                    : "justify-start"
+                }`}
+              >
+                {isExpanded || isHovered || isMobileOpen ? (
+                  "بقیه"
+                ) : (
+                  <HorizontaLDots />
+                )}
+              </h2>
+              {renderMenuItems(othersItems, "others")}
+            </div>
           </div>
         </nav>
         {/*{isExpanded || isHovered || isMobileOpen ? <SidebarWidget /> : null}*/}
