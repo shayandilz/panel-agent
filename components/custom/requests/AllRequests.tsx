@@ -36,14 +36,9 @@ interface RequestData {
 }
 
 export default function AllRequests() {
-    const {tokenData, setTokenData} = useAgent();
     const [requestData, setRequestData] = useState<RequestData[]>([]);
     const [error, setError] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState(true);
-
-    const OpenRequestDetail = async () => {
-        window.location.href = ''
-    }
 
     useEffect(() => {
         const fetchRequestsData = async () => {

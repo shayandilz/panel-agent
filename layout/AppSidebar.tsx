@@ -353,7 +353,7 @@ const AppSidebar: React.FC = () => {
                 height={40}
               />
               <Image
-                className="hidden dark:block"
+                className="hidden dark:block filter-invert"
                 src="/images/logo/logo.png"
                 alt="Logo"
                 width={150}

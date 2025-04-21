@@ -28,8 +28,13 @@ export default function AdminLayout({
                 if (data.result != 'ok') {
                     throw new Error('خطا در دریافت اطلاعات کاربر');
                 }
-                setAgentData(data.data);
-                setTokenData(data.token);
+                if(data) {
+                    setAgentData(data.data);
+                    setTokenData(data.token);
+                } else {
+                    setAgentData(null);
+                    setTokenData(null);
+                }
             } catch (err) {
                 console.error('catch',err.message);
                 toast.error(err.message);

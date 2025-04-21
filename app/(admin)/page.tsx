@@ -1,42 +1,93 @@
-import type { Metadata } from "next";
-import { EcommerceMetrics } from "@/components/ecommerce/EcommerceMetrics";
-import React from "react";
-import MonthlyTarget from "@/components/ecommerce/MonthlyTarget";
-import MonthlySalesChart from "@/components/ecommerce/MonthlySalesChart";
-import StatisticsChart from "@/components/ecommerce/StatisticsChart";
-import RecentOrders from "@/components/ecommerce/RecentOrders";
-import CustomerRequestsChart from "@/components/custom/charts/CustomerRequestsChart";
+"use client"
 
-export const metadata: Metadata = {
-  title:
-    "Dashboard",
-  description: "Home",
-};
+import type {Metadata} from "next";
+import React, {useEffect, useState} from "react";
+import RequestsTypesChart from "@/components/custom/charts/RequestsTypesChart";
+import RequestsStatesChart from "@/components/custom/charts/RequestsStatesChart";
+import ConfirmedRequestsCharts from "@/components/custom/charts/ConfirmedRequestsCharts";
+import PaidRequestsChart from "@/components/custom/charts/PaidRequestsChart";
+import UnconfirmedRequestsChart from "@/components/custom/charts/UnconfirmedRequestsChart";
+import UncheckedRequestsChart from "@/components/custom/charts/UncheckedRequestsChart";
+import {toast} from "react-toastify";
+import services from "@/core/service";
 
-export default function Ecommerce() {
-  return (
-    <div className="grid grid-cols-12 gap-4 md:gap-6">
-      {/*<div className="col-span-12 space-y-6 xl:col-span-7">*/}
-      {/*  <EcommerceMetrics />*/}
+// export const metadata: Metadata = {
+//     title: "دشبورد",
+//     description: "صفحه دشبورد",
+// };
 
-      {/*  <MonthlySalesChart />*/}
-      {/*</div>*/}
+export default function Dashboard() {
+    const [requestData, setRequestData] = useState<any[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
 
-      {/*<div className="col-span-12 xl:col-span-5">*/}
-      {/*  <MonthlyTarget />*/}
-      {/*</div>*/}
+    useEffect(() => {
+        let isMounted = true; // To avoid setting state on unmounted component
 
-      {/*<div className="col-span-12">*/}
-      {/*  <StatisticsChart />*/}
-      {/*</div>*/}
+        const fetchRequestsData = async () => {
+            setIsLoading(true);
+            setError(null);
+            try {
+                const res = await services.Requests.getReport("?command=getagent_request");
+                if (res) {
+                    const data = res["data"];
+                    if (data.result !== "ok") {
+                        setError(data.desc || "خطا در دریافت اطلاعات.");
+                        toast.error(data.desc || "خطا در دریافت اطلاعات.");
+                        setRequestData([]);
+                    } else if (Array.isArray(data.data) && data.data.length > 0) {
+                        setRequestData(data.data);
+                    } else {
+                        setRequestData([]);
+                    }
+                } else {
+                    setError("مشکلی پیش آمد. دوباره تلاش کنید.");
+                    toast.error("مشکلی پیش آمد. دوباره تلاش کنید.");
+                    setRequestData([]);
+                }
+            } catch (err: any) {
+                setError(err.message || "مشکلی پیش آمد. دوباره تلاش کنید.");
+                toast.error(err.message || "مشکلی پیش آمد. دوباره تلاش کنید.");
+                setRequestData([]);
+            } finally {
+                if (isMounted) setIsLoading(false);
+            }
+        };
 
-      <div className="col-span-12 xl:col-span-5">
-        <CustomerRequestsChart />
-      </div>
+        fetchRequestsData();
+        return () => {
+            isMounted = false;
+        };
+    }, []);
 
-      <div className="col-span-12 xl:col-span-7">
-        <RecentOrders />
-      </div>
-    </div>
-  );
+    if (isLoading) {
+        return <div className="text-center">در حال دریافت اطلاعات...</div>;
+    }
+
+    if (error) {
+        return <div className="text-center text-red-500">{error}</div>;
+    }
+
+    return (
+        <div className="grid grid-cols-12 gap-4 md:gap-6">
+            <div className="col-span-12 xl:col-span-5">
+                <RequestsTypesChart allRequests={requestData}/>
+            </div>
+            <div className="col-span-12 xl:col-span-7">
+                <RequestsStatesChart allRequests={requestData}/>
+            </div>
+            <div className="col-span-12 xl:col-span-6">
+                <ConfirmedRequestsCharts/>
+            </div>
+            <div className="col-span-12 xl:col-span-6">
+                <PaidRequestsChart/>
+            </div>
+            <div className="col-span-12 xl:col-span-6">
+                <UnconfirmedRequestsChart/>
+            </div>
+            <div className="col-span-12 xl:col-span-6">
+                <UncheckedRequestsChart/>
+            </div>
+        </div>
+    )
 }
