@@ -82,51 +82,51 @@ export default function ConfirmedRequests() {
 
     return (
         <>
-            {
-                isLoading ? (
-                    <div className="text-center">در حال دریافت اطلاعات...</div>
-                ) : (
-                    <div
-                        className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] sm:p-6">
-                        <div className="flex justify-between border-bottom mb-4">
-                            <div>
-                                <h3 className="text-lg font-semibold text-gray-800 dark:text-white/90">
-                                    درخواست های درحال بررسی توسط نماینده
-                                </h3>
-                                {/*<p className="mt-1 text-gray-500 text-theme-sm dark:text-gray-400">*/}
-                                {/*    تعداد درخواست ها بر اساس رشته بیمه*/}
-                                {/*</p>*/}
-                            </div>
 
-                            <div className="relative inline-block">
-                                <button onClick={toggleDropdown} className="dropdown-toggle">
-                                    <MoreDotIcon
-                                        className="text-gray-400 hover:text-gray-700 dark:hover:text-gray-300"/>
-                                </button>
-                                <Dropdown
-                                    isOpen={isOpen}
-                                    onClose={closeDropdown}
-                                    className="w-40 p-2"
-                                >
-                                    <DropdownItem
-                                        href="/requests/all"
-                                        className="flex w-full font-normal text-left text-gray-500 rounded-lg hover:bg-gray-100 hover:text-gray-700 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-gray-300"
-                                    >
-                                        بیشتر
-                                    </DropdownItem>
-                                    {/*<DropdownItem*/}
-                                    {/*    onItemClick={closeDropdown}*/}
-                                    {/*    className="flex w-full font-normal text-left text-gray-500 rounded-lg hover:bg-gray-100 hover:text-gray-700 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-gray-300"*/}
-                                    {/*>*/}
-                                    {/*    Delete*/}
-                                    {/*</DropdownItem>*/}
-                                </Dropdown>
-                            </div>
-                        </div>
+            <div
+                className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] sm:p-6">
+                <div className="flex justify-between border-bottom mb-4">
+                    <div>
+                        <h3 className="text-lg font-semibold text-gray-800 dark:text-white/90">
+                            درخواست های تائید شده توسط نماینده
+                        </h3>
+                        {/*<p className="mt-1 text-gray-500 text-theme-sm dark:text-gray-400">*/}
+                        {/*    تعداد درخواست ها بر اساس رشته بیمه*/}
+                        {/*</p>*/}
+                    </div>
 
-                        <hr/>
-                        <div className="space-y-5">
-                            <Table>
+                    <div className="relative inline-block">
+                        <button onClick={toggleDropdown} className="dropdown-toggle">
+                            <MoreDotIcon
+                                className="text-gray-400 hover:text-gray-700 dark:hover:text-gray-300"/>
+                        </button>
+                        <Dropdown
+                            isOpen={isOpen}
+                            onClose={closeDropdown}
+                            className="w-40 p-2"
+                        >
+                            <DropdownItem
+                                href="/records/financial-requests"
+                                className="flex w-full font-normal text-left text-gray-500 rounded-lg hover:bg-gray-100 hover:text-gray-700 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-gray-300"
+                            >
+                                بیشتر
+                            </DropdownItem>
+                            {/*<DropdownItem*/}
+                            {/*    onItemClick={closeDropdown}*/}
+                            {/*    className="flex w-full font-normal text-left text-gray-500 rounded-lg hover:bg-gray-100 hover:text-gray-700 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-gray-300"*/}
+                            {/*>*/}
+                            {/*    Delete*/}
+                            {/*</DropdownItem>*/}
+                        </Dropdown>
+                    </div>
+                </div>
+
+                <hr/>
+                <div className="space-y-5">
+                    {
+                        isLoading ? (
+                            <div className="text-center">در حال دریافت اطلاعات...</div>
+                        ) : (<Table>
                                 <TableHeader>
                                     <TableRow>
                                         <TableCell isHeader> شماره</TableCell>
@@ -170,10 +170,10 @@ export default function ConfirmedRequests() {
                                         )}
                                 </TableBody>
                             </Table>
-                        </div>
-                    </div>
-                )
-            }
+                        )
+                    }
+                </div>
+            </div>
         </>
     )
 }

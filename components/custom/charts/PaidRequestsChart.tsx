@@ -102,7 +102,7 @@ export default function PaidRequests() {
                             className="w-40 p-2"
                         >
                             <DropdownItem
-                                href="/requests/all"
+                                href="/records/financial-requests"
                                 className="flex w-full font-normal text-left text-gray-500 rounded-lg hover:bg-gray-100 hover:text-gray-700 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-gray-300"
                             >
                                 بیشتر
@@ -137,23 +137,23 @@ export default function PaidRequests() {
                             {paidRequests.length > 0 ? (
                                 paidRequests.map((request, index) => (
                                     <TableRow className={`${index > 5 ? 'hidden' : ''} text-center`}
-                                              key={request.request_id}>
-                                        <TableCell>{request.request_id}</TableCell>
+                                              key={request?.request_id}>
+                                        <TableCell>{request?.request_id}</TableCell>
                                         <TableCell className="py-3 text-gray-500 dark:text-gray-400">
                                             <div className="w-full h-full overflow-hidden rounded-md">
                                                 <Image
                                                     className="mx-auto"
                                                     width={40}
                                                     height={40}
-                                                    src={request.fieldinsurance_logo_url}
-                                                    alt={request.request_fieldinsurance_fa}
+                                                    src={request?.fieldinsurance_logo_url}
+                                                    alt={request?.request_fieldinsurance_fa}
                                                 />
                                             </div>
                                         </TableCell>
-                                        <TableCell>{request.request_fieldinsurance_fa}</TableCell>
-                                        <TableCell>{request.user_pey_amount}</TableCell>
-                                        <TableCell>{request.request_ready?.[0]?.requst_ready_end_price || "-"}</TableCell>
-                                        <TableCell>{request.request_ready?.[0]?.requst_ready_start_date || "-"}</TableCell>
+                                        <TableCell>{request?.request_fieldinsurance_fa}</TableCell>
+                                        <TableCell>{request?.user_pey_amount}</TableCell>
+                                        <TableCell>{request?.request_ready?.[0]?.requst_ready_end_price || "-"}</TableCell>
+                                        <TableCell>{request?.request_ready?.[0]?.requst_ready_start_date || "-"}</TableCell>
                                         {/* Request Detail */}
                                         {/*<TableCell className="px-4 py-3 text-gray-500 text-theme-sm dark:text-gray-400">*/}
                                         {/*    <Link className="block px-4 py-2 mt-3 text-sm font-medium text-center text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-gray-700"*/}

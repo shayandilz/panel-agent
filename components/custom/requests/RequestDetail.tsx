@@ -10,7 +10,7 @@ import React, {useState, useEffect} from "react";
 // import Image from "next/image";
 // import {useAgent} from "@/context/AgentContext";
 // import {as} from "@fullcalendar/core/internal-common";
-import {FileIcon, TaskIcon, DollarLineIcon, PieChartIcon, InfoIcon} from "@/icons";
+import {FileIcon, TaskIcon, DollarLineIcon, PieChartIcon, InfoIcon, PlusIcon} from "@/icons";
 import {toast} from "react-toastify";
 import services from "@/core/service"
 import {useParams} from "next/navigation";
@@ -62,6 +62,7 @@ export default function RequestDetail() {
     const params = useParams();
     const id = params?.id;
 
+    const [imageIsLoading, setImageIsLoading] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
     const [activeTab, setActiveTab] = useState("issuance");
     const [requestData, setRequestData] = useState<RequestData | null>(null);
@@ -70,6 +71,7 @@ export default function RequestDetail() {
     const [cityStatesList, setCityStatesList] = useState([]);
     const [citiesList, setCitiesList] = useState([]);
 
+    const [selectedImage, setSelectedImage] = useState(null);
     const [selectedStatus, setSelectedStatus] = useState("");
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [formData, setFormData] = useState({});
@@ -149,12 +151,18 @@ export default function RequestDetail() {
         try {
             const response = await services.Requests.getReport('?command=get_mode_delivery')
             if (response?.data?.result === "ok") {
-                let modes = await response?.data?.data.map(function (mode) {
-                    return {
-                        value: mode?.delivery_mode_id,
-                        label: mode?.delivery_mode_name
+                let modes = []
+                let modesId = []
+                await response?.data?.data.forEach(function (mode) {
+                    if (modesId.indexOf(mode?.delivery_mode_id) < 0) {
+                        modesId.push(mode?.delivery_mode_id)
+                        modes.push({
+                            value: mode?.delivery_mode_id,
+                            label: mode?.delivery_mode_name
+                        })
                     }
                 })
+                console.log(modes)
                 setDeliveryModes(modes);
             } else {
                 throw new Error(response?.data?.desc || "مشکلی پیش آمد.");
@@ -217,6 +225,32 @@ export default function RequestDetail() {
             fetchCityStatesList();
         }
     }, [selectedStatus]);
+
+    async function uploadImage() {
+        setImageIsLoading(true)
+        console.log('uploadImage',selectedImage)
+        let imageFormData = new FormData()
+        imageFormData.append('command','uploadpic')
+        imageFormData.append('image',selectedImage)
+        imageFormData.append('image_name','test')
+        imageFormData.append('image_desc','test')
+        imageFormData.append('name','test')
+        const response = await services.Requests.sendImage('',imageFormData)
+        if (response?.data?.result === "ok") {
+            setFormData({...formData, image_code: response.data?.data?.image_code})
+            setSelectedImage(null)
+            setImageIsLoading(false)
+
+            // {
+            //     "image_code": "1745333082EbOh6vUs",
+            //     "file_url": "https://api.rahnamayefarda.ir/filefolder/uploadimg/2025/04/22/1745333082EbOh6vUs.jpg",
+            //     "file_t_url": "https://api.rahnamayefarda.ir/filefolder/uploadimg/2025/04/22/t1745333082EbOh6vUs.jpg"
+            // }
+        } else {
+            throw new Error(response?.data?.desc || "مشکلی پیش آمد.");
+            setImageIsLoading(false)
+        }
+    }
 
     if (isLoading) return <div className="text-center">در حال دریافت اطلاعات...</div>;
 
@@ -417,14 +451,18 @@ export default function RequestDetail() {
             <hr/>
             {/* Status Change Dropdown */}
             <div className="mb-6">
-                <Select
-                    options={requestStates}
-                    defaultValue={selectedStatus}
-                    onChange={(e) => setSelectedStatus(e)}
-                    disabled={isSubmitting}
-                    placeholder="تغییر وضعیت درخواست"
-                >
-                </Select>
+                <div className={`w-[350px]`}>
+                    <Label htmlFor="changeState" >تغییر وضعیت درخواست</Label>
+                    <Select
+                        id="changeState"
+                        options={requestStates}
+                        defaultValue={selectedStatus}
+                        onChange={(e) => setSelectedStatus(e)}
+                        disabled={isSubmitting}
+                        placeholder="انتخاب کنید"
+                    >
+                    </Select>
+                </div>
 
                 {selectedStatus == 11 && (
                     <div className="mt-5">
@@ -473,6 +511,7 @@ export default function RequestDetail() {
 
                             <div>
                                 <Textarea
+                                    rows="8"
                                     onChange={(desc) => setFormData({
                                         ...formData,
                                         request_delivered_dsc: desc || ""
@@ -483,23 +522,23 @@ export default function RequestDetail() {
                                 </Textarea>
                             </div>
 
-                            <div>
+                            <div className="border-dashed p-2 rounded-md">
                                 <Label>عکس را انتخاب نمایید</Label>
                                 <Label className="text-sm">Max file size: 5mb, accepted: jpg|gif|png</Label>
-                                <FileInput
-                                    onChange={(file) => setFormData({
-                                        ...formData,
-                                        request_delivered_receipt_image_code: file || ""
-                                    })}
-                                    disabled={isSubmitting}
-                                >
-                                </FileInput>
+                                <div className={`flex items-center`}>
+                                    <FileInput
+                                        onChange={(file) => setSelectedImage(file)}
+                                        disabled={isSubmitting || imageIsLoading}
+                                    >
+                                    </FileInput>
+                                    <Button disabled={imageIsLoading || !selectedImage} onClick={uploadImage} variant="outline" size="sm" color="primary" startIcon={<PlusIcon />}>بارگزاری عکس</Button>
+                                </div>
                             </div>
                         </div>
 
                         <Button
                             onClick={handleStatusChange}
-                            disabled={isSubmitting}
+                            disabled={isSubmitting || imageIsLoading}
                         >
                             {isSubmitting ? "در حال ارسال..." : "ثبت وضعیت تحویل شده به کاربر"}
                         </Button>

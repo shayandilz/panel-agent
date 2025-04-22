@@ -39,16 +39,6 @@ export default function UnconfirmedRequests() {
     const fetchUnconfirmedRequests = async () => {
         try {
             setIsLoading(true);
-            // const queryParams = {
-            //     start_date: filters?.startDate,
-            //     end_date: filters?.endDate,
-            //     fieldinsurance_id: filters?.fieldInsurance,
-            //     user_mobile: filters?.userMobile,
-            //     order_number: filters?.orderNumber
-            // };
-            // console.log('filters', filters)
-
-            // const query = filters ? `&start_date=${queryParams?.start_date}` : "";
             const response = await services.Requests.getReport(`?command=getagent_request&approvaslmode=notapprov`);
             if (response) {
                 const data = response.data;
@@ -87,7 +77,7 @@ export default function UnconfirmedRequests() {
                 <div className="flex justify-between border-bottom mb-4">
                     <div>
                         <h3 className="text-lg font-semibold text-gray-800 dark:text-white/90">
-                            درخواست های پرداخت شده توسط کاربر
+                            درخواست های تائید نشده توسط نماینده
                         </h3>
                         {/*<p className="mt-1 text-gray-500 text-theme-sm dark:text-gray-400">*/}
                         {/*    تعداد درخواست ها بر اساس رشته بیمه*/}
@@ -105,7 +95,7 @@ export default function UnconfirmedRequests() {
                             className="w-40 p-2"
                         >
                             <DropdownItem
-                                href="/requests/all"
+                                href="/records/financial-requests"
                                 className="flex w-full font-normal text-left text-gray-500 rounded-lg hover:bg-gray-100 hover:text-gray-700 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-gray-300"
                             >
                                 بیشتر
@@ -142,26 +132,26 @@ export default function UnconfirmedRequests() {
                             <TableBody>
                                 {unconfirmedRequests.length > 0 && unconfirmedRequests.map((request, index) => (
                                     <TableRow className={`${index > 5 ? 'hidden' : ''} text-center`}
-                                              key={request.request_id}>
-                                        <TableCell>{request.request_id}</TableCell>
+                                              key={request?.request_id}>
+                                        <TableCell>{request?.request_id}</TableCell>
                                         <TableCell className="py-3 text-gray-500 dark:text-gray-400">
                                             <div className="w-full h-full overflow-hidden rounded-md">
                                                 <Image
                                                     className="mx-auto"
                                                     width={40}
                                                     height={40}
-                                                    src={request.fieldinsurance_logo_url}
-                                                    alt={request.request_fieldinsurance_fa}
+                                                    src={request?.fieldinsurance_logo_url}
+                                                    alt={request?.request_fieldinsurance_fa}
                                                 />
                                             </div>
                                         </TableCell>
-                                        <TableCell>{request.request_fieldinsurance_fa}</TableCell>
-                                        <TableCell>{request.user_pey_cash}</TableCell>
-                                        <TableCell>{request.request_last_state_id}</TableCell>
-                                        <TableCell>{request.request_ready[0]['requst_ready_end_price']}</TableCell>
-                                        <TableCell>{request.user_pey_amount}</TableCell>
-                                        <TableCell>{request.user_pey_amount}</TableCell>
-                                        <TableCell>{request.request_ready[0]['requst_ready_start_date'].toLocaleDateString('fa-IR') || '-'}</TableCell>
+                                        <TableCell>{request?.request_fieldinsurance_fa}</TableCell>
+                                        <TableCell>{request?.user_pey_cash}</TableCell>
+                                        <TableCell>{request?.request_last_state_id}</TableCell>
+                                        <TableCell>{request?.request_ready[0]['requst_ready_end_price']}</TableCell>
+                                        <TableCell>{request?.user_pey_amount}</TableCell>
+                                        <TableCell>{request?.user_pey_amount}</TableCell>
+                                        <TableCell>{request?.request_ready[0]['requst_ready_start_date'] || '-'}</TableCell>
 
                                     </TableRow>
                                 ))}
