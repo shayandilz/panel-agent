@@ -155,6 +155,7 @@ const Requests = {
 }
 
 const Fields = {
+    fetchList: (params: string = '') => axiosRequests.post(`${AppConstants.base_url_api}/agentrequestreport${params}`,{}),
     insurances: () => axiosRequests.post(`${AppConstants.base_url_api}/agentrequestreport?command=get_fieldinsurance`,{}),
     steps: () => axiosRequests.post(`${AppConstants.base_url_api}/agentrequestreport?command=getstaterequest`,{}),
 }

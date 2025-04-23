@@ -13,9 +13,11 @@ import React, {useState, useEffect} from "react";
 import {FileIcon, TaskIcon, DollarLineIcon, PieChartIcon, InfoIcon, PlusIcon} from "@/icons";
 import {toast} from "react-toastify";
 import services from "@/core/service"
+import {requestStepData} from "@/core/utils"
 import {useParams} from "next/navigation";
 import Badge from "@/components/ui/badge/Badge";
 import FileInput from "@/components/form/input/FileInput";
+import RequestStepForm from "@/components/custom/field/RequestStepForm";
 import Image from "next/image";
 import {Tab, Tabs} from "@/components/ui/tabs/Tabs";
 import Select from "@/components/form/select";
@@ -78,25 +80,24 @@ export default function RequestDetail() {
     const [error, setError] = useState(null);
     const [showLoader, setShowLoader] = useState(false)
 
-    const handleStatusChange = async () => {
-        // todo: check if all fields are filled
-        if (!selectedStatus) {
-            toast.error("لطفا تمام فیلدهای ضروری را پر کنید");
-            return;
-        }
+    const handleStatusChange = async (formDataset) => {
+        // if (!selectedStatus) {
+        //     toast.error("لطفا تمام فیلدهای ضروری را پر کنید");
+        //     return;
+        // }
 
         setIsSubmitting(true);
         try {
             const query = new URLSearchParams({
                 request_id: id,
-                ...formData
+                ...formDataset
             }).toString();
 
             const response = await services.Requests.sendRequest(`?${query}`);
 
             if (response.data.result === "ok") {
                 toast.success("وضعیت با موفقیت به روز شد");
-                fetchRequestDetail();
+                setTimeout(() => window.location.reload(), 2000)
             } else {
                 throw new Error(response.data.desc);
             }
@@ -227,15 +228,17 @@ export default function RequestDetail() {
     }, [selectedStatus]);
 
     async function uploadImage() {
+        // https://codesandbox.io/p/sandbox/react-images-uploading-demo-u0khz?file=%2Fsrc%2Findex.js%3A21%2C28
+        // https://www.npmjs.com/package/react-images-uploading
         setImageIsLoading(true)
-        console.log('uploadImage',selectedImage)
+        console.log('uploadImage', selectedImage)
         let imageFormData = new FormData()
-        imageFormData.append('command','uploadpic')
-        imageFormData.append('image',selectedImage)
-        imageFormData.append('image_name','test')
-        imageFormData.append('image_desc','test')
-        imageFormData.append('name','test')
-        const response = await services.Requests.sendImage('',imageFormData)
+        imageFormData.append('command', 'uploadpic')
+        imageFormData.append('image', selectedImage)
+        imageFormData.append('image_name', 'test')
+        imageFormData.append('image_desc', 'test')
+        imageFormData.append('name', 'test')
+        const response = await services.Requests.sendImage('', imageFormData)
         if (response?.data?.result === "ok") {
             setFormData({...formData, image_code: response.data?.data?.image_code})
             setSelectedImage(null)
@@ -439,8 +442,8 @@ export default function RequestDetail() {
                         {requestData?.request_address?.map((address, index) => (
                             <div key={index} className="mb-4">
                                 {/* todo: no available address */}
-                                <p>آدرس: {address?.user_address_str}</p>
-                                <p>کد پستی: {address?.user_address_code}</p>
+                                {/*<p>آدرس: {address?.user_address_str}</p>*/}
+                                {/*<p>کد پستی: {address?.user_address_code}</p>*/}
                             </div>
                         ))}
                     </div>
@@ -452,7 +455,7 @@ export default function RequestDetail() {
             {/* Status Change Dropdown */}
             <div className="mb-6">
                 <div className={`w-[350px]`}>
-                    <Label htmlFor="changeState" >تغییر وضعیت درخواست</Label>
+                    <Label htmlFor="changeState">تغییر وضعیت درخواست</Label>
                     <Select
                         id="changeState"
                         options={requestStates}
@@ -463,6 +466,21 @@ export default function RequestDetail() {
                     >
                     </Select>
                 </div>
+
+                {selectedStatus && (<>
+                    <h3>{requestStepData[selectedStatus]['title']}</h3>
+                    <div className="mt-4 grid grid-cols-2 md:grid-cols-3 gap-4">
+                        <RequestStepForm
+                            stepFields={requestStepData[selectedStatus]['fields']}
+                            onSubmit={formData => {
+                                // formData.images will be an array of images with data_url and file
+                                // send formData to your API
+                                console.log(formData);
+                                handleStatusChange(formData);
+                            }}
+                        />
+                    </div>
+                </>)}
 
                 {selectedStatus == 11 && (
                     <div className="mt-5">
@@ -531,7 +549,9 @@ export default function RequestDetail() {
                                         disabled={isSubmitting || imageIsLoading}
                                     >
                                     </FileInput>
-                                    <Button disabled={imageIsLoading || !selectedImage} onClick={uploadImage} variant="outline" size="sm" color="primary" startIcon={<PlusIcon />}>بارگزاری عکس</Button>
+                                    <Button disabled={imageIsLoading || !selectedImage} onClick={uploadImage}
+                                            variant="outline" size="sm" color="primary" startIcon={<PlusIcon/>}>بارگزاری
+                                        عکس</Button>
                                 </div>
                             </div>
                         </div>
