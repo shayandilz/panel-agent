@@ -31,8 +31,9 @@ interface ConfirmedRequests {
 export default function ConfirmedRequests() {
     const [confirmedRequests, setConfirmedRequests] = useState<ConfirmedRequests[]>([]);
     const [isLoading, setIsLoading] = useState(true);
+    const [filters, setFilters] = useState({});
 
-    const fetchConfirmedRequests = async (filters = null) => {
+    const fetchConfirmedRequests = async () => {
         try {
             setIsLoading(true);
             const queryParams = {
@@ -69,7 +70,7 @@ export default function ConfirmedRequests() {
 
     return (
         <>
-            <FilterComponent onFilterApply={(filters) => fetchConfirmedRequests(filters)}/>
+            <FilterComponent onFilterApply={(filters) => setFilters(filters)}/>
 
             {
                 isLoading ? (

@@ -1,15 +1,6 @@
 "use client";
 
 import React, {useState, useEffect} from "react";
-// import {useModal} from "@/hooks/useModal";
-// import {Modal} from "@/components/ui/modal";
-// import Button from "@/components/ui/button/Button";
-// import Input from "@/components/form/input/InputField";
-// import TextArea from "@/components/form/input/TextArea";
-// import Label from "@/components/form/Label";
-// import Image from "next/image";
-// import {useAgent} from "@/context/AgentContext";
-// import {as} from "@fullcalendar/core/internal-common";
 import {FileIcon, TaskIcon, DollarLineIcon, PieChartIcon, InfoIcon, PlusIcon} from "@/icons";
 import {toast} from "react-toastify";
 import services from "@/core/service"
@@ -24,11 +15,9 @@ import Select from "@/components/form/select";
 import Textarea from "@/components/form/input/TextArea";
 import Button from "@/components/ui/button/Button";
 import DatePicker from "react-multi-date-picker";
-import persian from "react-date-object/calendars/persian";
-import persian_fa from "react-date-object/locales/persian_fa";
 import Label from "@/components/form/Label";
-import {de} from "@fullcalendar/core/internal-common";
 import {calculateTimestamp} from "@/core/utils";
+// import FilterComponent from "@/components/custom/filters/FilterComponent";
 
 interface RequestData {
     request_id: string;
@@ -39,6 +28,7 @@ interface RequestData {
     user_family: string;
     user_mobile: string;
     user_pey_amount: number;
+    user_pey_cash: number;
     request_financial_doc: Array<[]>;
     request_address: Array<[]>;
     request_description?: string | null;
@@ -51,6 +41,7 @@ interface RequestData {
     }>;
     request_stats?: Array<{
         staterequest_timestamp: string;
+        request_state_name: string;
         staterequest_desc: string;
         agent_code?: string;
         agent_name?: string;
@@ -74,11 +65,13 @@ export default function RequestDetail() {
     const [citiesList, setCitiesList] = useState([]);
 
     const [selectedImage, setSelectedImage] = useState(null);
-    const [selectedStatus, setSelectedStatus] = useState("");
+    const [selectedStatus, setSelectedStatus] = useState<any | number>(11);
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [stepFields, setStepFields] = useState(null);
     const [formData, setFormData] = useState({});
     const [error, setError] = useState(null);
     const [showLoader, setShowLoader] = useState(false)
+    // const [filters, setFilters] = useState({});
 
     const handleStatusChange = async (formDataset) => {
         // if (!selectedStatus) {
@@ -219,17 +212,14 @@ export default function RequestDetail() {
     }, [id]);
 
     useEffect(() => {
-        setFormData({})
         if (selectedStatus == 11) {
-            setFormData({...formData, command: "requestdelivered11"})
-            fetchDeliveryModes();
-            fetchCityStatesList();
+            // fetchDeliveryModes();
+            // fetchCityStatesList();
         }
+        setFormData({command: "requestdelivered" + selectedStatus})
     }, [selectedStatus]);
 
     async function uploadImage() {
-        // https://codesandbox.io/p/sandbox/react-images-uploading-demo-u0khz?file=%2Fsrc%2Findex.js%3A21%2C28
-        // https://www.npmjs.com/package/react-images-uploading
         setImageIsLoading(true)
         console.log('uploadImage', selectedImage)
         let imageFormData = new FormData()
@@ -262,6 +252,7 @@ export default function RequestDetail() {
     return (
         <>
             <div className="mb-6">
+
                 <div className="grid grid-cols-2 gap-4 lg:grid-cols-3 lg:gap-8 2xl:gap-x-32">
                     <div>
                         <p className="mb-2  leading-normal text-gray-500 dark:text-gray-400">
@@ -397,10 +388,11 @@ export default function RequestDetail() {
                         {!requestData.request_stats && (
                             <div className="mb-2 leading-normal text-gray-400 dark:text-gray-400">رکوردی موجود
                                 نیست.</div>)}
-                        {requestData.request_stats && (<table className="w-full">
+                        {requestData.request_stats?.length > 0 && (<table className="w-full">
                             <thead>
                             <tr>
                                 <th>تاریخ</th>
+                                <th>وضعیت</th>
                                 <th>توضیحات</th>
                                 <th>کد نماینده</th>
                                 <th>نماینده</th>
@@ -410,7 +402,8 @@ export default function RequestDetail() {
                             <tbody>
                             {requestData.request_stats?.map((stat, index) => (
                                 <tr key={index}>
-                                    <td>{calculateTimestamp((stat?.staterequest_timestamp))}</td>
+                                    <td>{stat?.staterequest_timestamp}</td>
+                                    <td>{stat.request_state_name}</td>
                                     <td>{stat.staterequest_desc}</td>
                                     <td>{stat.agent_code || "-"}</td>
                                     <td>{stat.agent_name ? `${stat.agent_name} ${stat.agent_family}` : "-"}</td>
@@ -459,30 +452,27 @@ export default function RequestDetail() {
                     <Select
                         id="changeState"
                         options={requestStates}
-                        defaultValue={selectedStatus}
-                        onChange={(e) => setSelectedStatus(e)}
+                        onChange={(e) => {
+                            setSelectedStatus(e)
+                            setStepFields(requestStepData[e])
+                        }}
                         disabled={isSubmitting}
                         placeholder="انتخاب کنید"
                     >
                     </Select>
                 </div>
 
-                {selectedStatus && (<>
-                    <h3>{requestStepData[selectedStatus]['title']}</h3>
-                    <div className="mt-4 grid grid-cols-2 md:grid-cols-3 gap-4">
+                {stepFields && selectedStatus && (<div className={'mt-6 border p-4 rounded'}>
+                    <h3>{stepFields['title']}</h3>
+                    <div className="mt-4">
                         <RequestStepForm
-                            stepFields={requestStepData[selectedStatus]['fields']}
-                            onSubmit={formData => {
-                                // formData.images will be an array of images with data_url and file
-                                // send formData to your API
-                                console.log(formData);
-                                handleStatusChange(formData);
-                            }}
+                            stepFields={stepFields['fields']}
+                            onSubmit={handleStatusChange}
                         />
                     </div>
-                </>)}
+                </div>)}
 
-                {selectedStatus == 11 && (
+                {selectedStatus == 10 && (
                     <div className="mt-5">
                         <h3>تغییر وضعیت به تحویل شده به کاربر</h3>
                         <div className="mt-4 grid grid-cols-2 md:grid-cols-3 gap-4">

@@ -31,21 +31,13 @@ interface UnconfirmedRequests {
 export default function UnconfirmedRequests() {
     const [unconfirmedRequests, setUnconfirmedRequests] = useState<UnconfirmedRequests[]>([]);
     const [isLoading, setIsLoading] = useState(true);
+    const [filters, setFilters] = useState({});
 
-    const fetchUnconfirmedRequests = async (filters = null) => {
+    const fetchUnconfirmedRequests = async () => {
         try {
             setIsLoading(true);
-            const queryParams = {
-                start_date: filters?.startDate,
-                end_date: filters?.endDate,
-                fieldinsurance_id: filters?.fieldInsurance,
-                user_mobile: filters?.userMobile,
-                order_number: filters?.orderNumber
-            };
-            console.log('filters', filters)
 
-            const query = filters ? `&start_date=${queryParams?.start_date}` : "";
-            const response = await services.Requests.getReport(`?command=getagent_request&approvaslmode=notapprov${query}`);
+            const response = await services.Requests.getReport(`?command=getagent_request&approvaslmode=notapprov`);
             if (response) {
                 const data = response.data;
                 console.log('getagent_request notapprov', data)
@@ -69,7 +61,7 @@ export default function UnconfirmedRequests() {
 
     return (
         <>
-            <FilterComponent onFilterApply={(filters) => fetchUnconfirmedRequests(filters)}/>
+            <FilterComponent onFilterApply={(filters) => setFilters(filters)}/>
 
             {isLoading ? (
                 <div className="text-center">در حال دریافت اطلاعات...</div>
@@ -109,7 +101,7 @@ export default function UnconfirmedRequests() {
                                 <TableCell>{request.request_ready[0]['requst_ready_end_price']}</TableCell>
                                 <TableCell>{request.user_pey_amount}</TableCell>
                                 <TableCell>{request.user_pey_amount}</TableCell>
-                                <TableCell>{request.request_ready[0]['requst_ready_start_date'].toLocaleDateString('fa-IR') || '-'}</TableCell>
+                                <TableCell>{request.request_ready[0]['requst_ready_start_date'] || '-'}</TableCell>
 
                             </TableRow>
                         ))}

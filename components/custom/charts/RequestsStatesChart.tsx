@@ -9,9 +9,9 @@ import {toast} from "react-toastify";
 import Button from "@/components/ui/button/Button";
 
 export default function RequestsTypesChart({allRequests = []}) {
+    const [visibleCount, setVisibleCount] = useState(5);
     const [isOpen, setIsOpen] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
-    const [limitedData, setLimitedData] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [stepsData, setStepsData] = useState([]);
 
@@ -61,11 +61,13 @@ export default function RequestsTypesChart({allRequests = []}) {
                 toast.error(err || 'مشکلی پیش آمد. دوباره تلاش کنید.');
             } finally {
                 setIsLoading(false);
+                if(!stepsData) setError('دیتایی برای نمایش وجود ندارد')
             }
         };
 
         fetchStepsData();
     }, []);
+
 
     return (
         <>
@@ -78,7 +80,7 @@ export default function RequestsTypesChart({allRequests = []}) {
                             سفارشات
                         </h3>
                         <p className="mt-1 text-gray-500 text-theme-sm dark:text-gray-400">
-                            سفارشات بر اساس مرحله
+                            تعداد سفارشات بر اساس مرحله
                         </p>
                     </div>
 
@@ -108,12 +110,13 @@ export default function RequestsTypesChart({allRequests = []}) {
                 </div>
 
                 <hr/>
-                {isLoading ? (<div className="text-center">در حال دریافت اطلاعات...</div>) : (
+                {(error  && !isLoading) && <div className="text-center">{error}</div>}
+                {(!error && isLoading) ? (<div className="text-center">در حال دریافت اطلاعات...</div>) : (!error &&
                     <div className="space-y-5">
                         {!stepsData.length && <div className="text-center">رکوردی وجود ندارد</div> }
                         {stepsData.length > 1 && stepsData.map((step, index) => (
                             <div key={step.request_state_id}
-                                 className={`${limitedData && index > 5 ? 'hidden' : 'flex'}  items-center justify-between`}>
+                                 className={`${index >= visibleCount ? 'hidden' : 'flex'}  items-center justify-between`}>
                                 <div className="flex items-center gap-3">
                                     {/*<div className="items-center w-full rounded-full max-w-8">*/}
                                     {/*    <Image*/}
@@ -147,11 +150,11 @@ export default function RequestsTypesChart({allRequests = []}) {
                             </div>
                         ))}
 
-                        {stepsData.length > 5 && limitedData && (<Button className="w-full" size="sm" variant="outline"
-                                                                     onClick={() => setLimitedData(false)}>نمایش
+                        {stepsData.length > 5 && stepsData.length > visibleCount + 5 && (<Button className="w-full" size="sm" variant="outline"
+                                                                     onClick={() => stepsData.length >= visibleCount + 10 ? setVisibleCount(visibleCount + 5) : setVisibleCount(stepsData.length)}>نمایش
                             بیشتر</Button>)}
-                        {stepsData.length > 5 && !limitedData && (
-                            <Button className="w-full" size="sm" variant="outline" onClick={() => setLimitedData(true)}>نمایش
+                        {stepsData.length > 5 && visibleCount >= stepsData.length && (
+                            <Button className="w-full" size="sm" variant="outline" onClick={() => setVisibleCount(5)}>نمایش
                                 کمتر</Button>)}
                     </div>)}
             </div>

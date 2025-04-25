@@ -9,9 +9,10 @@ import {toast} from "react-toastify";
 import Button from "@/components/ui/button/Button";
 
 export default function RequestsTypesChart({allRequests = []}) {
+    const [visibleCount, setVisibleCount] = useState(5);
     const [isOpen, setIsOpen] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
-    const [limitedData, setLimitedData] = useState(true);
+    // const [limitedData, setLimitedData] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [insurancesData, setInsurancesData] = useState([]);
 
@@ -60,6 +61,7 @@ export default function RequestsTypesChart({allRequests = []}) {
             } catch (err) {
                 toast.error(err || 'مشکلی پیش آمد. دوباره تلاش کنید.');
             } finally {
+                if(!insurancesData) setError('دیتایی برای نمایش وجود ندارد')
                 setIsLoading(false);
             }
         };
@@ -77,7 +79,7 @@ export default function RequestsTypesChart({allRequests = []}) {
                             همه درخواست ها
                         </h3>
                         <p className="mt-1 text-gray-500 text-theme-sm dark:text-gray-400">
-                            تعداد درخواست ها بر اساس رشته بیمه
+                            تعداد درخواست ها بر اساس نوع بیمه
                         </p>
                     </div>
 
@@ -107,12 +109,13 @@ export default function RequestsTypesChart({allRequests = []}) {
                 </div>
 
                 <hr/>
-                {isLoading ? (<div className="text-center">در حال دریافت اطلاعات...</div>) : (
+                {(error  && !isLoading) && <div className="text-center">{error}</div>}
+                {(!error && isLoading) ? (<div className="text-center">در حال دریافت اطلاعات...</div>) : (!error &&
                     <div className="space-y-5">
                         {!insurancesData.length && <div className="text-center">رکوردی وجود ندارد</div>}
                         {insurancesData.length > 0 && insurancesData.map((insurance, index) => (
                             <div key={insurance.fieldinsurance_id}
-                                 className={`${limitedData && index > 5 ? 'hidden' : 'flex'}  items-center justify-between`}>
+                                 className={`${index >= visibleCount ? 'hidden' : 'flex'}  items-center justify-between`}>
                                 <div className="flex items-center gap-3">
                                     <div>
                                         <p className=" text-gray-800 text-theme-sm dark:text-white/90">
@@ -137,11 +140,11 @@ export default function RequestsTypesChart({allRequests = []}) {
                             </div>
                         ))}
 
-                        {insurancesData.length && limitedData && (<Button className="w-full" size="sm" variant="outline"
-                                                                          onClick={() => setLimitedData(false)}>نمایش
+                        {insurancesData.length > 5 && insurancesData.length > visibleCount + 5 && (<Button className="w-full" size="sm" variant="outline"
+                                                                                                 onClick={() => insurancesData.length >= visibleCount + 10 ? setVisibleCount(visibleCount + 5) : setVisibleCount(insurancesData.length)}>نمایش
                             بیشتر</Button>)}
-                        {insurancesData.length && !limitedData && (
-                            <Button className="w-full" size="sm" variant="outline" onClick={() => setLimitedData(true)}>نمایش
+                        {insurancesData.length > 5 && visibleCount >= insurancesData.length && (
+                            <Button className="w-full" size="sm" variant="outline" onClick={() => setVisibleCount(5)}>نمایش
                                 کمتر</Button>)}
                     </div>
                 )}

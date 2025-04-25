@@ -27,7 +27,7 @@ import {toast} from "react-toastify";
 axios.interceptors.request.use(
     (config) => {
         const token = ` ${Cookies.get('server_agent_token')}`;
-        console.log('tokeen', token)
+        // console.log('tokeen', token)
         if (token) config.headers.Authorization = `${token}`;
         return config;
     },

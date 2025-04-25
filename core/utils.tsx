@@ -44,30 +44,30 @@
 // }
 
 // export const menuItems = [
-    // {name: "س  ", path :`${routes.DASHBOARD}`, type:'shallow' , icon:<Dashboard/> },
-    // {
-    //         name: 'استعلام',
-    //         type: 'nested',
-    //         icon:<Messagequestion/>,
-    //         items:[
-    //                 {name: ' استعلام حق بیمه  ', path:`${routes.INSURANCERATE}`},
-    //                 {name: 'استعلام با کد ملی'},
-    //                 {name: 'استعلام با نام بیمه گذار'}
+// {name: "س  ", path :`${routes.DASHBOARD}`, type:'shallow' , icon:<Dashboard/> },
+// {
+//         name: 'استعلام',
+//         type: 'nested',
+//         icon:<Messagequestion/>,
+//         items:[
+//                 {name: ' استعلام حق بیمه  ', path:`${routes.INSURANCERATE}`},
+//                 {name: 'استعلام با کد ملی'},
+//                 {name: 'استعلام با نام بیمه گذار'}
 
-    //             ]
-    //         },
-    // {name: ' استعلام حق بیمه  ', path: `${routes.INSURANCERATE}`, type: 'shallow', icon: <StatusUp/>},
-    //
-    // {name: "بیمه نامه  ", path: `${routes.INSURANCEPOLICY}`, type: 'shallow', icon: <Folder/>},
-    // {name: "پیشنهاد بیمه نامه  ", path: `${routes.OFFERSLIST}`, type: 'shallow', icon: <OfferFolder/>},
-    // {name: "اقساط سررسیده شده", path: `${routes.INSTALLMENT}`, type: 'shallow', icon: <CardTransfer/>},
-    // {name: "تراکنش ها  ", path: `${routes.TRANSACTIONS}`, type: 'shallow', icon: <Peyment/>},
-    // {name: "کارمزد", path: `${routes.COMMISSION}`, type: 'shallow', icon: <BillCheck2/>},
-    // {name: " مشاوره ها ", path: `${routes.CONSULTATION}`, type: 'shallow', icon: <LetterUnread/>},
-    // {name: " سامانه تیکت ", path :`${routes.Ticketing}`, type:'shallow', icon:<Messagequestion/>},
-    // {name: "آموزش", path: `${routes.TOTURIAL}`, type: 'shallow', icon: <Wiki/>},
-    // {name: "سوالات متداول", path: `${routes.FAQ}`, type: 'shallow', icon: <Messagequestion/>},
-    // {name: "تنظیمات", path :'/consultation-request', type:'shallow',icon:<Settings/>},
+//             ]
+//         },
+// {name: ' استعلام حق بیمه  ', path: `${routes.INSURANCERATE}`, type: 'shallow', icon: <StatusUp/>},
+//
+// {name: "بیمه نامه  ", path: `${routes.INSURANCEPOLICY}`, type: 'shallow', icon: <Folder/>},
+// {name: "پیشنهاد بیمه نامه  ", path: `${routes.OFFERSLIST}`, type: 'shallow', icon: <OfferFolder/>},
+// {name: "اقساط سررسیده شده", path: `${routes.INSTALLMENT}`, type: 'shallow', icon: <CardTransfer/>},
+// {name: "تراکنش ها  ", path: `${routes.TRANSACTIONS}`, type: 'shallow', icon: <Peyment/>},
+// {name: "کارمزد", path: `${routes.COMMISSION}`, type: 'shallow', icon: <BillCheck2/>},
+// {name: " مشاوره ها ", path: `${routes.CONSULTATION}`, type: 'shallow', icon: <LetterUnread/>},
+// {name: " سامانه تیکت ", path :`${routes.Ticketing}`, type:'shallow', icon:<Messagequestion/>},
+// {name: "آموزش", path: `${routes.TOTURIAL}`, type: 'shallow', icon: <Wiki/>},
+// {name: "سوالات متداول", path: `${routes.FAQ}`, type: 'shallow', icon: <Messagequestion/>},
+// {name: "تنظیمات", path :'/consultation-request', type:'shallow',icon:<Settings/>},
 
 // ]
 
@@ -128,12 +128,47 @@ export const requestStepData = {
     11: {
         title: 'تغییر وضعیت به تحویل شده به کاربر',
         fields: [
-            { name: "request_delivered_mode_id", label: "نوع دریافت", type: "select", required: true, command: "get_mode_delivery" },
-            { name: "request_delivered_state_id", label: "استان", type: "Select" , command: "get_state" },
-            { name: "request_delivered_city_id", label: "شهر", type: "Select" , command: "get_city" },
-            { name: "request_delivered_dsc", label: "توضیحات تحویل", type: "textarea" },
-            { name: "price", label: "مبلغ", type: "number" },
-            { name: "image_code", label: "تصاویر", type: "image", maxNumber: 1 }
+            {
+                name: "request_delivered_mode_id",
+                label: "نوع دریافت",
+                type: "select",
+                required: true,
+                command: "get_mode_delivery"
+            },
+            {
+                name: "request_delivered_state_id",
+                label: "استان",
+                type: "select",
+                command: "get_state",
+                triggers: "get_city",
+                triggerParam: "state_id"
+            },
+            {
+                name: "request_delivered_city_id",
+                label: "شهر",
+                type: "select",
+                command: "get_city",
+                dependsOn: "request_delivered_state_id"
+            },
+            {
+                name: "request_delivered_dsc",
+                label: "توضیحات تحویل",
+                type: "textarea",
+                required: true
+            },
+            {
+                name: "price",
+                label: "مبلغ",
+                type: "number",
+                required: true
+            },
+            {
+                name: "image_code",
+                label: "تصاویر",
+                type: "image",
+                maxNumber: 1,
+                required: true
+            }
         ]
     }
 }

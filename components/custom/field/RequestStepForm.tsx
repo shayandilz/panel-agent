@@ -6,157 +6,187 @@ import Select from "@/components/form/select";
 import Textarea from "@/components/form/input/TextArea";
 import Button from "@/components/ui/button/Button";
 import DatePicker from "react-multi-date-picker";
+import Input from "@/components/form/input/InputField";
 
 export default function RequestStepForm({stepFields, onSubmit}) {
     const [form, setForm] = useState<{ [key: string]: any }>({});
     const [images, setImages] = useState<ImageListType>([]);
-    const [optionsList, setOptionsList] = useState<{ [key: string]: any }>({});
+    const [optionsList, setOptionsList] = useState<{ [key: string]: Array<{ value: any, label: string }> }>({});
     const [isSubmitting, setIsSubmitting] = useState(false);
 
-    async function getOptions (command, query = '') {
-        if (command) {
-            try {
-                const response = await services.Fields.fetchList('?command=' + command + query)
-                if (response?.data?.result === "ok") {
-                    let modes = []
-                    let modesId = []
-                    let valueName = 'value'
-                    let labelName = 'label'
-
-                    if (command == 'get_mode_delivery') {
-                        valueName = 'delivery_mode_id'
-                        labelName = 'delivery_mode_name'
-                    }
-                    if (command == 'get_state') {
-                        valueName = 'state_id'
-                        labelName = 'state_name'
-                    }
-                    if (command == 'get_city') {
-                        valueName = 'city_id'
-                        labelName = 'city_name'
-                    }
-
-                    await response?.data?.data.forEach(function (mode) {
-                        if (modesId.indexOf(mode?.[valueName]) < 0) {
-                            modesId.push(mode?.[valueName])
-                            modes.push({
-                                value: mode?.[valueName],
-                                label: mode?.[labelName]
-                            })
-                        }
-                    })
-                    console.log(command, modes)
-                    setOptionsList({
-                        ...optionsList,
-                        [command]: modes
-                    });
-                } else {
-                    throw new Error(response?.data?.desc || "مشکلی پیش آمد.");
-                }
-            } catch (err: any) {
-                setOptionsList({
-                    ...optionsList,
-                    [command]: null
-                });
-                // console.error(err.message || "مشکلی پیش آمد. دوباره تلاش کنید.");
-            }
-        }
-        // return optionsList[command]
-    };
-
+    // Initialize options list with empty arrays
     useEffect(() => {
-        stepFields.fields.forEach(field => {
-            if(field?.command && field?.command != "get_city") getOptions(field.command)
-            if(field?.command && field?.command == "get_city") setOptionsList({
-                ...optionsList,
-                "get_city": []
-            });
-        })
-    }, [stepFields]);
+        const initialOptions = stepFields.reduce((acc, field) => {
+            if (field.command) {
+                acc[field.command] = [];
+            }
+            return acc;
+        }, {});
+        setOptionsList(initialOptions);
 
-    // Handle generic field changes
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-        if(e.target.name == 'request_delivered_state_id') {
-            setOptionsList({
-                ...optionsList,
-                "get_city": []
-            });
-            getOptions("get_city", '&state_id=' + e.target.value)
+        // Fetch initial data for independent commands
+        stepFields.forEach(async (field) => {
+            if (field.command && !field.dependsOn) {
+                await getOptions(field.command);
+            }
+        });
+    }, []);
+
+    async function getOptions(command: string, query: string = '') {
+        try {
+            const response = await services.Fields.fetchList(`?command=${command}${query}`);
+            if (response?.data?.result === "ok") {
+                const valueName = getValueFieldName(command);
+                const labelName = getLabelFieldName(command);
+
+                const modes = response.data.data.reduce((acc, mode) => {
+                    if (!acc.some(item => item.value === mode[valueName])) {
+                        acc.push({
+                            value: mode[valueName],
+                            label: mode[labelName]
+                        });
+                    }
+                    return acc;
+                }, []);
+
+                setOptionsList(prev => ({
+                    ...prev,
+                    [command]: modes
+                }));
+            }
+        } catch (error) {
+            console.error(`Error fetching ${command}:`, error);
+            setOptionsList(prev => ({
+                ...prev,
+                [command]: []
+            }));
         }
-        setForm({...form, [e.target.name]: e.target.value});
+    }
+
+    const getValueFieldName = (command: string) => {
+        const fieldMap = {
+            'get_mode_delivery': 'delivery_mode_id',
+            'get_state': 'state_id',
+            'get_city': 'city_id'
+        };
+        return fieldMap[command] || 'value';
     };
 
-    // Handle image changes
+    const getLabelFieldName = (command: string) => {
+        const fieldMap = {
+            'get_mode_delivery': 'delivery_mode_name',
+            'get_state': 'state_name',
+            'get_city': 'city_name'
+        };
+        return fieldMap[command] || 'label';
+    };
+
+    const handleSelectChange = async (name: string, value: any) => {
+        // Handle dependent fields
+        const fieldConfig = stepFields.find(f => f.name === name);
+        if (fieldConfig?.triggers) {
+            await getOptions(fieldConfig.triggers, `&${fieldConfig.triggerParam}=${value}`);
+        }
+
+        setForm(prev => ({...prev, [name]: value}));
+    };
+
+    const handleChange = (name: string, value: any) => {
+        setForm(prev => ({...prev, [name]: value}));
+    };
+
     const handleImagesChange = (imageList: ImageListType) => {
         setImages(imageList);
-        setForm({...form, images: imageList}); // Add images to form object
+        setForm(prev => ({
+            ...prev,
+            image_code: null
+            // image_code: imageList?.map(img => img.image_code)?.image_code || null
+        }));
     };
 
-    // Handle form submit
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        // You can now send `form` object, which includes all fields and images
-        setIsSubmitting(true)
-        onSubmit(form);
+        setIsSubmitting(true);
+        try {
+            await onSubmit(form);
+        } finally {
+            setIsSubmitting(false);
+        }
     };
 
     return (
-        <form onSubmit={handleSubmit}>
-            {stepFields.map(field => {
-                if (field.type === "image") {
+        <form onSubmit={handleSubmit} className="space-y-4">
+            {/*<div className="grid grid-cols-1 md:grid-cols-3 gap-4">*/}
+
+                {stepFields.map(field => {
+                    if (field.type === "image") {
+                        return (
+                            <div key={field.name} className="mb-4">
+                                <label className="block mb-2 text-sm font-medium">
+                                    {field.label}
+                                </label>
+                                <ImageUploader
+                                    name={field.name}
+                                    onChange={handleImagesChange}
+                                    value={images}
+                                    maxNumber={field.maxNumber || 1}
+                                />
+                            </div>
+                        );
+                    }
+
+                    if (field.type === "textarea") {
+                        return (
+                            <div key={field.name} className="mb-4">
+                                <Textarea
+                                    placeholder={field.label}
+                                    disabled={isSubmitting}
+                                    value={form[field.name] || ""}
+                                    onChange={value => handleChange(field.name, value)}
+                                    required={field.required}
+                                />
+                            </div>
+                        );
+                    }
+
+                    if (field.type === "select") {
+                        return (
+                            <div key={field.name} className="mb-4">
+                                <Select
+                                    disabled={isSubmitting || !optionsList[field.command]?.length}
+                                    options={optionsList[field.command] || []}
+                                    onChange={(val) => handleSelectChange(field.name, val)}
+                                    placeholder={field.label}
+                                    value={form[field.name]}
+                                    loading={!optionsList[field.command]}
+                                    required={field.required}
+                                />
+                            </div>
+                        );
+                    }
+
                     return (
                         <div key={field.name} className="mb-4">
-                            <label className="block mb-2">{field.label}</label>
-                            <ImageUploader name={field.name} value={images} onChange={handleImagesChange}
-                                           maxNumber={field.maxNumber || 5}/>
-                        </div>
-                    );
-                }
-                if (field.type === "textarea") {
-                    return (
-                        <div key={field.name} className="mb-4">
-                            <Textarea
+                            <Input
+                                type={field.type}
                                 placeholder={field.label}
                                 disabled={isSubmitting}
-                                name={field.name}
                                 value={form[field.name] || ""}
-                                onChange={handleChange}
+                                onChange={e => handleChange(field.name, e.target.value)}
+                                required={field.required}
                             />
                         </div>
                     );
-                }
-                if (field.type === "select") {
-                    console.log('select',field.command, optionsList[field.command])
-                    getOptions(field.command)
-                    return (
-                        optionsList[field.command] != undefined && <div key={field.name} className="mb-4">
-                            <Select
-                                disabled={isSubmitting}
-                                name={field.name}
-                                options={optionsList[field.command]}
-                                onChange={handleChange}
-                                placeholder={field.label}
-                                defaultValue={form[field.name] || ""}
-                            >
-                            </Select>
-                        </div>
-                    );
-                }
-                // Default to text input
-                return (
-                    <div key={field.name} className="mb-4">
-                        <label className="block mb-2">{field.label}</label>
-                        <input
-                            type={field.type}
-                            name={field.name}
-                            value={form[field.name] || ""}
-                            onChange={handleChange}
-                            className="w-full border rounded p-2"
-                        />
-                    </div>
-                );
-            })}
-            <button type="submit" className="px-4 py-2 bg-blue-600 text-white rounded">ارسال</button>
+                })}
+            {/*</div>*/}
+
+            <Button
+                type="submit"
+                loading={isSubmitting}
+                className="w-full justify-center"
+            >
+                ارسال
+            </Button>
         </form>
     );
 }

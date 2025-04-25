@@ -50,7 +50,7 @@ export default function PendingPaymentRequests() {
 
     return (
         <>
-            <FilterComponent onFilterApply={(filters) => fetchPendingPaymentRequests(filters)}/>
+            <FilterComponent onFilterApply={(filters) => setFilters(filters)}/>
             {isLoading ? (
                 <div className="text-center">در حال دریافت اطلاعات...</div>
             ) : (
@@ -72,7 +72,7 @@ export default function PendingPaymentRequests() {
                                     <TableCell>{request.request_fieldinsurance_fa}</TableCell>
                                     <TableCell>{request.user_pey_amount}</TableCell>
                                     <TableCell>{request.request_ready?.[0]?.requst_ready_end_price || "-"}</TableCell>
-                                    <TableCell>{request.request_ready?.[0]?.requst_ready_start_date.toLocaleDateString('fa-IR') || "-"}</TableCell>
+                                    <TableCell>{request.request_ready?.[0]?.requst_ready_start_date || "-"}</TableCell>
                                 </TableRow>
                             ))
                         ) : (
