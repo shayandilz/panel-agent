@@ -61,7 +61,7 @@ export default function RequestDetail() {
     const [isLoading, setIsLoading] = useState(true);
     const [activeTab, setActiveTab] = useState("issuance");
     const [requestData, setRequestData] = useState<RequestData | null>(null);
-    const [currentState, setCurrentState] = useState<string | null>(null);
+    // const [currentState, setCurrentState] = useState<string | null>(null);
     const [allRequestStates, setAllRequestStates] = useState([]);
     const [availableStates, setAvailableStates] = useState([]);
     const [deliveryModes, setDeliveryModes] = useState([]);
@@ -115,8 +115,8 @@ export default function RequestDetail() {
                 let requests = response?.data?.data
                 let reqIndex = requests.findIndex(req => req.request_id == id)
                 setRequestData(requests[reqIndex] as RequestData);
-                await setCurrentState(requests[reqIndex]?.request_last_state_id)
-                await fetchRequestStates();
+                // setCurrentState(requests[reqIndex]?.request_last_state_id)
+                fetchRequestStates(requests[reqIndex]?.request_last_state_id);
             } else {
                 throw new Error(response?.data?.desc || "مشکلی پیش آمد.");
             }
@@ -128,7 +128,7 @@ export default function RequestDetail() {
         }
     };
 
-    const fetchRequestStates = async () => {
+    const fetchRequestStates = async (currentState) => {
         try {
             const response = await services.Requests.getReport('?command=getstaterequest')
             if (response?.data?.result === "ok") {

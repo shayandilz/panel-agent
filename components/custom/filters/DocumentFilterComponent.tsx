@@ -65,7 +65,7 @@ export default function DocumentFilterComponent({onFilterApply}: FilterProps) {
                         text-sm shadow-theme-xs placeholder:text-gray-400 
                         focus:border-brand-300 focus:outline-hidden focus:ring-3 
                         focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 
-                        dark:text-white/90 dark:placeholder:text-white/30 
+                        dark:text-white/90 dark:placeholder:text-white/60 
                         dark:focus:border-brand-800 ${
                             selectedDocument
                                 ? "text-gray-800 dark:text-white/90"
