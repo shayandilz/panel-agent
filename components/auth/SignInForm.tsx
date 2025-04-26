@@ -51,7 +51,8 @@ export default function SignInForm() {
             const data = await res.json();
             if (data.result != 'ok') {
                 setShowLoader(false)
-                toast.error(data.desc || 'مشکلی پیش آمد. دوباره تلاش کنید.');
+                // console.log('teest',da/ta)
+                toast.error(data.error || 'مشکلی پیش آمد. دوباره تلاش کنید.');
                 return;
             }
 

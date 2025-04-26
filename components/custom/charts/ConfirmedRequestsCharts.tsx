@@ -32,41 +32,9 @@ interface ConfirmedRequests {
 
 export default function ConfirmedRequests() {
     const [confirmedRequests, setConfirmedRequests] = useState<ConfirmedRequests[]>([]);
-    const [isLoading, setIsLoading] = useState(true);
+    const [isLoading, setIsLoading] = useState(false);
     const [isOpen, setIsOpen] = useState(false);
 
-    const fetchConfirmedRequests = async () => {
-        try {
-            setIsLoading(true);
-            // const queryParams = {
-            //     start_date: filters?.startDate,
-            //     end_date: filters?.endDate,
-            //     fieldinsurance_id: filters?.fieldInsurance,
-            //     user_mobile: filters?.userMobile,
-            //     order_number: filters?.orderNumber
-            // };
-            // console.log('filters', filters)
-
-            // const query = filters ? `&start_date=${queryParams?.start_date}` : "";
-            const response = await services.Requests.getReport(`?command=getagent_request&approvaslmode=checkedfinancial`);
-            if (response) {
-                const data = response.data;
-                console.log('getagent_request checkedfinancial', data)
-                if (data.result != 'ok') {
-                    throw new Error(data.desc);
-                }
-
-                if (data.data) setConfirmedRequests(data.data)
-                else setConfirmedRequests([])
-            } else toast.error('مشکلی پیش آمد. دوباره تلاش کنید.');
-        } catch (err) {
-            toast.error(err || 'مشکلی پیش آمد. دوباره تلاش کنید.');
-        } finally {
-            setIsLoading(false);
-
-            setTimeout(fetchConfirmedRequests, 60000)
-        }
-    };
 
     function toggleDropdown() {
         setIsOpen(!isOpen);
@@ -77,7 +45,32 @@ export default function ConfirmedRequests() {
     }
 
     useEffect(() => {
-        fetchConfirmedRequests();
+        const fetchConfirmedRequests = async () => {
+            if(isLoading) return
+            try {
+                setIsLoading(true);
+
+                const response = await services.Requests.getReport(`?command=getagent_request&approvaslmode=checkedfinancial`);
+                if (response) {
+                    const data = response.data;
+                    console.log('getagent_request checkedfinancial', data)
+                    if (data.result != 'ok') {
+                        throw new Error(data.desc);
+                    }
+
+                    if (data.data) setConfirmedRequests(data.data)
+                    else setConfirmedRequests([])
+                } else toast.error('مشکلی پیش آمد. دوباره تلاش کنید.');
+            } catch (err) {
+                toast.error(err || 'مشکلی پیش آمد. دوباره تلاش کنید.');
+            } finally {
+                setIsLoading(false);
+
+                // setTimeout(fetchConfirmedRequests, 60000)
+            }
+        };
+
+        if(!isLoading) fetchConfirmedRequests();
     }, []);
 
     return (

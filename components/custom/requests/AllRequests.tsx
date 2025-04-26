@@ -72,7 +72,7 @@ export default function AllRequests() {
 
     return (
         <>
-            <div className="overflow-hidden bg-white dark:border-white/[0.05] dark:bg-white/[0.03]">
+            <div className="overflow-hidden">
                 <div className="max-w-full overflow-x-auto">
                     <div className="min-w-[1102px]">
                         {isLoading ? (

@@ -2,7 +2,7 @@
 
 import {useState} from 'react';
 import {useRouter} from 'next/navigation';
-import LoadingButton from '../components/coommon/LoadingButton'
+import LoadingButton from '@/components/common/LoadingButton'
 import {POST} from "../api/login/route";
 
 export default function LoginPage() {

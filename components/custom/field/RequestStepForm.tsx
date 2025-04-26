@@ -34,7 +34,7 @@ export default function RequestStepForm({stepFields, onSubmit}) {
 
     async function getOptions(command: string, query: string = '') {
         try {
-            const response = await services.Fields.fetchList(`?command=${command}${query}`);
+            const response = await services.Fields.fetchList(`${getValueIp(command)}?command=${command}${query}`);
             if (response?.data?.result === "ok") {
                 const valueName = getValueFieldName(command);
                 const labelName = getLabelFieldName(command);
@@ -63,8 +63,20 @@ export default function RequestStepForm({stepFields, onSubmit}) {
         }
     }
 
+    const getValueIp = (command: string) => {
+        const fieldMap = {
+            'get_organ': 'organ',
+            'get_clearingmode': 'statecity',
+            'get_state': 'statecity',
+            'get_city': 'statecity'
+        };
+        return fieldMap[command] || 'agentrequestreport';
+    };
+
     const getValueFieldName = (command: string) => {
         const fieldMap = {
+            'get_organ': 'organ_id',
+            'get_clearingmode': 'request_ready_clearing_mode_id',
             'get_mode_delivery': 'delivery_mode_id',
             'get_state': 'state_id',
             'get_city': 'city_id'
@@ -74,6 +86,8 @@ export default function RequestStepForm({stepFields, onSubmit}) {
 
     const getLabelFieldName = (command: string) => {
         const fieldMap = {
+            'get_organ': 'organ_name',
+            'get_clearingmode': 'request_ready_clearing_mode_name',
             'get_mode_delivery': 'delivery_mode_name',
             'get_state': 'state_name',
             'get_city': 'city_name'
@@ -95,13 +109,14 @@ export default function RequestStepForm({stepFields, onSubmit}) {
         setForm(prev => ({...prev, [name]: value}));
     };
 
-    const handleImagesChange = (imageList: ImageListType) => {
+
+    const handleImagesChange = (imageList: ImageListType, name) => {
         setImages(imageList);
         setForm(prev => ({
             ...prev,
-            image_code: null
-            // image_code: imageList?.map(img => img.image_code)?.image_code || null
+            [name]: imageList[0] ? imageList[0]?.image_code || null : null
         }));
+        console.log('handleImagesChange', images, form)
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -118,66 +133,85 @@ export default function RequestStepForm({stepFields, onSubmit}) {
         <form onSubmit={handleSubmit} className="space-y-4">
             {/*<div className="grid grid-cols-1 md:grid-cols-3 gap-4">*/}
 
-                {stepFields.map(field => {
-                    if (field.type === "image") {
-                        return (
-                            <div key={field.name} className="mb-4">
-                                <label className="block mb-2 text-sm font-medium">
-                                    {field.label}
-                                </label>
-                                <ImageUploader
-                                    name={field.name}
-                                    onChange={handleImagesChange}
-                                    value={images}
-                                    maxNumber={field.maxNumber || 1}
-                                />
-                            </div>
-                        );
-                    }
-
-                    if (field.type === "textarea") {
-                        return (
-                            <div key={field.name} className="mb-4">
-                                <Textarea
-                                    placeholder={field.label}
-                                    disabled={isSubmitting}
-                                    value={form[field.name] || ""}
-                                    onChange={value => handleChange(field.name, value)}
-                                    required={field.required}
-                                />
-                            </div>
-                        );
-                    }
-
-                    if (field.type === "select") {
-                        return (
-                            <div key={field.name} className="mb-4">
-                                <Select
-                                    disabled={isSubmitting || !optionsList[field.command]?.length}
-                                    options={optionsList[field.command] || []}
-                                    onChange={(val) => handleSelectChange(field.name, val)}
-                                    placeholder={field.label}
-                                    value={form[field.name]}
-                                    loading={!optionsList[field.command]}
-                                    required={field.required}
-                                />
-                            </div>
-                        );
-                    }
-
+            {stepFields.map(field => {
+                if (field.type === "image") {
                     return (
                         <div key={field.name} className="mb-4">
-                            <Input
-                                type={field.type}
+                            <label className="block mb-2 text-sm font-medium">
+                                {field.label}
+                            </label>
+                            <ImageUploader
+                                name={field.name}
+                                onChange={(e)=> handleImagesChange(e, field.name)}
+                                value={images}
+                                maxNumber={field.maxNumber || 1}
+                            />
+                        </div>
+                    );
+                }
+
+                if (field.type === "date") {
+                    return (
+                        <div key={field.name} className="mb-4">
+                            <DatePicker
+                                placeholder={field.label}
+                                value={form[field.name] || ""}
+                                disabled={isSubmitting}
+                                required={field.required}
+                                calendars="['persian']"
+                                locales="['fa']"
+                                format="YYYY/MM/DD"
+                                onChange={value => handleChange(field.name,value)}
+                                containerClassName="block w-full"
+                                inputClass="h-11 w-full rounded-lg border appearance-none px-4 py-2.5 text-sm shadow-theme-xs placeholder:text-gray-400 focus:outline-hidden focus:ring-3 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800"
+                            />
+                        </div>
+                    );
+                }
+
+                if (field.type === "textarea") {
+                    return (
+                        <div key={field.name} className="mb-4">
+                            <Textarea
                                 placeholder={field.label}
                                 disabled={isSubmitting}
                                 value={form[field.name] || ""}
-                                onChange={e => handleChange(field.name, e.target.value)}
+                                onChange={value => handleChange(field.name, value)}
                                 required={field.required}
                             />
                         </div>
                     );
-                })}
+                }
+
+                if (field.type === "select") {
+                    return (
+                        <div key={field.name} className="mb-4">
+                            <Select
+                                disabled={isSubmitting || !optionsList[field.command]?.length}
+                                options={optionsList[field.command] || []}
+                                onChange={(val) => handleSelectChange(field.name, val)}
+                                placeholder={field.label}
+                                value={form[field.name]}
+                                loading={!optionsList[field.command]}
+                                required={field.required}
+                            />
+                        </div>
+                    );
+                }
+
+                return (
+                    <div key={field.name} className="mb-4">
+                        <Input
+                            type={field.type}
+                            placeholder={field.label}
+                            disabled={isSubmitting}
+                            value={form[field.name] || ""}
+                            onChange={e => handleChange(field.name, e.target.value)}
+                            required={field.required}
+                        />
+                    </div>
+                );
+            })}
             {/*</div>*/}
 
             <Button

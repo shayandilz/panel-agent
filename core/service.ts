@@ -147,7 +147,8 @@ const General = {
 const Requests = {
     getState: (params: string = '') => axiosRequests.post(`${AppConstants.base_url_api}/statecity${params}`,{}),
     getReport: (params: string = '') => axiosRequests.post(`${AppConstants.base_url_api}/agentrequestreport${params}`,{}),
-    sendImage: (params: string = '',data: any = {}) => axiosRequests.post(`${AppConstants.base_url_api}/agentrequestreport${params}`,data),
+    getOrgan: (params: string = '') => axiosRequests.post(`${AppConstants.base_url_api}/organ${params}`,{}),
+    sendImage: (params: string = '',data: any = {}) => axiosRequests.post(`${AppConstants.base_url_api}/image${params}`,data),
     sendRequest: (params: string = '') => axiosRequests.post(`${AppConstants.base_url_api}/agentrequestreport${params}`,{}),
     getDoc: (command) => axiosRequests.post(`${AppConstants.base_url_api}/agentrequestreport?command=${command}`,{}),
     provinceList: () => axiosRequests.get(`${AppConstants.base_url_api}province-list`),
@@ -155,7 +156,7 @@ const Requests = {
 }
 
 const Fields = {
-    fetchList: (params: string = '') => axiosRequests.post(`${AppConstants.base_url_api}/agentrequestreport${params}`,{}),
+    fetchList: (params: string = '') => axiosRequests.post(`${AppConstants.base_url_api}/${params}`,{}),
     insurances: () => axiosRequests.post(`${AppConstants.base_url_api}/agentrequestreport?command=get_fieldinsurance`,{}),
     steps: () => axiosRequests.post(`${AppConstants.base_url_api}/agentrequestreport?command=getstaterequest`,{}),
 }

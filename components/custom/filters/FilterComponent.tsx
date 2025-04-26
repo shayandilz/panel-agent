@@ -16,6 +16,7 @@ interface FilterProps {
 export default function FilterComponent({filterType,onFilterApply}: FilterProps) {
     const [fieldInsurances, setFieldInsurances] = useState([]);
     const [requestOrgans, setRequestOrgans] = useState([]);
+    const [requestContracts, setRequestContracts] = useState([]);
     const [requestStates, setRequestStates] = useState([]);
     const [documents, setDocuments] = useState([]);
     const [loadingFields, setLoadingFields] = useState(true);
@@ -45,22 +46,45 @@ export default function FilterComponent({filterType,onFilterApply}: FilterProps)
 
         const fetchFieldOrgans = async () => {
             try {
-                const response = await services.Requests.getReport(
+                const response = await services.Requests.getOrgan(
                     "?command=get_organ"
                 );
                 if (response?.data?.result === "ok") {
                     let organs = response.data?.data.map(field => {
                         return {
                             value: field.organ_id,
-                            label: field.organ_fa,
+                            label: field.organ_name + '(' +field.organ_address + ')',
                         }
                     })
                     setRequestOrgans(organs);
                 } else setRequestOrgans([]);
             } catch (err) {
                 toast.error("خطا در دریافت لیست ارگان ها");
+            } finally {
+                setLoadingFields(false);
             }
         };
+        const fetchFieldContracts = async () => {
+            try {
+                const response = await services.Requests.getOrgan(
+                    "?command=get_contract"
+                );
+                if (response?.data?.result === "ok") {
+                    let contracts = response.data?.data.map(field => {
+                        return {
+                            value: field.organ_contract_num,
+                            label: field.organ_name,
+                        }
+                    })
+                    setRequestContracts(contracts);
+                } else setRequestContracts([]);
+            } catch (err) {
+                toast.error("خطا در دریافت لیست قرارداد ها");
+            } finally {
+                setLoadingFields(false);
+            }
+        };
+
         const fetchFieldInsurances = async () => {
             try {
                 const response = await services.Requests.getReport(
@@ -77,6 +101,8 @@ export default function FilterComponent({filterType,onFilterApply}: FilterProps)
                 } else setFieldInsurances([]);
             } catch (err) {
                 toast.error("خطا در دریافت لیست رشته های بیمه");
+            } finally {
+                setLoadingFields(false);
             }
         };
 
@@ -105,6 +131,7 @@ export default function FilterComponent({filterType,onFilterApply}: FilterProps)
         if(filterType == 'requests') {
             fetchRequestStates();
             fetchFieldOrgans()
+            fetchFieldContracts()
         }
     }, []);
 
