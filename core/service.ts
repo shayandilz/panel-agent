@@ -139,9 +139,9 @@ const axiosRequests = {
 const General = {
     logout: () => axiosRequests.post(`${AppConstants.base_url_api}/agentlogin?command=logout`,{}),
     getData: (params: string = '',data: any = {}) => axiosRequests.post(`${AppConstants.base_url_api}/agentlogin${params}`,data),
-    agentData: (agentId: number) => axiosRequests.post(`${AppConstants.base_url_api}/agentlogin?command=getagent&agent_id=${agentId}`,{}),
-    provinceList: () => axiosRequests.get(`${AppConstants.base_url_api}province-list`),
-    cityList: (province_id: string) => axiosRequests.get(`${AppConstants.base_url_api}city-list/${province_id}`),
+    agentData: (agentId: string | any) => axiosRequests.post(`${AppConstants.base_url_api}/agentlogin?command=getagent&agent_id=${agentId}`,{}),
+    // provinceList: () => axiosRequests.get(`${AppConstants.base_url_api}province-list`),
+    // cityList: (province_id: string) => axiosRequests.get(`${AppConstants.base_url_api}city-list/${province_id}`),
 }
 
 const Requests = {
@@ -150,9 +150,9 @@ const Requests = {
     getOrgan: (params: string = '') => axiosRequests.post(`${AppConstants.base_url_api}/organ${params}`,{}),
     sendImage: (params: string = '',data: any = {}) => axiosRequests.post(`${AppConstants.base_url_api}/image${params}`,data),
     sendRequest: (params: string = '') => axiosRequests.post(`${AppConstants.base_url_api}/agentrequestreport${params}`,{}),
-    getDoc: (command) => axiosRequests.post(`${AppConstants.base_url_api}/agentrequestreport?command=${command}`,{}),
-    provinceList: () => axiosRequests.get(`${AppConstants.base_url_api}province-list`),
-    cityList: (province_id: string) => axiosRequests.get(`${AppConstants.base_url_api}city-list/${province_id}`),
+    // getDoc: (command) => axiosRequests.post(`${AppConstants.base_url_api}/agentrequestreport?command=${command}`,{}),
+    // provinceList: () => axiosRequests.get(`${AppConstants.base_url_api}province-list`),
+    // cityList: (province_id: string) => axiosRequests.get(`${AppConstants.base_url_api}city-list/${province_id}`),
 }
 
 const Fields = {
@@ -162,16 +162,16 @@ const Fields = {
 }
 
 const User = {
-    profile: () => axiosRequests.get(`${AppConstants.base_url_api}profile`),
-    contrant: (hasHeader?: boolean) => axiosRequests.get(`${AppConstants.base_url_api}profile/contract?is_header=${hasHeader ? "true" : "false"}`),
-    sheba: (sheba_number: string) => axiosRequests.post(`${AppConstants.base_url_api}sheba`, {sheba_number: `IR${sheba_number}`}),
+    // profile: () => axiosRequests.get(`${AppConstants.base_url_api}profile`),
+    // contrant: (hasHeader?: boolean) => axiosRequests.get(`${AppConstants.base_url_api}profile/contract?is_header=${hasHeader ? "true" : "false"}`),
+    // sheba: (sheba_number: string) => axiosRequests.post(`${AppConstants.base_url_api}sheba`, {sheba_number: `IR${sheba_number}`}),
 }
 
 const Agent = {
     edit: (params: string = '',data: any = {}) => axiosRequests.postForm(`${AppConstants.base_url_api}/agentlogin${params}`, data),
-    create: (data: any) => axiosRequests.post(`${AppConstants.base_url_api}brag/create/`, data),
-    upload: (data: any) => axiosRequests.post(`${AppConstants.base_url_api}brag-upload/`, data),
-    uploadList: (data: any) => axiosRequests.post(`${AppConstants.base_url_api}brag-upload-lists/`, data),
+    // create: (data: any) => axiosRequests.post(`${AppConstants.base_url_api}brag/create/`, data),
+    // upload: (data: any) => axiosRequests.post(`${AppConstants.base_url_api}brag-upload/`, data),
+    // uploadList: (data: any) => axiosRequests.post(`${AppConstants.base_url_api}brag-upload-lists/`, data),
 }
 
 export default {

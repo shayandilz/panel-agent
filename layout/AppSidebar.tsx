@@ -196,7 +196,7 @@ const AppSidebar: React.FC = () => {
               ref={(el) => {
                 subMenuRefs.current[`${menuType}-${index}`] = el;
               }}
-              className="overflow-hidden transition-all duration-300"
+              className="overflow-hidden"
               style={{
                 height:
                   openSubmenu?.type === menuType && openSubmenu?.index === index
@@ -206,7 +206,7 @@ const AppSidebar: React.FC = () => {
             >
               <ul className="mt-2 space-y-1 ml-9">
                 {nav.subItems.map((subItem) => (
-                  <li key={subItem.name}>
+                  <li key={subItem.name} style={{'white-space': 'nowrap'}}>
                     <Link
                       href={subItem.path}
                       className={`menu-dropdown-item ${

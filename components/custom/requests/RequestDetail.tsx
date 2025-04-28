@@ -11,7 +11,7 @@ import FileInput from "@/components/form/input/FileInput";
 import RequestStepForm from "@/components/custom/field/RequestStepForm";
 import Image from "next/image";
 import {Tab, Tabs} from "@/components/ui/tabs/Tabs";
-import Select from "@/components/form/select";
+import Select from "@/components/form/Select";
 import Textarea from "@/components/form/input/TextArea";
 import Button from "@/components/ui/button/Button";
 import DatePicker from "react-multi-date-picker";
@@ -23,33 +23,33 @@ import {filter} from "domutils";
 
 interface RequestData {
     request_id: string;
-    request_fieldinsurance_fa: string;
-    request_last_state_name: string;
-    staterequest_last_timestamp: string;
-    user_name: string;
-    user_family: string;
-    user_mobile: string;
-    user_pey_amount: number;
-    user_pey_cash: number;
+    request_fieldinsurance_fa: string | '-';
+    request_last_state_name: string | '-';
+    staterequest_last_timestamp: string | '-';
+    user_name: string | '-';
+    user_family: string | '-';
+    user_mobile: string | '-';
+    user_pey_amount: number | '-';
+    user_pey_cash: number | '-';
     request_financial_doc: Array<[]>;
     request_address: Array<[]>;
-    request_description?: string | null;
+    request_description?: string | '-';
     request_ready?: Array<{
-        requst_ready_start_date: string;
-        requst_ready_end_date: string;
-        requst_ready_end_price: string;
-        requst_ready_num_ins?: string;
-        requst_suspend_desc?: string;
+        requst_ready_start_date: string | '-';
+        requst_ready_end_date: string | '-';
+        requst_ready_end_price: string | '-';
+        requst_ready_num_ins?: string | '-';
+        requst_suspend_desc?: string | '-';
     }>;
     request_stats?: Array<{
-        staterequest_timestamp: string;
-        request_state_name: string;
-        staterequest_desc: string;
-        agent_code?: string;
-        agent_name?: string;
-        agent_family?: string;
-        employee_name?: string;
-        employee_family?: string;
+        staterequest_timestamp: string | '-';
+        request_state_name: string | '-';
+        staterequest_desc: string | '-';
+        agent_code?: string | '-';
+        agent_name?: string | '-';
+        agent_family?: string | '-';
+        employee_name?: string | '-';
+        employee_family?: string | '-';
     }>;
 }
 
@@ -75,18 +75,23 @@ export default function RequestDetail() {
     const [formData, setFormData] = useState({});
     const [error, setError] = useState(null);
     const [showLoader, setShowLoader] = useState(false)
-    // const [filters, setFilters] = useState({});
 
-    const handleStatusChange = async (formDataset) => {
-        // if (!selectedStatus) {
-        //     toast.error("لطفا تمام فیلدهای ضروری را پر کنید");
-        //     return;
-        // }
+    function hasEmptyValue(obj: Record<string, any>): boolean {
+        if(Object.values(obj).length == 0) return true
+        return Object.values(obj).some(value => value == "" || value == null || value == undefined);
+    }
+
+    const handleFormSubmit = async (formDataset) => {
+        if (hasEmptyValue(formDataset)) {
+            toast.error("لطفا تمام فیلدهای ضروری را پر کنید");
+            return;
+        }
 
         setIsSubmitting(true);
         try {
             const query = new URLSearchParams({
                 request_id: id,
+                command: requestStepData[selectedStatus]?.command,
                 ...formDataset
             }).toString();
 
@@ -139,7 +144,7 @@ export default function RequestDetail() {
                     }
                 })
                 let filteredStates = await states.filter(state => {
-                    console.log(state, currentState)
+                    // console.log(state, currentState)
                     if (currentState == state.value) return false
                     else if (currentState == '1' || currentState == '2') return state.value == '3'
                     else if (currentState == '3') return state.value == '4' || state.value == '5' || state.value == '6' || state.value == '7' || state.value == '8' || state.value == '9' || state.value == '16'  // اضافه واریزی
@@ -149,7 +154,7 @@ export default function RequestDetail() {
                     else if (currentState == '11') return false
                     else return false
                 })
-                console.log(states, filteredStates);
+                // console.log(states, filteredStates);
                 setAvailableStates(filteredStates)
             } else {
                 throw new Error(response?.data?.desc || "مشکلی پیش آمد.");
@@ -167,10 +172,7 @@ export default function RequestDetail() {
     useEffect(() => {
         if (!selectedStatus) return
         setStepFields(requestStepData[selectedStatus])
-        setFormData({command: requestStepData[selectedStatus]?.command})
-
-        console.log('availableStates', availableStates)
-
+        setFormData({})
     }, [selectedStatus]);
 
     if (isLoading) return <div className="text-center">در حال دریافت اطلاعات...</div>;
@@ -208,7 +210,7 @@ export default function RequestDetail() {
                             آخرین وضعیت:
                         </p>
                         <p className=" font-medium text-gray-800 dark:text-white/90">
-                            <Badge variant="light"
+                            <Badge variant="solid"
                                    color="primary">{requestData?.request_last_state_name || "نامشخص"}</Badge>
                         </p>
                     </div>
@@ -393,10 +395,11 @@ export default function RequestDetail() {
                         <div className="mt-4">
                             <RequestStepForm
                                 stepFields={stepFields['fields']}
-                                onSubmit={handleStatusChange}
+                                onSubmit={handleFormSubmit}
                             />
                         </div>
-                    </div>)}
+                    </div>
+                )}
             </div>
         </>
     );

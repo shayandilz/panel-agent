@@ -7,10 +7,10 @@ import {toast} from "react-toastify";
 import FilterComponent from "@/components/custom/filters/FilterComponent";
 
 interface PaidRequests {
-    request_id: any;
-    request_fieldinsurance_fa: any;
-    user_pey_amount: any;
-    request_ready: any;
+    request_id: any | '-';
+    request_fieldinsurance_fa: any | '-';
+    user_pey_amount: any | '-';
+    request_ready: any | '-';
 }
 
 export default function PaidRequests() {

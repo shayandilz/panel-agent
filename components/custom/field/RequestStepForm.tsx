@@ -2,7 +2,7 @@ import React, {useEffect, useState} from "react";
 import ImageUploader from "@/components/custom/field/ImageUploader";
 import {ImageListType} from "react-images-uploading";
 import services from "@/core/service";
-import Select from "@/components/form/select";
+import Select from "@/components/form/Select";
 import Textarea from "@/components/form/input/TextArea";
 import Button from "@/components/ui/button/Button";
 import DatePicker from "react-multi-date-picker";
@@ -131,92 +131,101 @@ export default function RequestStepForm({stepFields, onSubmit}) {
 
     return (
         <form onSubmit={handleSubmit} className="space-y-4">
-            {/*<div className="grid grid-cols-1 md:grid-cols-3 gap-4">*/}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 items-start">
 
-            {stepFields.map(field => {
-                if (field.type === "image") {
+                {stepFields.map(field => {
+                    if (field.type === "image") {
+                        return (
+                            <div key={field.name} className="mb-4 col-span-2">
+                                <label className="block mb-2 text-sm font-medium">
+                                    {field.label}
+                                </label>
+                                <ImageUploader
+                                    name={field.name}
+                                    onChange={(e) => handleImagesChange(e, field.name)}
+                                    value={images}
+                                    maxNumber={field.maxNumber || 1}
+                                />
+                            </div>
+                        );
+                    }
+
+                    if (field.type === "date") {
+                        return (
+                            <div key={field.name} className="mb-4">
+                                <label className="block mb-2 text-sm font-medium">
+                                    {field.label}
+                                </label>
+                                <DatePicker
+                                    value={form[field.name] || ""}
+                                    disabled={isSubmitting}
+                                    required={field.required}
+                                    calendars="['persian']"
+                                    locales="['fa']"
+                                    format="YYYY/MM/DD"
+                                    onChange={value => handleChange(field.name, value)}
+                                    containerClassName="block w-full"
+                                    inputClass="h-11 w-full rounded-lg border appearance-none px-4 py-2.5 text-sm shadow-theme-xs placeholder:text-gray-400 focus:outline-hidden focus:ring-3 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/60 dark:focus:border-brand-800  bg-transparent text-gray-800 border-gray-300 focus:border-brand-300 focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:focus:border-brand-800"
+                                />
+                            </div>
+                        );
+                    }
+
+                    if (field.type === "textarea") {
+                        return (
+                            <div key={field.name} className="mb-4 col-span-2 order-3">
+                                <label className="block mb-2 text-sm font-medium">
+                                    {field.label}
+                                </label>
+                                <Textarea
+                                    disabled={isSubmitting}
+                                    value={form[field.name] || ""}
+                                    onChange={value => handleChange(field.name, value)}
+                                    required={field.required}
+                                />
+                            </div>
+                        );
+                    }
+
+                    if (field.type === "select") {
+                        return (
+                            <div key={field.name} className="mb-4">
+                                <label className="block mb-2 text-sm font-medium">
+                                    {field.label}
+                                </label>
+                                <Select
+                                    disabled={isSubmitting || !optionsList[field.command]?.length}
+                                    options={optionsList[field.command] || []}
+                                    onChange={(val) => handleSelectChange(field.name, val)}
+                                    value={form[field.name]}
+                                    loading={!optionsList[field.command]}
+                                    required={field.required}
+                                />
+                            </div>
+                        );
+                    }
+
                     return (
                         <div key={field.name} className="mb-4">
                             <label className="block mb-2 text-sm font-medium">
                                 {field.label}
                             </label>
-                            <ImageUploader
-                                name={field.name}
-                                onChange={(e)=> handleImagesChange(e, field.name)}
-                                value={images}
-                                maxNumber={field.maxNumber || 1}
-                            />
-                        </div>
-                    );
-                }
-
-                if (field.type === "date") {
-                    return (
-                        <div key={field.name} className="mb-4">
-                            <DatePicker
-                                placeholder={field.label}
-                                value={form[field.name] || ""}
-                                disabled={isSubmitting}
-                                required={field.required}
-                                calendars="['persian']"
-                                locales="['fa']"
-                                format="YYYY/MM/DD"
-                                onChange={value => handleChange(field.name,value)}
-                                containerClassName="block w-full"
-                                inputClass="h-11 w-full rounded-lg border appearance-none px-4 py-2.5 text-sm shadow-theme-xs placeholder:text-gray-400 focus:outline-hidden focus:ring-3 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/60 dark:focus:border-brand-800  bg-transparent text-gray-800 border-gray-300 focus:border-brand-300 focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:focus:border-brand-800"
-                            />
-                        </div>
-                    );
-                }
-
-                if (field.type === "textarea") {
-                    return (
-                        <div key={field.name} className="mb-4">
-                            <Textarea
-                                placeholder={field.label}
+                            <Input
+                                type={field.type}
                                 disabled={isSubmitting}
                                 value={form[field.name] || ""}
-                                onChange={value => handleChange(field.name, value)}
+                                onChange={e => handleChange(field.name, e.target.value)}
                                 required={field.required}
                             />
                         </div>
                     );
-                }
-
-                if (field.type === "select") {
-                    return (
-                        <div key={field.name} className="mb-4">
-                            <Select
-                                disabled={isSubmitting || !optionsList[field.command]?.length}
-                                options={optionsList[field.command] || []}
-                                onChange={(val) => handleSelectChange(field.name, val)}
-                                placeholder={field.label}
-                                value={form[field.name]}
-                                loading={!optionsList[field.command]}
-                                required={field.required}
-                            />
-                        </div>
-                    );
-                }
-
-                return (
-                    <div key={field.name} className="mb-4">
-                        <Input
-                            type={field.type}
-                            placeholder={field.label}
-                            disabled={isSubmitting}
-                            value={form[field.name] || ""}
-                            onChange={e => handleChange(field.name, e.target.value)}
-                            required={field.required}
-                        />
-                    </div>
-                );
-            })}
-            {/*</div>*/}
+                })}
+            </div>
 
             <Button
                 type="submit"
                 loading={isSubmitting}
+                disabled={isSubmitting}
                 className="w-full justify-center"
             >
                 ارسال

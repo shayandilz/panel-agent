@@ -1,54 +1,24 @@
 "use client";
 
-// import Image from "next/image";
 import Link from "next/link";
 import React, {useState, useEffect} from "react";
 import {Dropdown} from "@/components/ui/dropdown/Dropdown";
 import {DropdownItem} from "@/components/ui/dropdown/DropdownItem";
 import {useRouter} from "next/navigation";
-import {useAgent} from '@/context/AgentContext';
-import Cookies from 'js-cookie';
+import {useAuth} from '@/context/AgentContext';
 import {
     LockIcon,
 } from "@/icons/index";
 import {UserCircleIcon} from "@/icons";
 import {toast} from "react-toastify";
 import Avatar from "@/components/custom/user/Avatar";
-import services from "@/core/service";
+import service from "@/core/service";
 
 export default function UserDropdown() {
     const router = useRouter();
     const [isOpen, setIsOpen] = useState(false);
     const [error, setError] = useState(false);
-    const {agentData, setAgentData, agentStatus, setAgentStatus} = useAgent();
-
-    useEffect(() => {
-        const fetchUserData = () => {
-            const agentDataFromCookie = Cookies.get('agent_data');
-
-            if (agentDataFromCookie) {
-                const parsedData = JSON.parse(agentDataFromCookie);
-                setAgentData(parsedData);
-            }
-            fetchUserStatus();
-        }
-        const fetchUserStatus = async () => {
-            try {
-                const response = await services.General.getData(`?command=get_status`);
-                if (response) {
-                    console.log('setAgentStatus')
-                    const data = response.data;
-                    if (data.result !== "ok") throw new Error(data.desc);
-                    let status = data?.data?.agent_status == '0' ? 'offline' : 'online'
-                    setAgentStatus(status)
-                } else setAgentStatus('none')
-            } catch (err) {
-                setAgentStatus('none')
-            }
-        }
-
-        fetchUserData();
-    }, []);
+    const {token, agentData, logout, agentStatus} = useAuth();
 
     function toggleDropdown(e: React.MouseEvent<HTMLButtonElement, MouseEvent>) {
         e.stopPropagation();
@@ -62,24 +32,19 @@ export default function UserDropdown() {
     async function signOut() {
         closeDropdown()
         try {
-            const res = await fetch('/api/logout', {
-                method: 'POST',
-                credentials: 'include', // Required for cookies to be sent
-            });
+            const res = await service.General.logout();
+            if (res) {
+                const data = res.data;
+                if (data.result != 'ok') {
+                    toast.error(data.error || 'مشکلی پیش آمد. دوباره تلاش کنید.');
+                    return;
+                }
 
-            const data = await res.json();
-            if (data.result != 'ok') {
-                toast.error(data.error || 'مشکلی پیش آمد. دوباره تلاش کنید.');
-                return;
-            }
-
-            Cookies.remove('agent_data')
-            toast.success(data.desc || 'با موفقیت خارج شدید');
-            router.push('/signin');
+                toast.success(data.desc || 'با موفقیت خارج شدید');
+                logout()
+            } else toast.error('مشکلی پیش آمد. دوباره تلاش کنید.');
         } catch (err) {
-            console.log(err)
             setError('مشکلی پیش آمد. دوباره تلاش کنید.');
-            // setShowLoader(false)
         }
     }
 
@@ -89,12 +54,11 @@ export default function UserDropdown() {
             className="flex items-center text-gray-700 dark:text-gray-400 dropdown-toggle"
         >
             <Avatar
-                src="/images/user/user-01.jpg"
+                src="/images/user.png"
                 size="medium"
-                status={agentStatus}
+                status={agentStatus ? 'online' : 'offline' }
             />
-
-            <span className="block mx-2 font-medium text-theme-sm">{agentData ? agentData.agent_name : ''}</span>
+            <span className="block mx-2 font-medium text-theme-sm">{agentData ? agentData.agent_name : ''} {agentStatus}</span>
 
             <svg
                 className={`stroke-gray-500 dark:stroke-gray-400 transition-transform duration-200 ${isOpen ? "rotate-180" : ""}`}

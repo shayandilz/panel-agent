@@ -5,9 +5,9 @@ import { Metadata } from "next";
 import React, {useState} from "react";
 
 export const metadata: Metadata = {
-  title: "agent status",
+  title: "وضعیت نماینده",
   description:
-    "agent status page",
+    "صفحه وضعیت نماینده",
 };
 
 export default function AgentStatusPage() {

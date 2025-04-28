@@ -52,7 +52,7 @@ const Input: FC<InputProps> = ({
     return (
         <div className="relative">
             <input
-                pattern={pattern}
+                pattern={pattern || undefined}
                 type={type}
                 id={id}
                 name={name}

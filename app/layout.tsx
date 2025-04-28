@@ -2,11 +2,11 @@ import {Outfit} from "next/font/google";
 import type {Metadata} from "next";
 import "@/public/fonts/fontface.css";
 import "react-toastify/dist/ReactToastify.css";
-import "./globals.css";
+import "@/app/globals.css";
 
 import {SidebarProvider} from "@/context/SidebarContext";
 import {ThemeProvider} from "@/context/ThemeContext";
-import {AgentProvider} from '@/context/AgentContext';
+import {AuthProvider} from '@/context/AgentContext';
 import React from "react";
 import {ToastContainer} from "react-toastify";
 
@@ -16,8 +16,8 @@ const outfit = Outfit({
 });
 
 export const metadata: Metadata = {
-    title: "Panel Agent",
-    description: "Developed by EJ",
+    title: "پنل نماینده",
+    description: "پنل نماینده راهنمای بیمه",
 };
 
 export default function RootLayout({
@@ -26,10 +26,10 @@ export default function RootLayout({
     children: React.ReactNode;
 }>) {
     return (
-        <html lang="fa" dir="rtl">
+        <html className={'dark'} lang="fa" dir="rtl">
         <body className={`${outfit.variable} dark:bg-gray-900 BYekan antialiased`}>
         <ThemeProvider>
-            <AgentProvider>
+            <AuthProvider>
                 <SidebarProvider>
                     <>
                         {/* Global Toast Container */}
@@ -50,7 +50,7 @@ export default function RootLayout({
                     </>
                 </SidebarProvider>
 
-            </AgentProvider>
+            </AuthProvider>
         </ThemeProvider>
         </body>
         </html>

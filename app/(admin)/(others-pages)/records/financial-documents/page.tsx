@@ -1,51 +1,29 @@
-"use client"
-
-import PayedDocuments from "@/components/custom/records/PayedDocuments";
-import UnpayedDocuments from "@/components/custom/records/UnpayedDocuments";
-// import {Metadata} from "next";
-import React, {useState} from "react";
-import PageBreadcrumb from "@/components/common/PageBreadCrumb";
+import FinancialDocuments from "@/components/custom/tabs/FinancialDocuments";
 import ComponentCard from "@/components/common/ComponentCard";
 
-export default function FinancialDocuments() {
-    const [activeTab, setActiveTab] = useState("payed");
+import {Metadata} from "next";
+import React from "react";
 
+export const metadata: Metadata = {
+    title: "سوابق مالی اسناد",
+    description:
+        "صفحه سوابق مالی اسناد",
+};
+
+export default function FinancialDocumentsPage() {
     return (
-        <>
-            <PageBreadcrumb pageTitle="سوابق مالی اسناد"/>
-            <div className="space-y-6">
-                <ComponentCard title="سوابق مالی اسناد">
-                    {/* Tab Navigation */}
-                    <div className="flex flex-col lg:flex-row justify-center lg:justify-start space-y-2 lg:space-y-0 lg:space-x-4">
-                        <button
-                            className={`py-2 px-4 rounded-lg ${
-                                activeTab === "payed"
-                                    ? "bg-blue-500 text-white"
-                                    : "bg-gray-100 text-gray-500 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600"
-                            }`}
-                            onClick={() => setActiveTab("payed")}
-                        >
-                            اسناد پرداخت شده
-                        </button>
-                        <button
-                            className={`py-2 px-4 rounded-lg ${
-                                activeTab === "unpayed"
-                                    ? "bg-blue-500 text-white"
-                                    : "bg-gray-100 text-gray-500 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600"
-                            }`}
-                            onClick={() => setActiveTab("unpayed")}
-                        >
-                            اسناد پرداخت نشده
-                        </button>
-                    </div>
-
-                    {/* Tab Content */}
-                    <div className="mt-6">
-                        {activeTab === "payed" && <PayedDocuments/>}
-                        {activeTab === "unpayed" && <UnpayedDocuments/>}
-                    </div>
-                </ComponentCard>
+        <div>
+            <div
+                className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] lg:p-6">
+                <h3 className="mb-5 text-lg font-semibold text-gray-800 dark:text-white/90 lg:mb-7">
+                    سوابق مالی اسناد
+                </h3>
+                <div className="space-y-6">
+                    <ComponentCard title="سوابق مالی اسناد">
+                        <FinancialDocuments/>
+                    </ComponentCard>
+                </div>
             </div>
-        </>
+        </div>
     );
 }

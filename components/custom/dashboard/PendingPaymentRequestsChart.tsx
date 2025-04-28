@@ -7,23 +7,31 @@ import services from "@/core/service";
 import {toast} from "react-toastify";
 import FilterComponent from "@/components/custom/filters/FilterComponent";
 
-interface PendingPaymentRequests {
-    request_id: any | '-';
+interface PendingPaymentRequestsChart {
+    request_id: any;
     request_fieldinsurance_fa: any | '-';
     user_pey_amount: any | '-';
     request_ready: any | '-';
 }
 
 export default function PendingPaymentRequests() {
-    const [pendingPaymentRequests, setPendingPaymentRequests] = useState<PendingPaymentRequests[]>([]);
+    const [pendingPaymentRequests, setPendingPaymentRequests] = useState<PendingPaymentRequestsChart[]>([]);
     const [isLoading, setIsLoading] = useState(true);
-    const [filters, setFilters] = useState({});
 
-    const fetchPendingPaymentRequests = async () => {
+    const fetchPendingPaymentRequests = async (filters = null) => {
         try {
             setIsLoading(true);
+            const queryParams = {
+                start_date: filters?.startDate,
+                end_date: filters?.endDate,
+                fieldinsurance_id: filters?.fieldInsurance,
+                user_mobile: filters?.userMobile,
+                order_number: filters?.orderNumber
+            };
+            console.log('filters',filters)
 
-            const response = await services.Requests.getReport(`?command=getagent_request&approvaslmode=progresspaing`);
+            const query = startDate ? `&start_date=${queryParams?.startDate}` : "";
+            const response = await services.Requests.getReport(`?command=getagent_request&approvaslmode=progresspaing${query}`);
             if (response) {
                 const data = response.data;
                 if (data.result !== "ok") throw new Error(data.desc);

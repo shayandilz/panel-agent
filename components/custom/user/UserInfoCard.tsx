@@ -4,20 +4,49 @@ import {useModal} from "@/hooks/useModal";
 import {Modal} from "@/components/ui/modal";
 import Button from "@/components/ui/button/Button";
 import Input from "@/components/form/input/InputField";
-import TextArea from "@/components/form/input/TextArea";
 import Label from "@/components/form/Label";
-import Image from "next/image";
 import {useEffect, useState} from 'react';
-import {useAgent} from "@/context/AgentContext";
-import {as} from "@fullcalendar/core/internal-common";
+import {useAuth} from "@/context/AgentContext";
 import {toast} from "react-toastify";
 import services from "@/core/service"
 import {InfoIcon, LockIcon} from "@/icons";
 import Badge from "@/components/ui/badge/Badge";
+import Avatar from "@/components/custom/user/Avatar";
+
+interface AgentData {
+    agent_id: String | null,
+    agent_code: String | null,
+    agent_gender: String | null,
+    agent_name: String | null,
+    agent_family: String | null,
+    agent_mobile: String | null,
+    agent_tell: String | null,
+    agent_email: String | null,
+    $agenttoken: String | null,
+    employee_name: String | null,
+    employee_family: String | null,
+    agent_required_phone: String | null,
+    agent_address: String | null,
+    agent_register_date: String | null,
+    agent_state_name: String | null,
+    agent_city_name: String | null,
+    agent_sector_name: String | null,
+    agent_long: String | null,
+    agent_lat: String | null,
+    agent_banknum: String | null,
+    agent_bankname: String | null,
+    agent_banksheba: String | null,
+    agent_image_code: String | null,
+    agent_image: String | null,
+    agent_image_tumb: String | null,
+    agent_company_name: String | null,
+    agent_company_logo_url: String | null,
+    agent_deactive: String | null,
+}
 
 export default function UserInfoCard() {
     const {isOpen, openModal, closeModal} = useModal();
-    const {agentData, setAgentData, agentStatus} = useAgent();
+    const {agentData, fetchAgentData, agentStatus} = useAuth();
     const [newAgentData, setNewAgentData] = useState({});
     const [error, setError] = useState(null);
     const [showLoader, setShowLoader] = useState(false)
@@ -31,6 +60,7 @@ export default function UserInfoCard() {
     }
 
     if (!agentData) {
+        fetchAgentData()
         return <div>در حال بارگذاری...</div>;
     }
 
@@ -40,7 +70,6 @@ export default function UserInfoCard() {
     };
 
     const calculateTimestamp = (timestamp) => {
-        // return timestamp
         return (timestamp ? new Date(Number(timestamp) * 1000).toLocaleDateString('fa-IR') : 'نا مشخص').toString()
     }
 
@@ -55,8 +84,10 @@ export default function UserInfoCard() {
                 return;
             }
 
+            setTimeout(() => window.location.reload(), 2000)
             toast.success(data.desc || 'با موفقیت انجام شد.');
             closeModal();
+
         } catch (err) {
             toast.error(err || 'مشکلی پیش آمد. دوباره تلاش کنید.');
         } finally {
@@ -77,7 +108,7 @@ export default function UserInfoCard() {
             }
 
             toast.success(data.desc || 'با موفقیت انجام شد.');
-            setTimeout(()=> window.location.reload(),2000)
+            setTimeout(() => window.location.reload(), 2000)
         } catch (err) {
             toast.error(err || 'مشکلی پیش آمد. دوباره تلاش کنید.');
         }
@@ -86,44 +117,31 @@ export default function UserInfoCard() {
     return (
         <>
             <div className="p-5 border border-gray-200 rounded-2xl dark:border-gray-800 lg:p-6">
-                <div className="flex mb-8 flex-col gap-5 xl:flex-row xl:items-center xl:justify-between">
-                    <div className="flex flex-col items-center w-full gap-6 xl:flex-row">
-                        <div className="h-20 overflow-hidden bg-white">
-                            <img
+                <div className="flex mb-8 flex-col gap-5 xl:flex-row xl:items-start xl:justify-between">
+                    <div className="mb-4 flex flex-col items-center w-full gap-6 xl:flex-row">
+                        <div className="overflow-hidden bg-white">
+                            <Avatar
                                 className="h-full"
-                                height="100%"
-                                width="auto"
-                                src={agentData.agent_company_logo_url}
-                                alt="user"
+                                src={agentData?.agent_image || "/images/user.png"}
+                                size="xxlarge"
+                                status={agentStatus ? 'online' : 'offline'}
                             />
                         </div>
                         <div className="order-3 xl:order-2">
                             <h4 className="mb-2 text-lg font-semibold text-center text-gray-800 dark:text-white/90 xl:text-start">
-                                <span className="me-3">{agentData.agent_gender} {agentData.agent_name} {agentData.agent_family}</span>
-                                {agentStatus == 'online' && (<Badge variant="solid" color="success">
+                                <span
+                                    className="me-3">{agentData?.agent_gender} {agentData?.agent_name} {agentData?.agent_family}</span>
+                                {agentStatus && (<Badge variant="solid" color="success">
                                     فعال
                                 </Badge>)}
-                                {agentStatus == 'offline' && (<Badge variant="solid" color="light">
+                                {!agentStatus && (<Badge variant="solid" color="light">
                                     غیر فعال
                                 </Badge>)}
                             </h4>
-                            <div
-                                className="flex flex-col items-center gap-1 text-center xl:flex-row xl:gap-3 xl:text-start">
-                                <p className=" text-gray-500 dark:text-gray-400">
-                                    {agentData.agent_state_name}
-                                </p>
-                                <div className="hidden h-3.5 w-px bg-gray-300 dark:bg-gray-700 xl:block"></div>
-                                <p className=" text-gray-500 dark:text-gray-400">
-                                    {agentData.agent_company_name}
-                                </p>
-                                <div className="hidden h-3.5 w-px bg-gray-300 dark:bg-gray-700 xl:block"></div>
-                                <p className=" text-gray-500 dark:text-gray-400">
-                                    کد {agentData.agent_code}
-                                </p>
-                            </div>
                         </div>
                     </div>
-                    <Button disabled={showLoader} className="text-nowrap" variant="primary"
+
+                    <Button disabled={showLoader} className="text-nowrap" size={"sm"} variant="primary"
                             onClick={openModal}
                     >
                         <svg
@@ -143,13 +161,13 @@ export default function UserInfoCard() {
                         </svg>
                         ویرایش پروفایل
                     </Button>
-                    <Button disabled={showLoader} className="text-nowrap" variant="outline"
+                    <Button disabled={showLoader} className="text-nowrap" variant="outline" size={"sm"}
                             onClick={() => location.href = "/change-password"}
                     >
                         <LockIcon/>
                         تغییر رمز عبور
                     </Button>
-                    <Button disabled={showLoader} className="text-nowrap" variant="outline"
+                    <Button disabled={showLoader} className="text-nowrap" variant="outline" size={"sm"}
                             onClick={changeAgentStatus}
                     >
                         <InfoIcon/>
@@ -158,38 +176,38 @@ export default function UserInfoCard() {
                 </div>
 
                 <div className="grid grid-cols-2 gap-4 lg:grid-cols-3 lg:gap-8 2xl:gap-x-32">
-                    {/*<div>*/}
-                    {/*    <p className="mb-2  leading-normal text-gray-500 dark:text-gray-400">*/}
-                    {/*        نام*/}
-                    {/*    </p>*/}
-                    {/*    <p className=" font-medium text-gray-800 dark:text-white/90">*/}
-                    {/*        {agentData.agent_name}*/}
-                    {/*    </p>*/}
-                    {/*</div>*/}
-
-                    {/*<div>*/}
-                    {/*    <p className="mb-2  leading-normal text-gray-500 dark:text-gray-400">*/}
-                    {/*        نام خانوادگی*/}
-                    {/*    </p>*/}
-                    {/*    <p className=" font-medium text-gray-800 dark:text-white/90">*/}
-                    {/*        {agentData.agent_family}*/}
-                    {/*    </p>*/}
-                    {/*</div>*/}
-
-                    {/*<div>*/}
-                    {/*    <p className="mb-2  leading-normal text-gray-500 dark:text-gray-400">*/}
-                    {/*        کد کاربر*/}
-                    {/*    </p>*/}
-                    {/*    <p className=" font-medium text-gray-800 dark:text-white/90">*/}
-                    {/*        {agentData.agent_code}*/}
-                    {/*    </p>*/}
-                    {/*</div>*/}
+                    <div className="flex items-center w-full gap-6 xl:flex-row">
+                        {agentData?.agent_company_logo_url && <div className="h-20 overflow-hidden bg-white">
+                            <img
+                                className="h-full"
+                                height="100%"
+                                width="auto"
+                                src={agentData?.agent_company_logo_url}
+                                alt="user"
+                            />
+                        </div>}
+                        <div className="order-3 xl:order-2">
+                            <h4 className="mb-2 text-lg font-semibold text-center text-gray-800 dark:text-white/90 xl:text-start">
+                                <span className="me-3">{agentData?.agent_company_name}</span>
+                            </h4>
+                            <div
+                                className="flex items-center gap-1 text-center xl:flex-row xl:gap-3 xl:text-start">
+                                <p className=" text-gray-500 dark:text-gray-400">
+                                    {agentData?.agent_state_name}
+                                </p>
+                                <div className="h-3.5 w-px bg-gray-300 dark:bg-gray-700"></div>
+                                <p className=" text-gray-500 dark:text-gray-400">
+                                    کد {agentData?.agent_code}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
                     <div>
                         <p className="mb-2  leading-normal text-gray-500 dark:text-gray-400">
                             ایمیل
                         </p>
                         <p className=" font-medium text-gray-800 dark:text-white/90">
-                            {agentData.agent_email}
+                            {agentData?.agent_email}
                         </p>
                     </div>
 
@@ -198,7 +216,7 @@ export default function UserInfoCard() {
                             شماره همراه
                         </p>
                         <p className=" font-medium text-gray-800 dark:text-white/90">
-                            {agentData.agent_mobile}
+                            {agentData?.agent_mobile}
                         </p>
                     </div>
 
@@ -207,7 +225,7 @@ export default function UserInfoCard() {
                             تلفن
                         </p>
                         <p className=" font-medium text-gray-800 dark:text-white/90">
-                            {agentData.agent_tell}
+                            {agentData?.agent_tell}
                         </p>
                     </div>
                     <div>
@@ -220,47 +238,47 @@ export default function UserInfoCard() {
                     </div>
                     <div>
                         <p className="mb-2 leading-normal text-gray-500 dark:text-gray-400">آدرس</p>
-                        <p className="font-medium text-gray-800 dark:text-white/90">{agentData.agent_address}</p>
+                        <p className="font-medium text-gray-800 dark:text-white/90">{agentData?.agent_address}</p>
                     </div>
                     <div>
                         <p className="mb-2 leading-normal text-gray-500 dark:text-gray-400">استان</p>
-                        <p className="font-medium text-gray-800 dark:text-white/90">{agentData.agent_state_name}</p>
+                        <p className="font-medium text-gray-800 dark:text-white/90">{agentData?.agent_state_name}</p>
                     </div>
                     <div>
                         <p className="mb-2 leading-normal text-gray-500 dark:text-gray-400">شهر</p>
-                        <p className="font-medium text-gray-800 dark:text-white/90">{agentData.agent_city_name}</p>
+                        <p className="font-medium text-gray-800 dark:text-white/90">{agentData?.agent_city_name}</p>
                     </div>
                     <div>
                         <p className="mb-2 leading-normal text-gray-500 dark:text-gray-400">منطقه</p>
-                        <p className="font-medium text-gray-800 dark:text-white/90">{agentData.agent_sector_name}</p>
+                        <p className="font-medium text-gray-800 dark:text-white/90">{agentData?.agent_sector_name}</p>
                     </div>
 
                     <div>
                         <p className="mb-2 leading-normal text-gray-500 dark:text-gray-400">شماره حساب بانکی</p>
-                        <p className="font-medium text-gray-800 dark:text-white/90">{agentData.agent_banknum}</p>
+                        <p className="font-medium text-gray-800 dark:text-white/90">{agentData?.agent_banknum}</p>
                     </div>
                     <div>
                         <p className="mb-2 leading-normal text-gray-500 dark:text-gray-400">نام بانک</p>
-                        <p className="font-medium text-gray-800 dark:text-white/90">{agentData.agent_bankname}</p>
+                        <p className="font-medium text-gray-800 dark:text-white/90">{agentData?.agent_bankname}</p>
                     </div>
                     <div>
                         <p className="mb-2 leading-normal text-gray-500 dark:text-gray-400">شماره شبا</p>
-                        <p className="font-medium text-gray-800 dark:text-white/90">{agentData.agent_banksheba}</p>
+                        <p className="font-medium text-gray-800 dark:text-white/90">{agentData?.agent_banksheba}</p>
                     </div>
 
                     <div>
                         <p className="mb-2 leading-normal text-gray-500 dark:text-gray-400">تاریخ ثبت نام</p>
-                        <p className="font-medium text-gray-800 dark:text-white/90">{calculateTimestamp(agentData.agent_register_date)}</p>
+                        <p className="font-medium text-gray-800 dark:text-white/90">{calculateTimestamp(agentData?.agent_register_date)}</p>
                     </div>
-                    <div>
+                    <div className={'col-span-3'}>
                         <p className="mb-2 leading-normal text-gray-500 dark:text-gray-400">موقعیت روی نقشه</p>
-                        <p className="font-medium text-gray-800 dark:text-white/90">{agentData.agent_lat} - {agentData.agent_long}</p>
+                        <p className="font-medium text-gray-800 dark:text-white/90">{agentData?.agent_lat} - {agentData?.agent_long}</p>
                     </div>
 
                     {/*<div>*/}
                     {/*    <p className="mb-2 leading-normal text-gray-500 dark:text-gray-400">وضعیت کاربر</p>*/}
                     {/*    <p className="font-medium text-gray-800 dark:text-white/90">*/}
-                    {/*        {agentData.agent_deactive === "1" ? "غیرفعال" : "فعال"}*/}
+                    {/*        {agentData?.agent_deactive === "1" ? "غیرفعال" : "فعال"}*/}
                     {/*    </p>*/}
                     {/*</div>*/}
                 </div>
@@ -282,28 +300,43 @@ export default function UserInfoCard() {
                                     <div className="grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
                                         <div className="col-span-2 lg:col-span-1">
                                             <Label>تلفن ضروری</Label>
-                                            <Input type="tel" defaultValue={newAgentData?.agent_required_phone}
-                                                   onChange={(e) => newAgentData.agent_required_phone = e.target.value}/>
+                                            <Input type="tel" defaultValue={agentData?.agent_required_phone}
+                                                   onChange={(e) => setNewAgentData({
+                                                       ...newAgentData,
+                                                       agent_required_phone: e.target.value
+                                                   })}/>
                                         </div>
                                         <div className="col-span-2 lg:col-span-1">
                                             <Label>تلفن</Label>
-                                            <Input type="tel" defaultValue={newAgentData?.agent_tell}
-                                                   onChange={(e) => newAgentData.agent_tell = e.target.value}/>
+                                            <Input type="tel" defaultValue={agentData?.agent_tell}
+                                                   onChange={(e) => setNewAgentData({
+                                                       ...newAgentData,
+                                                       agent_tell: e.target.value
+                                                   })}/>
                                         </div>
                                         <div className="col-span-2 lg:col-span-1">
                                             <Label>ایمیل</Label>
-                                            <Input type="email" defaultValue={newAgentData?.agent_email}
-                                                   onChange={(e) => newAgentData.agent_email = e.target.value}/>
+                                            <Input type="email" defaultValue={agentData?.agent_email}
+                                                   onChange={(e) => setNewAgentData({
+                                                       ...newAgentData,
+                                                       agent_email: e.target.value
+                                                   })}/>
                                         </div>
                                         <div className="col-span-2 lg:col-span-1">
                                             <Label>منطقه</Label>
-                                            <Input type="text" defaultValue={newAgentData?.agent_sector_name}
-                                                   onChange={(e) => newAgentData.agent_sector_name = e.target.value}/>
+                                            <Input type="text" defaultValue={agentData?.agent_sector_name}
+                                                   onChange={(e) => setNewAgentData({
+                                                       ...newAgentData,
+                                                       agent_sector_name: e.target.value
+                                                   })}/>
                                         </div>
                                         <div className="col-span-2 lg:col-span-2">
                                             <Label>آدرس</Label>
-                                            <Input type="text" defaultValue={newAgentData?.agent_address}
-                                                   onChange={(e) => newAgentData.agent_address = e.target.value}/>
+                                            <Input type="text" defaultValue={agentData?.agent_address}
+                                                   onChange={(e) => setNewAgentData({
+                                                       ...newAgentData,
+                                                       agent_address: e.target.value
+                                                   })}/>
                                         </div>
                                     </div>
                                 </div>
