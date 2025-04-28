@@ -6,42 +6,42 @@ import Cookies from "js-cookie";
 import {Loader} from "lucide-react";
 
 interface AgentData {
-    agent_id: String | null,
-    agent_code: String | null,
-    agent_gender: String | null,
-    agent_name: String | null,
-    agent_family: String | null,
-    agent_mobile: String | null,
-    agent_tell: String | null,
-    agent_email: String | null,
-    $agenttoken: String | null,
-    agent_token_str: String | null,
-    employee_name: String | null,
-    employee_family: String | null,
-    agent_required_phone: String | null,
-    agent_address: String | null,
-    agent_register_date: String | null,
-    agent_state_name: String | null,
-    agent_city_name: String | null,
-    agent_sector_name: String | null,
-    agent_long: String | null,
-    agent_lat: String | null,
-    agent_banknum: String | null,
-    agent_bankname: String | null,
-    agent_banksheba: String | null,
-    agent_image_code: String | null,
-    agent_image: String | null,
-    agent_image_tumb: String | null,
-    agent_company_name: String | null,
-    agent_company_logo_url: String | null,
-    agent_deactive: String | null,
+    agent_id: String | '-',
+    agent_code: String | '-',
+    agent_gender: String | '-',
+    agent_name: String | '-',
+    agent_family: String | '-',
+    agent_mobile: String | '-',
+    agent_tell: String | '-',
+    agent_email: String | '-',
+    $agenttoken: String | '-',
+    agent_token_str: String | '-',
+    employee_name: String | '-',
+    employee_family: String | '-',
+    agent_required_phone: String | '-',
+    agent_address: String | '-',
+    agent_register_date: String | '-',
+    agent_state_name: String | '-',
+    agent_city_name: String | '-',
+    agent_sector_name: String | '-',
+    agent_long: String | '-',
+    agent_lat: String | '-',
+    agent_banknum: String | '-',
+    agent_bankname: String | '-',
+    agent_banksheba: String | '-',
+    agent_image_code: String | '-',
+    agent_image: String | '-',
+    agent_image_tumb: String | '-',
+    agent_company_name: String | '-',
+    agent_company_logo_url: String | '-',
+    agent_deactive: String | '-',
 }
 
 interface AuthContextType {
     agentData: AgentData | null;
     agentStatus: boolean | 'none';
     token: string | false;
-    isAuthenticated: boolean;
+    isAuthenticated: boolean | false;
     isLoading: boolean;
     login: (agentData: AgentData) => void;
     logout: () => void;

@@ -1,4 +1,4 @@
-import FinancialDocuments from "@/components/custom/tabs/FinancialDocuments";
+import FinancialDocuments from "@/components/custom/tabs/FianancialDocuments";
 import ComponentCard from "@/components/common/ComponentCard";
 
 import {Metadata} from "next";
