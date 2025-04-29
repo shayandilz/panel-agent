@@ -9,25 +9,25 @@ import {Dropdown} from "@/components/ui/dropdown/Dropdown";
 import {DropdownItem} from "@/components/ui/dropdown/DropdownItem";
 
 interface ConfirmedRequests {
-    request_id: any | '-';
-    user_id: any | '-';
-    user_name: any | '-';
-    user_family: any | '-';
-    user_mobile: any | '-';
-    fieldinsurance_logo_url: any | '-';
-    fieldinsurance_id: any | '-';
-    request_fieldinsurance_fa: any | '-';
-    request_description: any | '-';
-    request_last_state_id: any | '-';
-    request_last_state_name: any | '-';
-    request_organ: any | '-';
-    user_pey_amount: any | '-';
-    user_pey_cash: any | '-';
-    user_pey_instalment: any | '-';
-    staterequest_last_timestamp: any | '-';
-    request_ready: any | '-';
-    request_financial_approval: any | '-';
-    request_financial_doc: any | '-';
+    request_id: string;
+    user_id: string;
+    user_name: string;
+    user_family: string;
+    user_mobile: string;
+    fieldinsurance_logo_url: string;
+    fieldinsurance_id: string;
+    request_fieldinsurance_fa: string;
+    request_description: string;
+    request_last_state_id: string;
+    request_last_state_name: string;
+    request_organ: string;
+    user_pey_amount: string;
+    user_pey_cash: string;
+    user_pey_instalment: string;
+    staterequest_last_timestamp: string;
+    request_ready: any;
+    request_financial_approval: string;
+    request_financial_doc: string;
 }
 
 export default function ConfirmedRequests() {
@@ -62,7 +62,7 @@ export default function ConfirmedRequests() {
                     else setConfirmedRequests([])
                 } else toast.error('مشکلی پیش آمد. دوباره تلاش کنید.');
             } catch (err) {
-                toast.error(err || 'مشکلی پیش آمد. دوباره تلاش کنید.');
+                toast.error('مشکلی پیش آمد. دوباره تلاش کنید.');
             } finally {
                 setIsLoading(false);
 

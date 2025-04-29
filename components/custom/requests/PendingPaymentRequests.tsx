@@ -30,7 +30,7 @@ export default function PendingPaymentRequests() {
                 setPendingPaymentRequests(data.data || []);
             } else toast.error("مشکلی پیش آمد. دوباره تلاش کنید.");
         } catch (err) {
-            toast.error(err || "مشکلی پیش آمد. دوباره تلاش کنید.");
+            toast.error("مشکلی پیش آمد. دوباره تلاش کنید.");
         } finally {
             setIsLoading(false);
         }
@@ -42,7 +42,7 @@ export default function PendingPaymentRequests() {
 
     return (
         <>
-            <FilterComponent onFilterApply={(filters) => setFilters(filters)}/>
+            <FilterComponent onFilterApply={(filters) => setFilters(filters)} filterType={"all"}/>
             {isLoading ? (
                 <div className="text-center">در حال دریافت اطلاعات...</div>
             ) : (
@@ -69,7 +69,7 @@ export default function PendingPaymentRequests() {
                             ))
                         ) : (
                             <TableRow key="noRecord" className="text-center">
-                                <TableCell colspan={5}>
+                                <TableCell>
                                     رکوردی یافت نشد
                                 </TableCell>
                             </TableRow>

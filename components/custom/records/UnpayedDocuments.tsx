@@ -7,21 +7,23 @@ import {toast} from "react-toastify";
 import DocumentFilterComponent from "@/components/custom/filters/DocumentFilterComponent";
 
 interface UnpayedDocument {
+    paymentDate: string;
     id: number;
     documentName: string;
     dueDate: string;
     amount: number;
 }
 
+interface Filters {
+    documentNum?: string;
+}
+
 export default function UnpayedDocuments() {
     const [UnpayedDocuments, setUnpayedDocuments] = useState<UnpayedDocument[]>([]);
     const [isLoading, setIsLoading] = useState(true);
-    const fetchUnpayedDocuments = async (filters = null) => {
+    const fetchUnpayedDocuments = async (filters: Filters = {}) => {
         try {
             setIsLoading(true);
-            const queryParams = {
-                document_num: filters?.document_num
-            };
             const response = await services.Requests.getReport("?command=get_doc&mode=doc_paying");
             if (response) {
                 const data = response.data;
@@ -34,7 +36,7 @@ export default function UnpayedDocuments() {
                 else setUnpayedDocuments([])
             } else toast.error('مشکلی پیش آمد. دوباره تلاش کنید.');
         } catch (err) {
-            toast.error(err || 'مشکلی پیش آمد. دوباره تلاش کنید.');
+            toast.error('مشکلی پیش آمد. دوباره تلاش کنید.');
         } finally {
             setIsLoading(false);
         }

@@ -14,45 +14,47 @@ import Badge from "@/components/ui/badge/Badge";
 import Avatar from "@/components/custom/user/Avatar";
 
 interface AgentData {
-    agent_id: String | null,
-    agent_code: String | null,
-    agent_gender: String | null,
-    agent_name: String | null,
-    agent_family: String | null,
-    agent_mobile: String | null,
-    agent_tell: String | null,
-    agent_email: String | null,
-    $agenttoken: String | null,
-    employee_name: String | null,
-    employee_family: String | null,
-    agent_required_phone: String | null,
-    agent_address: String | null,
-    agent_register_date: String | null,
-    agent_state_name: String | null,
-    agent_city_name: String | null,
-    agent_sector_name: String | null,
-    agent_long: String | null,
-    agent_lat: String | null,
-    agent_banknum: String | null,
-    agent_bankname: String | null,
-    agent_banksheba: String | null,
-    agent_image_code: String | null,
-    agent_image: String | null,
-    agent_image_tumb: String | null,
-    agent_company_name: String | null,
-    agent_company_logo_url: String | null,
-    agent_deactive: String | null,
+    agent_id: string | null;
+    agent_code: string | null;
+    agent_gender: string | null;
+    agent_name: string | null;
+    agent_family: string | null;
+    agent_mobile: string | null;
+    agent_tell: string | null;
+    agent_email: string | null;
+    $agenttoken: string | null;
+    employee_name: string | null;
+    employee_family: string | null;
+    agent_required_phone: string | null;
+    agent_address: string | null;
+    agent_register_date: string | null;
+    agent_state_name: string | null;
+    agent_city_name: string | null;
+    agent_sector_name: string | null;
+    agent_long: string | null;
+    agent_lat: string | null;
+    agent_banknum: string | null;
+    agent_bankname: string | null;
+    agent_banksheba: string | null;
+    agent_image_code: string | null;
+    agent_image: any;
+    agent_image_tumb: string | null;
+    agent_company_name: string | null;
+    agent_company_logo_url: string;
+    agent_deactive: string | null;
 }
+
+
 
 export default function UserInfoCard() {
     const {isOpen, openModal, closeModal} = useModal();
     const {agentData, fetchAgentData, agentStatus} = useAuth();
-    const [newAgentData, setNewAgentData] = useState({});
+    const [newAgentData, setNewAgentData] = useState<AgentData | {}>({});
     const [error, setError] = useState(null);
     const [showLoader, setShowLoader] = useState(false)
 
     useEffect(() => {
-        setNewAgentData(agentData);
+        setNewAgentData(agentData || {});
     }, [isOpen]);
 
     if (error) {
@@ -69,7 +71,7 @@ export default function UserInfoCard() {
         closeModal();
     };
 
-    const calculateTimestamp = (timestamp) => {
+    const calculateTimestamp = (timestamp: string | null): string => {
         return (timestamp ? new Date(Number(timestamp) * 1000).toLocaleDateString('fa-IR') : 'نا مشخص').toString()
     }
 
@@ -89,7 +91,7 @@ export default function UserInfoCard() {
             closeModal();
 
         } catch (err) {
-            toast.error(err || 'مشکلی پیش آمد. دوباره تلاش کنید.');
+            toast.error('مشکلی پیش آمد. دوباره تلاش کنید.');
         } finally {
             setShowLoader(false)
         }
@@ -110,7 +112,7 @@ export default function UserInfoCard() {
             toast.success(data.desc || 'با موفقیت انجام شد.');
             setTimeout(() => window.location.reload(), 2000)
         } catch (err) {
-            toast.error(err || 'مشکلی پیش آمد. دوباره تلاش کنید.');
+            toast.error('مشکلی پیش آمد. دوباره تلاش کنید.');
         }
 
     };
@@ -121,8 +123,7 @@ export default function UserInfoCard() {
                     <div className="mb-4 flex flex-col items-center w-full gap-6 xl:flex-row">
                         <div className="overflow-hidden bg-white">
                             <Avatar
-                                className="h-full"
-                                src={agentData?.agent_image || "/images/user.png"}
+                                src={agentData.agent_image || "/images/user.png"}
                                 size="xxlarge"
                                 status={agentStatus ? 'online' : 'offline'}
                             />
@@ -177,15 +178,17 @@ export default function UserInfoCard() {
 
                 <div className="grid grid-cols-2 gap-4 lg:grid-cols-3 lg:gap-8 2xl:gap-x-32">
                     <div className="flex items-center w-full gap-6 xl:flex-row">
-                        {agentData?.agent_company_logo_url && <div className="h-20 overflow-hidden bg-white">
-                            <img
-                                className="h-full"
-                                height="100%"
-                                width="auto"
-                                src={agentData?.agent_company_logo_url}
-                                alt="user"
-                            />
-                        </div>}
+                        {agentData?.agent_company_logo_url && (
+                            <div className="h-20 overflow-hidden bg-white">
+                                <img
+                                    className="h-full"
+                                    height="100%"
+                                    width="auto"
+                                    src={agentData?.agent_company_logo_url || ''}
+                                    alt="user"
+                                />
+                            </div>
+                        )}
                         <div className="order-3 xl:order-2">
                             <h4 className="mb-2 text-lg font-semibold text-center text-gray-800 dark:text-white/90 xl:text-start">
                                 <span className="me-3">{agentData?.agent_company_name}</span>
@@ -300,7 +303,7 @@ export default function UserInfoCard() {
                                     <div className="grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
                                         <div className="col-span-2 lg:col-span-1">
                                             <Label>تلفن ضروری</Label>
-                                            <Input type="tel" defaultValue={agentData?.agent_required_phone}
+                                            <Input type="tel" defaultValue={agentData?.agent_required_phone || 0}
                                                    onChange={(e) => setNewAgentData({
                                                        ...newAgentData,
                                                        agent_required_phone: e.target.value
@@ -308,7 +311,7 @@ export default function UserInfoCard() {
                                         </div>
                                         <div className="col-span-2 lg:col-span-1">
                                             <Label>تلفن</Label>
-                                            <Input type="tel" defaultValue={agentData?.agent_tell}
+                                            <Input type="tel" defaultValue={agentData?.agent_tell || 0}
                                                    onChange={(e) => setNewAgentData({
                                                        ...newAgentData,
                                                        agent_tell: e.target.value
@@ -316,7 +319,7 @@ export default function UserInfoCard() {
                                         </div>
                                         <div className="col-span-2 lg:col-span-1">
                                             <Label>ایمیل</Label>
-                                            <Input type="email" defaultValue={agentData?.agent_email}
+                                            <Input type="email" defaultValue={agentData?.agent_email || ''}
                                                    onChange={(e) => setNewAgentData({
                                                        ...newAgentData,
                                                        agent_email: e.target.value
@@ -324,7 +327,7 @@ export default function UserInfoCard() {
                                         </div>
                                         <div className="col-span-2 lg:col-span-1">
                                             <Label>منطقه</Label>
-                                            <Input type="text" defaultValue={agentData?.agent_sector_name}
+                                            <Input type="text" defaultValue={agentData?.agent_sector_name || ''}
                                                    onChange={(e) => setNewAgentData({
                                                        ...newAgentData,
                                                        agent_sector_name: e.target.value
@@ -332,7 +335,7 @@ export default function UserInfoCard() {
                                         </div>
                                         <div className="col-span-2 lg:col-span-2">
                                             <Label>آدرس</Label>
-                                            <Input type="text" defaultValue={agentData?.agent_address}
+                                            <Input type="text" defaultValue={agentData?.agent_address || ''}
                                                    onChange={(e) => setNewAgentData({
                                                        ...newAgentData,
                                                        agent_address: e.target.value

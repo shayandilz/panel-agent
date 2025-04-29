@@ -49,7 +49,7 @@ export default function UnconfirmedRequests() {
                 else setUnconfirmedRequests([])
             } else toast.error('مشکلی پیش آمد. دوباره تلاش کنید.');
         } catch (err) {
-            toast.error(err || 'مشکلی پیش آمد. دوباره تلاش کنید.');
+            toast.error('مشکلی پیش آمد. دوباره تلاش کنید.');
         } finally {
             setIsLoading(false);
         }
@@ -61,7 +61,7 @@ export default function UnconfirmedRequests() {
 
     return (
         <>
-            <FilterComponent onFilterApply={(filters) => setFilters(filters)}/>
+            <FilterComponent onFilterApply={(filters) => setFilters(filters)} filterType={"all"}/>
 
             {isLoading ? (
                 <div className="text-center">در حال دریافت اطلاعات...</div>

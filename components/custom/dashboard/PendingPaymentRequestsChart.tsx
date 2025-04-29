@@ -18,7 +18,7 @@ export default function PendingPaymentRequests() {
     const [pendingPaymentRequests, setPendingPaymentRequests] = useState<PendingPaymentRequestsChart[]>([]);
     const [isLoading, setIsLoading] = useState(true);
 
-    const fetchPendingPaymentRequests = async (filters = null) => {
+    const fetchPendingPaymentRequests = async (filters: any = null) => {
         try {
             setIsLoading(true);
             const queryParams = {
@@ -30,7 +30,7 @@ export default function PendingPaymentRequests() {
             };
             console.log('filters',filters)
 
-            const query = startDate ? `&start_date=${queryParams?.startDate}` : "";
+            const query = queryParams?.start_date ? `&start_date=${queryParams?.start_date}` : "";
             const response = await services.Requests.getReport(`?command=getagent_request&approvaslmode=progresspaing${query}`);
             if (response) {
                 const data = response.data;
@@ -38,7 +38,7 @@ export default function PendingPaymentRequests() {
                 setPendingPaymentRequests(data.data || []);
             } else toast.error("مشکلی پیش آمد. دوباره تلاش کنید.");
         } catch (err) {
-            toast.error(err || "مشکلی پیش آمد. دوباره تلاش کنید.");
+            toast.error("مشکلی پیش آمد. دوباره تلاش کنید.");
         } finally {
             setIsLoading(false);
         }
@@ -50,7 +50,7 @@ export default function PendingPaymentRequests() {
 
     return (
         <>
-            <FilterComponent onFilterApply={(filters) => setFilters(filters)}/>
+            {/*<FilterComponent onFilterApply={(filters) => setFilters(filters)}/>*/}
             {isLoading ? (
                 <div className="text-center">در حال دریافت اطلاعات...</div>
             ) : (
@@ -77,7 +77,7 @@ export default function PendingPaymentRequests() {
                             ))
                         ) : (
                             <TableRow key="noRecord" className="text-center">
-                                <TableCell colspan={5}>
+                                <TableCell>
                                     رکوردی یافت نشد
                                 </TableCell>
                             </TableRow>

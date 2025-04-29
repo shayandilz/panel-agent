@@ -2,10 +2,10 @@
 
 import React, {useState, useEffect} from "react";
 import Label from "@/components/form/Label";
-// import Select from "@/components/form/Select";
-// import Input from "@/components/form/input/InputField";
 import Button from "@/components/ui/button/Button";
 import DatePicker from "react-multi-date-picker";
+import persian from "react-date-object/calendars/persian"
+import persian_fa from "react-date-object/locales/persian_fa";
 
 interface FilterProps {
     onFilterApply: (filters: {
@@ -34,10 +34,16 @@ export default function DateRangeFilterComponent({onFilterApply}: FilterProps) {
                         تاریخ شروع
                     </Label>
                     <DatePicker
-                        calendars="['persian']"
-                        locales="['fa']"
+                        calendar={persian}
+                        locale={persian_fa}
                         format="YYYY/MM/DD"
-                        onChange={value => setStartDate(value)}
+                        onChange={(value) => {
+                            if (value) {
+                                setStartDate(value.format("YYYY/MM/DD"));
+                            } else {
+                                setStartDate('');
+                            }
+                        }}
                         containerClassName="block w-full"
                         inputClass="h-11 w-full rounded-lg border appearance-none px-4 py-2.5 text-sm shadow-theme-xs placeholder:text-gray-400 focus:outline-hidden focus:ring-3 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/60 dark:focus:border-brand-800"
                     />
@@ -49,10 +55,16 @@ export default function DateRangeFilterComponent({onFilterApply}: FilterProps) {
                         تاریخ پایان
                     </Label>
                     <DatePicker
-                        calendars="['persian']"
-                        locales="['fa']"
+                        calendar={persian}
+                        locale={persian_fa}
                         format="YYYY/MM/DD"
-                        onChange={value => setEndDate(value)}
+                        onChange={(value) => {
+                            if (value) {
+                                setEndDate(value.format("YYYY/MM/DD"));
+                            } else {
+                                setEndDate('');
+                            }
+                        }}
                         containerClassName="block w-full"
                         inputClass="h-11 w-full rounded-lg border appearance-none px-4 py-2.5 text-sm shadow-theme-xs placeholder:text-gray-400 focus:outline-hidden focus:ring-3 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/60 dark:focus:border-brand-800"
                     />

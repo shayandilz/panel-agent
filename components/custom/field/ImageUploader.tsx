@@ -11,7 +11,7 @@ import {toast} from "react-toastify";
 
 interface ImageUploaderProps {
     value: ImageListType;
-    onChange: (imageList) => void;
+    onChange: (imageList:any) => void;
     acceptType?: string[];
     name: string;
 }
@@ -54,7 +54,7 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
                 toast.error(response?.data?.desc || "مشکلی پیش آمد. دوباره تلاش کنید.");
             }
         } catch (error) {
-            toast.error(error || "مشکلی پیش آمد. دوباره تلاش کنید.");
+            toast.error("مشکلی پیش آمد. دوباره تلاش کنید.");
             console.error("Upload failed:", error);
         } finally {
             setUploadingIndex(null);
@@ -129,7 +129,6 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
 
                                 <div className="flex gap-2">
                                     <Button
-                                        type="button"
                                         className="px-3 py-1"
                                         onClick={() => handleUpload(index)}
                                         disabled={uploadingIndex === index}
@@ -138,7 +137,6 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
                                     </Button>
 
                                     <Button
-                                        type="button"
                                         variant={"outline"}
                                         className="px-3 py-1 bg-red-500"
                                         onClick={() => onImageRemove(index)}

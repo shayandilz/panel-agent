@@ -51,7 +51,7 @@ export default function UnconfirmedRequests() {
                 else setUnconfirmedRequests([])
             } else toast.error('مشکلی پیش آمد. دوباره تلاش کنید.');
         } catch (err) {
-            toast.error(err || 'مشکلی پیش آمد. دوباره تلاش کنید.');
+            toast.error('مشکلی پیش آمد. دوباره تلاش کنید.');
         } finally {
             setIsLoading(false);
             setTimeout(fetchUnconfirmedRequests, 60000)
@@ -157,7 +157,7 @@ export default function UnconfirmedRequests() {
                                 ))}
                                 {unconfirmedRequests.length == 0 && (
                                     <TableRow key="noRecord">
-                                        <TableCell colSpan={5} className="text-center px-5 py-4 sm:px-6">
+                                        <TableCell  className="text-center px-5 py-4 sm:px-6">
                                               <span
                                                   className="block font-medium text-gray-800 text-theme-sm dark:text-white/90">
                                                 رکوردی یافت نشد

@@ -4,7 +4,13 @@ import {Metadata} from "next";
 import React from "react";
 import RequestDetail from "@/components/custom/requests/RequestDetail";
 
-export async function generateMetadata({ params }: { params: { id: string} }) {
+export interface SlugPageProps {
+    params: Promise<{
+        id: string;
+    }>;
+}
+
+export async function generateMetadata({ params }:SlugPageProps) {
     let param = await params
     let id = param?.id
     return {
@@ -13,7 +19,7 @@ export async function generateMetadata({ params }: { params: { id: string} }) {
     };
 }
 
-export default async function RequestDetailPage({ params }: { params: { id: string} }) {
+export default async function RequestDetailPage({ params }: SlugPageProps) {
     let param = await params
     let id = param?.id
     return (
@@ -21,7 +27,7 @@ export default async function RequestDetailPage({ params }: { params: { id: stri
             <PageBreadcrumb pageTitle="جزئیات درخواست"/>
             <div className="space-y-6">
                 <ComponentCard title={  "جزئیات درخواست - شماره" + id}>
-                    <RequestDetail id={id}/>
+                    <RequestDetail/>
                 </ComponentCard>
             </div>
         </div>

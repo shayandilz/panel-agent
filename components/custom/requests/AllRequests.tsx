@@ -60,7 +60,7 @@ export default function AllRequests() {
                     else setRequestData([])
                 } else toast.error('مشکلی پیش آمد. دوباره تلاش کنید.');
             } catch (err) {
-                toast.error(err || 'مشکلی پیش آمد. دوباره تلاش کنید.');
+                toast.error('مشکلی پیش آمد. دوباره تلاش کنید.');
             } finally {
                 setIsLoading(false);
             }
@@ -131,6 +131,7 @@ export default function AllRequests() {
                                                 isHeader
                                                 className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
                                             >
+                                                {''}
                                             </TableCell>
 
                                         </TableRow>

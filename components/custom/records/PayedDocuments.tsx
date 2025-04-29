@@ -12,15 +12,23 @@ interface PayedDocument {
     amount: number;
 }
 
+interface Filters {
+    documentNum?: string;
+}
+
+interface ResponseData {
+    result: string;
+    data: PayedDocument[] | null;
+    desc?: string;
+}
+
 export default function PayedDocuments() {
     const [payedDocuments, setPayedDocuments] = useState<PayedDocument[]>([]);
     const [isLoading, setIsLoading] = useState(true);
-    const fetchPayedDocuments = async (filters = null) => {
+
+    const fetchPayedDocuments = async (filters: Filters = {}) => {
         try {
             setIsLoading(true);
-            const queryParams = {
-                document_num: filters?.document_num
-            };
             console.log('filters',filters)
 
             const response = await services.Requests.getReport("?command=get_doc&mode=doc_payed");
@@ -35,7 +43,7 @@ export default function PayedDocuments() {
                 else setPayedDocuments([])
             } else toast.error('مشکلی پیش آمد. دوباره تلاش کنید.');
         } catch (err) {
-            toast.error(err || 'مشکلی پیش آمد. دوباره تلاش کنید.');
+            toast.error('مشکلی پیش آمد. دوباره تلاش کنید.');
         } finally {
             setIsLoading(false);
         }
@@ -47,7 +55,7 @@ export default function PayedDocuments() {
 
     return (
         <>
-            <DocumentFilterComponent onFilterApply={(filters) => fetchPayedDocuments(filters)}/>
+            <DocumentFilterComponent onFilterApply={(filters) => fetchPayedDocuments(filters)} />
             {isLoading ? (
                 <div className="text-center">در حال دریافت اطلاعات...</div>
             ) : (
@@ -64,8 +72,8 @@ export default function PayedDocuments() {
                         </TableRow>
                     </TableHeader>
                     <TableBody>
-                        {payedDocuments.length > 0 ? (payedDocuments.map((document) => (
-                            <TableRow key={document.id}>
+                        {payedDocuments.length > 0 ? (payedDocuments.map((document, index) => (
+                            <TableRow key={document.id || index}>
                                 <TableCell>{document.id}</TableCell>
                                 <TableCell>{document.paymentDate}</TableCell>
                                 <TableCell>{document.documentName}</TableCell>

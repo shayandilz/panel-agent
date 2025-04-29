@@ -6,10 +6,10 @@ export async function POST(request: NextRequest) {
     if (!token) {
         return NextResponse.json({error: 'مشکلی پیش آمد. دوباره تلاش کنید.'}, {status: 401})
     }
-    console.log(agentId,token)
+
 
     try {
-        const url = `https://api.rahnamayefarda.ir/api/agentlogin?command=getagent&agent_id=${agentId}`;
+        const url = `https://api.rahnamayefarda.ir/api/agentlogin?command=getagent&agent_id=${'0'}`;
         console.log(url)
         const res = await fetch(url,{
             method: 'POST',

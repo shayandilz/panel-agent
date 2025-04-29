@@ -206,7 +206,7 @@ const AppSidebar: React.FC = () => {
             >
               <ul className="mt-2 space-y-1 ml-9">
                 {nav.subItems.map((subItem) => (
-                  <li key={subItem.name} style={{'white-space': 'nowrap'}}>
+                  <li key={subItem.name} >
                     <Link
                       href={subItem.path}
                       className={`menu-dropdown-item ${

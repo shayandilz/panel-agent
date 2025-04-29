@@ -7,19 +7,32 @@ import services from "@/core/service"
 import {requestStepData} from "@/core/utils"
 import {useParams} from "next/navigation";
 import Badge from "@/components/ui/badge/Badge";
-import FileInput from "@/components/form/input/FileInput";
 import RequestStepForm from "@/components/custom/field/RequestStepForm";
-import Image from "next/image";
 import {Tab, Tabs} from "@/components/ui/tabs/Tabs";
 import Select from "@/components/form/Select";
-import Textarea from "@/components/form/input/TextArea";
-import Button from "@/components/ui/button/Button";
-import DatePicker from "react-multi-date-picker";
 import Label from "@/components/form/Label";
 import {calculateTimestamp} from "@/core/utils";
-import {filter} from "domutils";
 
 // import FilterComponent from "@/components/custom/filters/FilterComponent";
+
+interface RequestReady {
+    requst_ready_start_date: string;
+    requst_ready_end_date: string;
+    requst_ready_end_price: string;
+    requst_ready_num_ins?: string;
+    requst_suspend_desc?: string;
+}
+
+interface RequestStat {
+    staterequest_timestamp: string;
+    request_state_name: string;
+    staterequest_desc: string;
+    agent_code?: string;
+    agent_name?: string;
+    agent_family?: string;
+    employee_name?: string;
+    employee_family?: string;
+}
 
 interface RequestData {
     request_id: string;
@@ -31,57 +44,48 @@ interface RequestData {
     user_mobile: string | '-';
     user_pey_amount: number | '-';
     user_pey_cash: number | '-';
-    request_financial_doc: Array<[]>;
-    request_address: Array<[]>;
+    request_financial_doc: Array<any>;
+    request_address: Array<any>;
     request_description?: string | '-';
-    request_ready?: Array<{
-        requst_ready_start_date: string | '-';
-        requst_ready_end_date: string | '-';
-        requst_ready_end_price: string | '-';
-        requst_ready_num_ins?: string | '-';
-        requst_suspend_desc?: string | '-';
-    }>;
-    request_stats?: Array<{
-        staterequest_timestamp: string | '-';
-        request_state_name: string | '-';
-        staterequest_desc: string | '-';
-        agent_code?: string | '-';
-        agent_name?: string | '-';
-        agent_family?: string | '-';
-        employee_name?: string | '-';
-        employee_family?: string | '-';
-    }>;
+    request_ready?: RequestReady[];
+    request_stats?: RequestStat[];
+}
+
+interface Filters {
+    startDate?: string;
+    endDate?: string;
+    fieldInsurance?: string;
+    userMobile?: string;
+    orderNumber?: string;
+}
+
+interface StateOption {
+    value: string;
+    label: string;
 }
 
 export default function RequestDetail() {
     const params = useParams();
     const id = params?.id;
 
-    const [imageIsLoading, setImageIsLoading] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
     const [activeTab, setActiveTab] = useState("issuance");
     const [requestData, setRequestData] = useState<RequestData | null>(null);
-    // const [currentState, setCurrentState] = useState<string | null>(null);
-    const [allRequestStates, setAllRequestStates] = useState([]);
-    const [availableStates, setAvailableStates] = useState([]);
-    const [deliveryModes, setDeliveryModes] = useState([]);
-    const [cityStatesList, setCityStatesList] = useState([]);
-    const [citiesList, setCitiesList] = useState([]);
-
-    const [selectedImage, setSelectedImage] = useState(null);
+    const [allRequestStates, setAllRequestStates] = useState<StateOption[]>([]);
+    const [availableStates, setAvailableStates] = useState<StateOption[]>([]);
     const [selectedStatus, setSelectedStatus] = useState<any | number>(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
-    const [stepFields, setStepFields] = useState(null);
-    const [formData, setFormData] = useState({});
-    const [error, setError] = useState(null);
-    const [showLoader, setShowLoader] = useState(false)
+    const [stepFields, setStepFields] = useState<any>(null);
+    const [formData, setFormData] = useState<any>({});
+    const [error, setError] = useState<string | null>(null);
+    const [showLoader, setShowLoader] = useState(false);
 
     function hasEmptyValue(obj: Record<string, any>): boolean {
         if(Object.values(obj).length == 0) return true
         return Object.values(obj).some(value => value == "" || value == null || value == undefined);
     }
 
-    const handleFormSubmit = async (formDataset) => {
+    const handleFormSubmit = async (formDataset: any) => {
         if (hasEmptyValue(formDataset)) {
             toast.error("لطفا تمام فیلدهای ضروری را پر کنید");
             return;
@@ -90,9 +94,10 @@ export default function RequestDetail() {
         setIsSubmitting(true);
         try {
             const query = new URLSearchParams({
-                request_id: id,
-                command: requestStepData[selectedStatus]?.command,
-                ...formDataset
+                request_id: id || "",
+                // @ts-ignore
+                command: requestStepData[selectedStatus]?.command || "",
+                ...formDataset,
             }).toString();
 
             const response = await services.Requests.sendRequest(`?${query}`);
@@ -104,7 +109,7 @@ export default function RequestDetail() {
                 throw new Error(response.data.desc);
             }
         } catch (err) {
-            toast.error(err.message || "خطا در بروزرسانی وضعیت");
+            toast.error( "خطا در بروزرسانی وضعیت");
         } finally {
             setIsSubmitting(false);
         }
@@ -115,12 +120,11 @@ export default function RequestDetail() {
 
         try {
             setIsLoading(true);
-            const response = await services.Requests.getReport('?command=getagent_request')
+            const response = await services.Requests.getReport('?command=getagent_request');
             if (response?.data?.result === "ok") {
-                let requests = response?.data?.data
-                let reqIndex = requests.findIndex(req => req.request_id == id)
+                let requests = response?.data?.data;
+                let reqIndex = requests.findIndex((req: { request_id: string | string[]; }) => req.request_id == id);
                 setRequestData(requests[reqIndex] as RequestData);
-                // setCurrentState(requests[reqIndex]?.request_last_state_id)
                 fetchRequestStates(requests[reqIndex]?.request_last_state_id);
             } else {
                 throw new Error(response?.data?.desc || "مشکلی پیش آمد.");
@@ -133,17 +137,17 @@ export default function RequestDetail() {
         }
     };
 
-    const fetchRequestStates = async (currentState) => {
+    const fetchRequestStates = async (currentState: string) => {
         try {
             const response = await services.Requests.getReport('?command=getstaterequest')
             if (response?.data?.result === "ok") {
-                let states = await response?.data?.data.map(function (stat) {
+                let states = await response?.data?.data.map(function (stat: { request_state_id: any; request_state_name: any; }) {
                     return {
                         value: stat?.request_state_id,
                         label: stat?.request_state_name
                     }
                 })
-                let filteredStates = await states.filter(state => {
+                let filteredStates = await states.filter((state: { value: string; }) => {
                     // console.log(state, currentState)
                     if (currentState == state.value) return false
                     else if (currentState == '1' || currentState == '2') return state.value == '3'
@@ -171,6 +175,7 @@ export default function RequestDetail() {
 
     useEffect(() => {
         if (!selectedStatus) return
+        // @ts-ignore
         setStepFields(requestStepData[selectedStatus])
         setFormData({})
     }, [selectedStatus]);
@@ -298,18 +303,6 @@ export default function RequestDetail() {
                         {!requestData?.request_financial_doc.length && (
                             <div className="mb-2 leading-normal text-gray-400 dark:text-gray-200">عکس موجود
                                 نیست.</div>)}
-                        {requestData?.request_financial_doc?.map((img, index) => (
-                            // todo: find out how images will pass
-                            {img, index}
-                            // <Image
-                            //     key={index}
-                            //     src={img?.url}
-                            //     alt={`Image ${index + 1}`}
-                            //     width={200}
-                            //     height={200}
-                            //     className="rounded-lg"
-                            // />
-                        ))}
                     </div>
                 )}
 
@@ -318,7 +311,7 @@ export default function RequestDetail() {
                         {!requestData.request_stats && (
                             <div className="mb-2 leading-normal text-gray-400 dark:text-gray-200">رکوردی موجود
                                 نیست.</div>)}
-                        {requestData.request_stats?.length > 0 && (<table className="w-full">
+                        {requestData.request_stats && requestData.request_stats.length > 0 && (<table className="w-full">
                             <thead>
                             <tr>
                                 <th>تاریخ</th>
@@ -380,10 +373,8 @@ export default function RequestDetail() {
                 <div className={`w-[350px]`}>
                     <Label htmlFor="changeState">تغییر وضعیت درخواست</Label>
                     <Select
-                        id="changeState"
                         options={availableStates}
                         onChange={(e) => setSelectedStatus(e)}
-                        disabled={isSubmitting}
                         placeholder="انتخاب کنید"
                     >
                     </Select>

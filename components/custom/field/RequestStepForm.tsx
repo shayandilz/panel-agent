@@ -7,9 +7,30 @@ import Textarea from "@/components/form/input/TextArea";
 import Button from "@/components/ui/button/Button";
 import DatePicker from "react-multi-date-picker";
 import Input from "@/components/form/input/InputField";
+import persian from "react-date-object/calendars/persian"
+import persian_fa from "react-date-object/locales/persian_fa";
+interface Field {
+    name: string;
+    label: string;
+    type: "text" | "image" | "date" | "textarea" | "select";
+    required?: boolean;
+    maxNumber?: number;
+    command?: string;
+    triggers?: string;
+    triggerParam?: string;
+    dependsOn?: string;
+}
 
-export default function RequestStepForm({stepFields, onSubmit}) {
-    const [form, setForm] = useState<{ [key: string]: any }>({});
+// Define the structure for the form state, matching the dynamic field names
+type FormState = { [key: string]: any };
+
+interface RequestStepFormProps {
+    stepFields: Field[];
+    onSubmit: (formData: FormState) => void;
+}
+
+export default function RequestStepForm({ stepFields, onSubmit }: RequestStepFormProps) {
+    const [form, setForm] = useState<FormState>({});
     const [images, setImages] = useState<ImageListType>([]);
     const [optionsList, setOptionsList] = useState<{ [key: string]: Array<{ value: any, label: string }> }>({});
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -21,7 +42,7 @@ export default function RequestStepForm({stepFields, onSubmit}) {
                 acc[field.command] = [];
             }
             return acc;
-        }, {});
+        }, {} as { [key: string]: Array<{ value: any, label: string }> });
         setOptionsList(initialOptions);
 
         // Fetch initial data for independent commands
@@ -30,7 +51,8 @@ export default function RequestStepForm({stepFields, onSubmit}) {
                 await getOptions(field.command);
             }
         });
-    }, []);
+    }, [stepFields]);
+
 
     async function getOptions(command: string, query: string = '') {
         try {
@@ -39,7 +61,7 @@ export default function RequestStepForm({stepFields, onSubmit}) {
                 const valueName = getValueFieldName(command);
                 const labelName = getLabelFieldName(command);
 
-                const modes = response.data.data.reduce((acc, mode) => {
+                const modes = response.data.data.reduce((acc: { value: any; label: any; }[], mode: { [x: string]: any; }) => {
                     if (!acc.some(item => item.value === mode[valueName])) {
                         acc.push({
                             value: mode[valueName],
@@ -64,7 +86,7 @@ export default function RequestStepForm({stepFields, onSubmit}) {
     }
 
     const getValueIp = (command: string) => {
-        const fieldMap = {
+        const fieldMap: { [key: string]: string } = {
             'get_organ': 'organ',
             'get_clearingmode': 'statecity',
             'get_state': 'statecity',
@@ -73,8 +95,9 @@ export default function RequestStepForm({stepFields, onSubmit}) {
         return fieldMap[command] || 'agentrequestreport';
     };
 
+
     const getValueFieldName = (command: string) => {
-        const fieldMap = {
+        const fieldMap: { [key: string]: string } = {
             'get_organ': 'organ_id',
             'get_clearingmode': 'request_ready_clearing_mode_id',
             'get_mode_delivery': 'delivery_mode_id',
@@ -85,7 +108,7 @@ export default function RequestStepForm({stepFields, onSubmit}) {
     };
 
     const getLabelFieldName = (command: string) => {
-        const fieldMap = {
+        const fieldMap: { [key: string]: string } = {
             'get_organ': 'organ_name',
             'get_clearingmode': 'request_ready_clearing_mode_name',
             'get_mode_delivery': 'delivery_mode_name',
@@ -110,7 +133,7 @@ export default function RequestStepForm({stepFields, onSubmit}) {
     };
 
 
-    const handleImagesChange = (imageList: ImageListType, name) => {
+    const handleImagesChange = (imageList: ImageListType, name: string) => {
         setImages(imageList);
         setForm(prev => ({
             ...prev,
@@ -144,7 +167,6 @@ export default function RequestStepForm({stepFields, onSubmit}) {
                                     name={field.name}
                                     onChange={(e) => handleImagesChange(e, field.name)}
                                     value={images}
-                                    maxNumber={field.maxNumber || 1}
                                 />
                             </div>
                         );
@@ -160,8 +182,8 @@ export default function RequestStepForm({stepFields, onSubmit}) {
                                     value={form[field.name] || ""}
                                     disabled={isSubmitting}
                                     required={field.required}
-                                    calendars="['persian']"
-                                    locales="['fa']"
+                                    calendar={persian}
+                                    locale={persian_fa}
                                     format="YYYY/MM/DD"
                                     onChange={value => handleChange(field.name, value)}
                                     containerClassName="block w-full"
@@ -181,7 +203,6 @@ export default function RequestStepForm({stepFields, onSubmit}) {
                                     disabled={isSubmitting}
                                     value={form[field.name] || ""}
                                     onChange={value => handleChange(field.name, value)}
-                                    required={field.required}
                                 />
                             </div>
                         );
@@ -194,12 +215,9 @@ export default function RequestStepForm({stepFields, onSubmit}) {
                                     {field.label}
                                 </label>
                                 <Select
-                                    disabled={isSubmitting || !optionsList[field.command]?.length}
-                                    options={optionsList[field.command] || []}
+                                    options={field.command ? optionsList[field.command] || [] : []}
                                     onChange={(val) => handleSelectChange(field.name, val)}
-                                    value={form[field.name]}
-                                    loading={!optionsList[field.command]}
-                                    required={field.required}
+                                    defaultValue={form[field.name]}
                                 />
                             </div>
                         );
@@ -213,9 +231,8 @@ export default function RequestStepForm({stepFields, onSubmit}) {
                             <Input
                                 type={field.type}
                                 disabled={isSubmitting}
-                                value={form[field.name] || ""}
+                                defaultValue={form[field.name] || ""}
                                 onChange={e => handleChange(field.name, e.target.value)}
-                                required={field.required}
                             />
                         </div>
                     );
@@ -223,7 +240,6 @@ export default function RequestStepForm({stepFields, onSubmit}) {
             </div>
 
             <Button
-                type="submit"
                 loading={isSubmitting}
                 disabled={isSubmitting}
                 className="w-full justify-center"

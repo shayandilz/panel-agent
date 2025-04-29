@@ -58,7 +58,7 @@ export default function PaidRequests() {
                 else setPaidRequests([])
             } else toast.error("مشکلی پیش آمد. دوباره تلاش کنید.");
         } catch (err) {
-            toast.error(err || "مشکلی پیش آمد. دوباره تلاش کنید.");
+            toast.error("مشکلی پیش آمد. دوباره تلاش کنید.");
         } finally {
             setIsLoading(false);
             setTimeout(fetchPaidRequests, 60000)
@@ -164,7 +164,7 @@ export default function PaidRequests() {
                                 ))
                             ) : (
                                 <TableRow key="noRecord">
-                                    <TableCell colSpan={5} className="text-center">
+                                    <TableCell className="text-center">
                                         رکوردی یافت نشد
                                     </TableCell>
                                 </TableRow>

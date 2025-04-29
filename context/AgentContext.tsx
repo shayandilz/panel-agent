@@ -1,47 +1,47 @@
-"use client"
-import React, {createContext, useState, useContext, useEffect, useCallback} from 'react';
+"use client";
+import React, { createContext, useState, useContext, useEffect, useCallback } from "react";
 import services from "@/core/service";
-import {toast} from "react-toastify";
+import { toast } from "react-toastify";
 import Cookies from "js-cookie";
-import {Loader} from "lucide-react";
+import { Loader } from "lucide-react";
 
+// Define types for AgentData and other states
 interface AgentData {
-    agent_id: String | '-',
-    agent_code: String | '-',
-    agent_gender: String | '-',
-    agent_name: String | '-',
-    agent_family: String | '-',
-    agent_mobile: String | '-',
-    agent_tell: String | '-',
-    agent_email: String | '-',
-    $agenttoken: String | '-',
-    agent_token_str: String | '-',
-    employee_name: String | '-',
-    employee_family: String | '-',
-    agent_required_phone: String | '-',
-    agent_address: String | '-',
-    agent_register_date: String | '-',
-    agent_state_name: String | '-',
-    agent_city_name: String | '-',
-    agent_sector_name: String | '-',
-    agent_long: String | '-',
-    agent_lat: String | '-',
-    agent_banknum: String | '-',
-    agent_bankname: String | '-',
-    agent_banksheba: String | '-',
-    agent_image_code: String | '-',
-    agent_image: String | '-',
-    agent_image_tumb: String | '-',
-    agent_company_name: String | '-',
-    agent_company_logo_url: String | '-',
-    agent_deactive: String | '-',
+    agent_id: string | null;
+    agent_code: string | null;
+    agent_gender: string | null;
+    agent_name: string | null;
+    agent_family: string | null;
+    agent_mobile: string | null;
+    agent_tell: string | null;
+    agent_email: string | null;
+    $agenttoken: string | null;
+    employee_name: string | null;
+    employee_family: string | null;
+    agent_required_phone: string | null;
+    agent_address: string | null;
+    agent_register_date: string | null;
+    agent_state_name: string | null;
+    agent_city_name: string | null;
+    agent_sector_name: string | null;
+    agent_long: string | null;
+    agent_lat: string | null;
+    agent_banknum: string | null;
+    agent_bankname: string | null;
+    agent_banksheba: string | null;
+    agent_image_code: string | null;
+    agent_image: any; // Consider typing this based on how the image is handled (string, URL, etc.)
+    agent_image_tumb: string | null;
+    agent_company_name: string | null;
+    agent_company_logo_url: string;
+    agent_deactive: string | null;
 }
 
 interface AuthContextType {
     agentData: AgentData | null;
     agentStatus: boolean | 'none';
-    token: string | false;
-    isAuthenticated: boolean | false;
+    token: string | null;
+    isAuthenticated: boolean;
     isLoading: boolean;
     login: (agentData: AgentData) => void;
     logout: () => void;
@@ -51,12 +51,12 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({children}) => {
-    const [agentData, setAgent] = useState<AgentData | null>(null);
-    const [agentStatus, setAgentStatus] = useState<boolean>(false);
-    const [agentId, setAgentId] = useState<number | null>(Cookies.get('agent_id') || null);
-    const [token, setToken] = useState<string | null>(Cookies.get('server_agent_token') || null);
-    const [isLoading, setIsLoading] = useState(true);
+export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+    const [agentData, setAgent] = useState<AgentData | null>(null); // Type agentData correctly
+    const [agentStatus, setAgentStatus] = useState<boolean>(false); // Type agentStatus correctly
+    const [agentId, setAgentId] = useState<string | null>(Cookies.get('agent_id') || null); // Correct type for agentId
+    const [token, setToken] = useState<string | null>(Cookies.get('server_agent_token') || null); // Correct type for token
+    const [isLoading, setIsLoading] = useState<boolean>(true); // Type for isLoading
 
     const isAuthenticated = !!token;
 
@@ -72,7 +72,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({children}
                 throw new Error(res.data?.desc || 'خطا در دریافت اطلاعات کاربر');
             }
         } catch (err) {
-            toast.error(err.message || 'خطا در دریافت اطلاعات کاربر');
+            toast.error('خطا در دریافت اطلاعات کاربر');
         } finally {
             setIsLoading(false);
         }
@@ -83,23 +83,23 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({children}
         try {
             const res = await services.General.getData('?command=get_status');
             if (res) {
-                let data = res.data
+                const data = res.data;
                 if (data?.result === 'ok') {
-                    setAgentStatus(data?.data?.agent_status == '1')
-                    console.log(agentStatus)
+                    setAgentStatus(data?.data?.agent_status === '1');
+                    console.log(agentStatus);
                 } else {
                     throw new Error(data?.desc || 'خطا در دریافت وضعیت کاربر');
                 }
             }
         } catch (err) {
-            toast.error(err.message || 'خطا در دریافت وضعیت کاربر');
+            toast.error('خطا در دریافت وضعیت کاربر');
         }
     }, [agentId, token]);
 
     const login = (agentData: AgentData) => {
-        let token = agentData?.agent_token_str || null
-        let id = agentData?.agent_id || null
-        Cookies.set('server_agent_token', token, {expires: 1}); // Store token for 7 days
+        let token = agentData?.$agenttoken || ''; // Ensure correct key is used for the token
+        let id = agentData?.agent_id || '';
+        Cookies.set('server_agent_token', token, { expires: 1 }); // Store token for 1 day
         Cookies.set('agent_data', JSON.stringify(agentData));
         Cookies.set('agent_id', id);
         setAgentId(id);
@@ -120,7 +120,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({children}
         const initializeAuth = async () => {
             if (token) {
                 await fetchAgentData();
-            } else setIsLoading(false);
+            } else {
+                setIsLoading(false);
+            }
         };
 
         initializeAuth();
@@ -140,9 +142,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({children}
                 fetchAgentStatus
             }}
         >
-            {isLoading && <div
-                className={`flex z-99999 items-center justify-center inset-0 fixed bg-white-900 dark:bg-gray-900 transition-all opacity-90`}>
-                <Loader/></div>}
+            {isLoading && (
+                <div
+                    className={`flex z-99999 items-center justify-center inset-0 fixed bg-white-900 dark:bg-gray-900 transition-all opacity-90`}
+                >
+                    <Loader />
+                </div>
+            )}
             {children}
         </AuthContext.Provider>
     );

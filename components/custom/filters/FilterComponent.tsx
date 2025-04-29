@@ -1,40 +1,72 @@
 "use client";
 
-import React, {useState, useEffect} from "react";
+import React, {useEffect, useState} from "react";
 import DatePicker from "react-multi-date-picker";
 import Label from "@/components/form/Label";
 import Input from "@/components/form/input/InputField";
 import {toast} from "react-toastify";
 import services from "@/core/service";
 import Select from "@/components/form/Select";
+import persian from "react-date-object/calendars/persian"
+import persian_fa from "react-date-object/locales/persian_fa";
 
 interface FilterProps {
-    onFilterApply: (filters) => void;
-    filterType: string | 'all'
+    onFilterApply: (filters: {
+        startDate?: number;
+        endDate?: number;
+        documentNum?: string;
+        requestState?: string;
+        requestOrgan?: string;
+        fieldInsurance?: string;
+        userMobile?: string;
+        orderNumber?: string;
+    }) => void;
+    filterType: "all" | "requests";
 }
 
-export default function FilterComponent({filterType,onFilterApply}: FilterProps) {
-    const [fieldInsurances, setFieldInsurances] = useState([]);
-    const [requestOrgans, setRequestOrgans] = useState([]);
-    const [requestContracts, setRequestContracts] = useState([]);
-    const [requestStates, setRequestStates] = useState([]);
-    const [documents, setDocuments] = useState([]);
+interface Document {
+    value: string;
+    label: string;
+}
+
+interface RequestOrgan {
+    value: string;
+    label: string;
+}
+
+interface RequestContract {
+    value: string;
+    label: string;
+}
+
+interface RequestState {
+    value: string;
+    label: string;
+}
+
+interface FieldInsurance {
+    value: string;
+    label: string;
+}
+
+export default function FilterComponent({filterType, onFilterApply}: FilterProps) {
+    const [fieldInsurances, setFieldInsurances] = useState<FieldInsurance[]>([]);
+    const [requestOrgans, setRequestOrgans] = useState<RequestOrgan[]>([]);
+    const [requestContracts, setRequestContracts] = useState<RequestContract[]>([]);
+    const [requestStates, setRequestStates] = useState<RequestState[]>([]);
+    const [documents, setDocuments] = useState<Document[]>([]);
     const [loadingFields, setLoadingFields] = useState(true);
-    const [filtersObject, setFiltersObject] = useState({});
+    const [filtersObject, setFiltersObject] = useState<any>({});
 
     useEffect(() => {
         const fetchDocumentsNumber = async () => {
             try {
-                const response = await services.Requests.getReport(
-                    "?command=get_doc"
-                );
+                const response = await services.Requests.getReport("?command=get_doc");
                 if (response?.data?.result === "ok") {
-                    let docs = response.data?.data.map(doc => {
-                        return {
-                            value: doc.document_id,
-                            label: doc.document_number,
-                        }
-                    })
+                    const docs = response.data?.data.map((doc: any) => ({
+                        value: doc.document_id,
+                        label: doc.document_number,
+                    }));
                     setDocuments(docs);
                 } else setDocuments([]);
             } catch (err) {
@@ -46,16 +78,12 @@ export default function FilterComponent({filterType,onFilterApply}: FilterProps)
 
         const fetchFieldOrgans = async () => {
             try {
-                const response = await services.Requests.getOrgan(
-                    "?command=get_organ"
-                );
+                const response = await services.Requests.getOrgan("?command=get_organ");
                 if (response?.data?.result === "ok") {
-                    let organs = response.data?.data.map(field => {
-                        return {
-                            value: field.organ_id,
-                            label: field.organ_name + '(' +field.organ_address + ')',
-                        }
-                    })
+                    const organs = response.data?.data.map((field: any) => ({
+                        value: field.organ_id,
+                        label: field.organ_name + "(" + field.organ_address + ")",
+                    }));
                     setRequestOrgans(organs);
                 } else setRequestOrgans([]);
             } catch (err) {
@@ -66,16 +94,12 @@ export default function FilterComponent({filterType,onFilterApply}: FilterProps)
         };
         const fetchFieldContracts = async () => {
             try {
-                const response = await services.Requests.getOrgan(
-                    "?command=get_contract"
-                );
+                const response = await services.Requests.getOrgan("?command=get_contract");
                 if (response?.data?.result === "ok") {
-                    let contracts = response.data?.data.map(field => {
-                        return {
-                            value: field.organ_contract_num,
-                            label: field.organ_name,
-                        }
-                    })
+                    const contracts = response.data?.data.map((field: any) => ({
+                        value: field.organ_contract_num,
+                        label: field.organ_name,
+                    }));
                     setRequestContracts(contracts);
                 } else setRequestContracts([]);
             } catch (err) {
@@ -87,16 +111,12 @@ export default function FilterComponent({filterType,onFilterApply}: FilterProps)
 
         const fetchFieldInsurances = async () => {
             try {
-                const response = await services.Requests.getReport(
-                    "?command=get_fieldinsurance"
-                );
+                const response = await services.Requests.getReport("?command=get_fieldinsurance");
                 if (response?.data?.result === "ok") {
-                    let insurances = response.data?.data.map(field => {
-                        return {
-                            value: field.fieldinsurance_id,
-                            label: field.fieldinsurance_fa,
-                        }
-                    })
+                    const insurances = response.data?.data.map((field: any) => ({
+                        value: field.fieldinsurance_id,
+                        label: field.fieldinsurance_fa,
+                    }));
                     setFieldInsurances(insurances);
                 } else setFieldInsurances([]);
             } catch (err) {
@@ -108,14 +128,12 @@ export default function FilterComponent({filterType,onFilterApply}: FilterProps)
 
         const fetchRequestStates = async () => {
             try {
-                const response = await services.Requests.getReport('?command=getstaterequest')
+                const response = await services.Requests.getReport("?command=getstaterequest");
                 if (response?.data?.result === "ok") {
-                    let states = await response?.data?.data.map(function (stat) {
-                        return {
-                            value: stat?.request_state_id,
-                            label: stat?.request_state_name
-                        }
-                    })
+                    const states = response?.data?.data.map((stat: any) => ({
+                        value: stat?.request_state_id,
+                        label: stat?.request_state_name,
+                    }));
                     setRequestStates(states);
                 } else {
                     throw new Error(response?.data?.desc || "مشکلی پیش آمد.");
@@ -127,19 +145,19 @@ export default function FilterComponent({filterType,onFilterApply}: FilterProps)
         };
 
         fetchFieldInsurances();
-        if(filterType == 'all') fetchDocumentsNumber();
-        if(filterType == 'requests') {
+        if (filterType == 'all') fetchDocumentsNumber();
+        if (filterType == 'requests') {
             fetchRequestStates();
             fetchFieldOrgans()
             fetchFieldContracts()
         }
     }, []);
 
-    const handleFilter = (newFilter) => {
+    const handleFilter = (newFilter: any) => {
         setFiltersObject({
             ...filtersObject,
-            ...newFilter
-        })
+            ...newFilter,
+        });
         onFilterApply(filtersObject);
     };
 
@@ -155,10 +173,10 @@ export default function FilterComponent({filterType,onFilterApply}: FilterProps)
                                 تاریخ شروع
                             </Label>
                             <DatePicker
-                                calendars="['persian']"
-                                locales="['fa']"
+                                calendar={persian}
+                                locale={persian_fa}
                                 format="YYYY/MM/DD"
-                                onChange={value => handleFilter({startDate: value.unix})}
+                                onChange={value => handleFilter({startDate: value?.unix})}
                                 containerClassName="block w-full"
                                 inputClass="h-11 w-full rounded-lg border appearance-none px-4 py-2.5 text-sm shadow-theme-xs placeholder:text-gray-400 focus:outline-hidden focus:ring-3 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/60 dark:focus:border-brand-800"
                             />
@@ -167,15 +185,16 @@ export default function FilterComponent({filterType,onFilterApply}: FilterProps)
 
                         {/* End Date */}
                         <div>
-                            <Label htmlFor="endDate" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                            <Label htmlFor="endDate"
+                                   className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                                 تاریخ پایان
                             </Label>
                             <DatePicker
                                 name='endDate'
-                                calendars="['persian']"
-                                locales="['fa']"
+                                calendar={persian}
+                                locale={persian_fa}
                                 format="YYYY/MM/DD"
-                                onChange={value => handleFilter({endDate: value.unix})}
+                                onChange={value => handleFilter({endDate: value?.unix})}
                                 containerClassName="block w-full"
                                 inputClass="h-11 w-full rounded-lg border appearance-none px-4 py-2.5 text-sm shadow-theme-xs placeholder:text-gray-400 focus:outline-hidden focus:ring-3 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/60 dark:focus:border-brand-800"
                             />
@@ -185,17 +204,16 @@ export default function FilterComponent({filterType,onFilterApply}: FilterProps)
                             <Label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                                 شماره سند
                             </Label>
-                            {documents.length > 0 ? <Select
-                                options={documents}
-                                onChange={(value) => handleFilter({documentNum: value})}
-                                disabled={loadingFields}
-                                placeholder="همه سند ها"
-                            >
-                                <option value="">همه سند ها</option>
-                            </Select> : <Input
-                                type="number"
-                                onChange={(e) => handleFilter({documentNum:e.target.value})}
-                                placeholder="همه سند ها"/>}
+                            {documents.length > 0 ?
+                                <Select
+                                    options={documents}
+                                    onChange={(value) => handleFilter({documentNum: value})}
+                                    placeholder="همه سند ها"
+                                >
+                                </Select> : <Input
+                                    type="number"
+                                    onChange={(e) => handleFilter({documentNum: e.target.value})}
+                                    placeholder="همه سند ها"/>}
                         </div>
                     </>
                 )}
@@ -210,7 +228,6 @@ export default function FilterComponent({filterType,onFilterApply}: FilterProps)
                                 options={requestStates}
                                 onChange={(value) => handleFilter({requestState: value})}
                                 placeholder="همه"
-                                disabled={loadingFields}
                             >
                             </Select>
                         </div>
@@ -224,7 +241,6 @@ export default function FilterComponent({filterType,onFilterApply}: FilterProps)
                                 options={requestOrgans}
                                 onChange={(value) => handleFilter({requestOrgan: value})}
                                 placeholder="همه ارگان ها"
-                                disabled={loadingFields}
                             >
                             </Select>
                         </div>
@@ -240,14 +256,14 @@ export default function FilterComponent({filterType,onFilterApply}: FilterProps)
                         options={fieldInsurances}
                         onChange={(value) => handleFilter({fieldInsurance: value})}
                         placeholder="همه"
-                        disabled={loadingFields}
                     >
                     </Select>
                 </div>
 
                 {/* User Mobile */}
                 <div>
-                    <Label htmlFor="userMobile" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    <Label htmlFor="userMobile"
+                           className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                         شماره موبایل
                     </Label>
                     <Input
@@ -266,7 +282,7 @@ export default function FilterComponent({filterType,onFilterApply}: FilterProps)
                     </Label>
                     <Input
                         type="number"
-                        onChange={(e) => handleFilter({orderNumber:e.target.value})}
+                        onChange={(e) => handleFilter({orderNumber: e.target.value})}
                         placeholder="شماره سفارش"
                     />
                 </div>

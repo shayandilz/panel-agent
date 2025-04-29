@@ -29,7 +29,7 @@ export default function PaidRequests() {
                 setPaidRequests(data.data || []);
             } else toast.error("مشکلی پیش آمد. دوباره تلاش کنید.");
         } catch (err) {
-            toast.error(err || "مشکلی پیش آمد. دوباره تلاش کنید.");
+            toast.error("مشکلی پیش آمد. دوباره تلاش کنید.");
         } finally {
             setIsLoading(false);
         }
@@ -41,7 +41,7 @@ export default function PaidRequests() {
 
     return (
         <>
-            <FilterComponent onFilterApply={(filters) => setFilters(filters)}/>
+            <FilterComponent onFilterApply={(filters) => setFilters(filters)} filterType={"all"}/>
             {isLoading ? (
                 <div className="text-center">در حال دریافت اطلاعات...</div>
             ) : (
@@ -68,7 +68,7 @@ export default function PaidRequests() {
                             ))
                         ) : (
                             <TableRow key="noRecord">
-                                <TableCell colSpan={5} className="text-center">
+                                <TableCell className="text-center">
                                     رکوردی یافت نشد
                                 </TableCell>
                             </TableRow>

@@ -74,7 +74,7 @@ export default function ChangePasswordForm() {
                                 hint={error && !agentOldPass ? error : ''}
                                 id="agentOldPass"
                                 type="password"
-                                value={agentOldPass}
+                                defaultValue={agentOldPass}
                                 onChange={(e) => setAgentOldPass(e.target.value)}
                             />
                         </div>
@@ -91,7 +91,7 @@ export default function ChangePasswordForm() {
                                 hint={error && !agentNewPass ? error : ''}
                                 id="agentONewPass"
                                 type="password"
-                                value={agentNewPass}
+                                defaultValue={agentNewPass}
                                 onChange={(e) => setAgentNewPass(e.target.value)}
                             />
                         </div>
@@ -108,7 +108,7 @@ export default function ChangePasswordForm() {
                                 hint={error && !agentNewPass2 ? error : ''}
                                 id="agentNewPass2"
                                 type="password"
-                                value={agentNewPass2}
+                                defaultValue={agentNewPass2}
                                 onChange={(e) => setAgentNewPass2(e.target.value)}
                             />
                         </div>

@@ -13,11 +13,21 @@ import {toast} from "react-toastify";
 import {useAuth} from "@/context/AgentContext";
 import service from "@/core/service";
 
+interface FormData {
+    agent_mobile?: string;
+    agent_pass?: string;
+    employee_mobile?: string;
+    agent_email?: string;
+}
+
+type FormState = 'login' | 'forgetByTel' | 'forgetByEmail' | 'enterPass';
+
+
 export default function SignInForm() {
     const router = useRouter();
     const [showPassword, setShowPassword] = useState(false);
-    const [formData, setFormData] = useState({});
-    const [formState, setFormState] = useState('login');
+    const [formData, setFormData] = useState<FormData>({});
+    const [formState, setFormState] = useState<FormState>('login');
     const [error, setError] = useState('');
     const [showLoader, setShowLoader] = useState(false)
     const {login} = useAuth();
@@ -55,7 +65,7 @@ export default function SignInForm() {
                 // router.push('/');
             } else toast.error('مشکلی پیش آمد. دوباره تلاش کنید.');
         } catch (err) {
-            toast.error(err || 'مشکلی پیش آمد. دوباره تلاش کنید.');
+            toast.error('مشکلی پیش آمد. دوباره تلاش کنید.');
             setShowLoader(false)
         }
     }
@@ -74,7 +84,7 @@ export default function SignInForm() {
                 setFormState('enterPass')
             }
         } catch (err) {
-            toast.error(err || 'مشکلی پیش آمد. دوباره تلاش کنید.');
+            toast.error('مشکلی پیش آمد. دوباره تلاش کنید.');
             setShowLoader(false)
         } finally {
             setShowLoader(false)
@@ -271,45 +281,7 @@ export default function SignInForm() {
 
                 {formState == 'enterPass' && (
                     <>
-                        test
-                        {/*<div className="space-y-6">*/}
-                        {/*    <div>*/}
-                        {/*        <Label htmlFor="passCode">*/}
-                        {/*            کد ارسالی*/}
-                        {/*        </Label>*/}
-                        {/*        <Input*/}
-                        {/*            disabled={showLoader}*/}
-                        {/*            id="passCode"*/}
-                        {/*            type="tel"*/}
-                        {/*            error={!!error && !formData?.passCode}*/}
-                        {/*            hint={error && !formData?.passCode ? error : ''}*/}
-                        {/*            onChange={(e) => setFormData({*/}
-                        {/*                ...formData,*/}
-                        {/*                agent_email: e.target.value*/}
-                        {/*            })}*/}
-                        {/*        />*/}
-                        {/*    </div>*/}
 
-
-                        {/*    <div>*/}
-                        {/*        <Button className="w-full" size="sm" onClick={() => handleForget()}*/}
-                        {/*                variant={"primary"}*/}
-                        {/*                loading={showLoader}*/}
-                        {/*                disabled={showLoader || (!formData.agent_email && !formData.agent_mobile)}>*/}
-                        {/*            ارسال رمز*/}
-                        {/*        </Button>*/}
-                        {/*    </div>*/}
-                        {/*    <div>*/}
-                        {/*        <Button className="w-full" size="sm"*/}
-                        {/*                onClick={() => setFormState(formState == 'forgetByTel' ? 'forgetByEmail' : 'forgetByTel')}*/}
-                        {/*                variant={"outline"}*/}
-                        {/*                loading={showLoader}*/}
-                        {/*                disabled={showLoader}>*/}
-                        {/*            {formState == 'forgetByTel' && `ارسال رمز به ایمیل`}*/}
-                        {/*            {formState == 'forgetByEmail' && `ارسال رمز به شماره همراه`}*/}
-                        {/*        </Button>*/}
-                        {/*    </div>*/}
-                        {/*</div>*/}
                     </>
                 )}
             </div>

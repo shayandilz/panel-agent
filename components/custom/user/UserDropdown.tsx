@@ -1,10 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import React, {useState, useEffect} from "react";
+import React, {useState} from "react";
 import {Dropdown} from "@/components/ui/dropdown/Dropdown";
 import {DropdownItem} from "@/components/ui/dropdown/DropdownItem";
-import {useRouter} from "next/navigation";
 import {useAuth} from '@/context/AgentContext';
 import {
     LockIcon,
@@ -15,7 +14,6 @@ import Avatar from "@/components/custom/user/Avatar";
 import service from "@/core/service";
 
 export default function UserDropdown() {
-    const router = useRouter();
     const [isOpen, setIsOpen] = useState(false);
     const [error, setError] = useState(false);
     const {token, agentData, logout, agentStatus} = useAuth();
@@ -44,7 +42,7 @@ export default function UserDropdown() {
                 logout()
             } else toast.error('مشکلی پیش آمد. دوباره تلاش کنید.');
         } catch (err) {
-            setError('مشکلی پیش آمد. دوباره تلاش کنید.');
+            setError(true);
         }
     }
 
