@@ -5,10 +5,9 @@ import AppHeader from "@/layout/AppHeader";
 import AppSidebar from "@/layout/AppSidebar";
 import Backdrop from "@/layout/Backdrop";
 import React, {useEffect} from "react";
-import {useAgent} from "@/context/AgentContext";
-import {toast} from "react-toastify";
-import services from "@/core/service";
-import Cookies from "js-cookie";
+import {useAuth} from "@/context/AgentContext";
+import {Loader} from "lucide-react";
+import {useRouter} from "next/navigation";
 
 export default function AdminLayout({
                                         children,
@@ -16,28 +15,8 @@ export default function AdminLayout({
     children: React.ReactNode;
 }) {
     const {isExpanded, isHovered, isMobileOpen} = useSidebar();
-    const {agentData, setAgentData, tokenData, setTokenData} = useAgent();
-
-    useEffect(() => {
-        const fetchAgentData = async () => {
-            try {
-                const agentId = Cookies.get('agent_id');
-                const res = await services.General.agentData(agentId);
-                const data = res.data
-                console.log(data)
-                if (data.result != 'ok') {
-                    throw new Error('خطا در دریافت اطلاعات کاربر');
-                }
-                setAgentData(data.data);
-                setTokenData(data.token);
-            } catch (err) {
-                console.error('catch',err.message);
-                toast.error(err.message);
-            }
-        };
-
-        fetchAgentData();
-    }, []);
+    const {isAuthenticated, isLoading, fetchAgentStatus} = useAuth();
+    const router = useRouter();
 
     // Dynamic class for main content margin based on sidebar state
     const mainContentMargin = isMobileOpen
@@ -46,20 +25,38 @@ export default function AdminLayout({
             ? "lg:ms-[290px]"
             : "lg:ms-[90px]";
 
-    return (
-        <div className="min-h-screen xl:flex">
-            {/* Sidebar and Backdrop */}
-            <Backdrop/>
-            {/* Main Content Area */}
-            <div
-                className={`flex-1 transition-all  duration-300 ease-in-out ${mainContentMargin}`}
-            >
-                {/* Header */}
-                <AppHeader/>
-                {/* Page Content */}
-                <div className="py-4 mx-auto md:p-6">{children}</div>
+    useEffect(() => {
+        if (isAuthenticated) {
+            fetchAgentStatus(); // Initial fetch
+            const interval = setInterval(fetchAgentStatus, 30000);
+            return () => clearInterval(interval);
+        }
+    }, [isAuthenticated, fetchAgentStatus])
+
+    if (isLoading) {
+        return (
+            <div className="flex z-99999 items-center justify-center inset-0 fixed bg-white-900 dark:bg-dark-900 transition-all">
+                <Loader/>
             </div>
-            <AppSidebar/>
-        </div>
+        );
+    }
+
+    return (
+        <>
+            <div className="min-h-screen xl:flex">
+                {/* Sidebar and Backdrop */}
+                <Backdrop/>
+                {/* Main Content Area */}
+                <div
+                    className={`flex-1 transition-all  duration-300 ease-in-out ${mainContentMargin}`}
+                >
+                    {/* Header */}
+                    <AppHeader/>
+                    {/* Page Content */}
+                    <div className="py-4 mx-auto md:p-6">{children}</div>
+                </div>
+                <AppSidebar/>
+            </div>
+        </>
     );
 }

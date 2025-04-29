@@ -1,60 +1,55 @@
 "use client";
 
 import React, {useState, useEffect} from "react";
-// import {useModal} from "@/hooks/useModal";
-// import {Modal} from "@/components/ui/modal";
-// import Button from "@/components/ui/button/Button";
-// import Input from "@/components/form/input/InputField";
-// import TextArea from "@/components/form/input/TextArea";
-// import Label from "@/components/form/Label";
-// import Image from "next/image";
-// import {useAgent} from "@/context/AgentContext";
-// import {as} from "@fullcalendar/core/internal-common";
-import {FileIcon, TaskIcon, DollarLineIcon, PieChartIcon, InfoIcon} from "@/icons";
+import {FileIcon, TaskIcon, DollarLineIcon, PieChartIcon, InfoIcon, PlusIcon} from "@/icons";
 import {toast} from "react-toastify";
 import services from "@/core/service"
+import {requestStepData} from "@/core/utils"
 import {useParams} from "next/navigation";
 import Badge from "@/components/ui/badge/Badge";
 import FileInput from "@/components/form/input/FileInput";
+import RequestStepForm from "@/components/custom/field/RequestStepForm";
 import Image from "next/image";
 import {Tab, Tabs} from "@/components/ui/tabs/Tabs";
-import Select from "@/components/form/select";
+import Select from "@/components/form/Select";
 import Textarea from "@/components/form/input/TextArea";
 import Button from "@/components/ui/button/Button";
 import DatePicker from "react-multi-date-picker";
-import persian from "react-date-object/calendars/persian";
-import persian_fa from "react-date-object/locales/persian_fa";
 import Label from "@/components/form/Label";
-import {de} from "@fullcalendar/core/internal-common";
 import {calculateTimestamp} from "@/core/utils";
+import {filter} from "domutils";
+
+// import FilterComponent from "@/components/custom/filters/FilterComponent";
 
 interface RequestData {
     request_id: string;
-    request_fieldinsurance_fa: string;
-    request_last_state_name: string;
-    staterequest_last_timestamp: string;
-    user_name: string;
-    user_family: string;
-    user_mobile: string;
-    user_pey_amount: number;
+    request_fieldinsurance_fa: string | '-';
+    request_last_state_name: string | '-';
+    staterequest_last_timestamp: string | '-';
+    user_name: string | '-';
+    user_family: string | '-';
+    user_mobile: string | '-';
+    user_pey_amount: number | '-';
+    user_pey_cash: number | '-';
     request_financial_doc: Array<[]>;
     request_address: Array<[]>;
-    request_description?: string | null;
+    request_description?: string | '-';
     request_ready?: Array<{
-        requst_ready_start_date: string;
-        requst_ready_end_date: string;
-        requst_ready_end_price: string;
-        requst_ready_num_ins?: string;
-        requst_suspend_desc?: string;
+        requst_ready_start_date: string | '-';
+        requst_ready_end_date: string | '-';
+        requst_ready_end_price: string | '-';
+        requst_ready_num_ins?: string | '-';
+        requst_suspend_desc?: string | '-';
     }>;
     request_stats?: Array<{
-        staterequest_timestamp: string;
-        staterequest_desc: string;
-        agent_code?: string;
-        agent_name?: string;
-        agent_family?: string;
-        employee_name?: string;
-        employee_family?: string;
+        staterequest_timestamp: string | '-';
+        request_state_name: string | '-';
+        staterequest_desc: string | '-';
+        agent_code?: string | '-';
+        agent_name?: string | '-';
+        agent_family?: string | '-';
+        employee_name?: string | '-';
+        employee_family?: string | '-';
     }>;
 }
 
@@ -62,23 +57,32 @@ export default function RequestDetail() {
     const params = useParams();
     const id = params?.id;
 
+    const [imageIsLoading, setImageIsLoading] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
     const [activeTab, setActiveTab] = useState("issuance");
     const [requestData, setRequestData] = useState<RequestData | null>(null);
-    const [requestStates, setRequestStates] = useState([]);
+    // const [currentState, setCurrentState] = useState<string | null>(null);
+    const [allRequestStates, setAllRequestStates] = useState([]);
+    const [availableStates, setAvailableStates] = useState([]);
     const [deliveryModes, setDeliveryModes] = useState([]);
     const [cityStatesList, setCityStatesList] = useState([]);
     const [citiesList, setCitiesList] = useState([]);
 
-    const [selectedStatus, setSelectedStatus] = useState("");
+    const [selectedImage, setSelectedImage] = useState(null);
+    const [selectedStatus, setSelectedStatus] = useState<any | number>(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [stepFields, setStepFields] = useState(null);
     const [formData, setFormData] = useState({});
     const [error, setError] = useState(null);
     const [showLoader, setShowLoader] = useState(false)
 
-    const handleStatusChange = async () => {
-        // todo: check if all fields are filled
-        if (!selectedStatus) {
+    function hasEmptyValue(obj: Record<string, any>): boolean {
+        if(Object.values(obj).length == 0) return true
+        return Object.values(obj).some(value => value == "" || value == null || value == undefined);
+    }
+
+    const handleFormSubmit = async (formDataset) => {
+        if (hasEmptyValue(formDataset)) {
             toast.error("لطفا تمام فیلدهای ضروری را پر کنید");
             return;
         }
@@ -87,14 +91,15 @@ export default function RequestDetail() {
         try {
             const query = new URLSearchParams({
                 request_id: id,
-                ...formData
+                command: requestStepData[selectedStatus]?.command,
+                ...formDataset
             }).toString();
 
             const response = await services.Requests.sendRequest(`?${query}`);
 
             if (response.data.result === "ok") {
                 toast.success("وضعیت با موفقیت به روز شد");
-                fetchRequestDetail();
+                setTimeout(() => window.location.reload(), 2000)
             } else {
                 throw new Error(response.data.desc);
             }
@@ -115,6 +120,8 @@ export default function RequestDetail() {
                 let requests = response?.data?.data
                 let reqIndex = requests.findIndex(req => req.request_id == id)
                 setRequestData(requests[reqIndex] as RequestData);
+                // setCurrentState(requests[reqIndex]?.request_last_state_id)
+                fetchRequestStates(requests[reqIndex]?.request_last_state_id);
             } else {
                 throw new Error(response?.data?.desc || "مشکلی پیش آمد.");
             }
@@ -126,7 +133,7 @@ export default function RequestDetail() {
         }
     };
 
-    const fetchRequestStates = async () => {
+    const fetchRequestStates = async (currentState) => {
         try {
             const response = await services.Requests.getReport('?command=getstaterequest')
             if (response?.data?.result === "ok") {
@@ -136,86 +143,36 @@ export default function RequestDetail() {
                         label: stat?.request_state_name
                     }
                 })
-                setRequestStates(states);
-            } else {
-                throw new Error(response?.data?.desc || "مشکلی پیش آمد.");
-            }
-        } catch (err: any) {
-            setRequestStates([]);
-            console.error(err.message || "مشکلی پیش آمد. دوباره تلاش کنید.");
-        }
-    };
-    const fetchDeliveryModes = async () => {
-        try {
-            const response = await services.Requests.getReport('?command=get_mode_delivery')
-            if (response?.data?.result === "ok") {
-                let modes = await response?.data?.data.map(function (mode) {
-                    return {
-                        value: mode?.delivery_mode_id,
-                        label: mode?.delivery_mode_name
-                    }
+                let filteredStates = await states.filter(state => {
+                    // console.log(state, currentState)
+                    if (currentState == state.value) return false
+                    else if (currentState == '1' || currentState == '2') return state.value == '3'
+                    else if (currentState == '3') return state.value == '4' || state.value == '5' || state.value == '6' || state.value == '7' || state.value == '8' || state.value == '9' || state.value == '16'  // اضافه واریزی
+                    else if (currentState == '7' || currentState == '8') return state.value == '5' || state.value == '6' || state.value == '7' || state.value == '8' || state.value == '9' || state.value == '16'   // اضافه واریزی
+                    else if (currentState == '9') return state.value == '10'
+                    else if (currentState == '10') return state.value == '11'
+                    else if (currentState == '11') return false
+                    else return false
                 })
-                setDeliveryModes(modes);
+                // console.log(states, filteredStates);
+                setAvailableStates(filteredStates)
             } else {
                 throw new Error(response?.data?.desc || "مشکلی پیش آمد.");
             }
         } catch (err: any) {
-            setDeliveryModes([]);
-            console.error(err.message || "مشکلی پیش آمد. دوباره تلاش کنید.");
-        }
-    };
-    const fetchCityStatesList = async () => {
-        try {
-            const response = await services.Requests.getState('?command=get_state')
-            if (response?.data?.result === "ok") {
-                let modes = await response?.data?.data.map(function (mode) {
-                    return {
-                        value: mode?.state_id,
-                        label: mode?.state_name
-                    }
-                })
-                setCityStatesList(modes);
-            } else {
-                throw new Error(response?.data?.desc || "مشکلی پیش آمد.");
-            }
-        } catch (err: any) {
-            setCityStatesList([]);
-            console.error(err.message || "مشکلی پیش آمد. دوباره تلاش کنید.");
-        }
-    };
-
-    const fetchCityList = async (id) => {
-        try {
-            const response = await services.Requests.getState('?command=get_city&state_id=' + id)
-            if (response?.data?.result === "ok") {
-                let modes = await response?.data?.data.map(function (mode) {
-                    return {
-                        value: mode?.city_id,
-                        label: mode?.city_name
-                    }
-                })
-                setCitiesList(modes);
-            } else {
-                throw new Error(response?.data?.desc || "مشکلی پیش آمد.");
-            }
-        } catch (err: any) {
-            setCitiesList([]);
+            setAllRequestStates([]);
             console.error(err.message || "مشکلی پیش آمد. دوباره تلاش کنید.");
         }
     };
 
     useEffect(() => {
         fetchRequestDetail();
-        fetchRequestStates();
     }, [id]);
 
     useEffect(() => {
+        if (!selectedStatus) return
+        setStepFields(requestStepData[selectedStatus])
         setFormData({})
-        if (selectedStatus == 11) {
-            setFormData({...formData, command: "requestdelivered11"})
-            fetchDeliveryModes();
-            fetchCityStatesList();
-        }
     }, [selectedStatus]);
 
     if (isLoading) return <div className="text-center">در حال دریافت اطلاعات...</div>;
@@ -225,9 +182,10 @@ export default function RequestDetail() {
     return (
         <>
             <div className="mb-6">
+
                 <div className="grid grid-cols-2 gap-4 lg:grid-cols-3 lg:gap-8 2xl:gap-x-32">
                     <div>
-                        <p className="mb-2  leading-normal text-gray-500 dark:text-gray-400">
+                        <p className="mb-2  leading-normal text-gray-500 dark:text-gray-200">
                             شماره درخواست:
                         </p>
                         <p className=" font-medium text-gray-800 dark:text-white/90">
@@ -236,7 +194,7 @@ export default function RequestDetail() {
                     </div>
 
                     <div>
-                        <p className="mb-2  leading-normal text-gray-500 dark:text-gray-400">
+                        <p className="mb-2  leading-normal text-gray-500 dark:text-gray-200">
                             رشته بیمه :
                         </p>
                         <p className=" font-medium text-gray-800 dark:text-white/90">
@@ -248,16 +206,16 @@ export default function RequestDetail() {
                 <div className="grid grid-cols-2 gap-4 lg:grid-cols-3 lg:gap-8 2xl:gap-x-32">
 
                     <div>
-                        <p className="mb-2  leading-normal text-gray-500 dark:text-gray-400">
+                        <p className="mb-2  leading-normal text-gray-500 dark:text-gray-200">
                             آخرین وضعیت:
                         </p>
                         <p className=" font-medium text-gray-800 dark:text-white/90">
-                            <Badge variant="light"
+                            <Badge variant="solid"
                                    color="primary">{requestData?.request_last_state_name || "نامشخص"}</Badge>
                         </p>
                     </div>
                     <div>
-                        <p className="mb-2  leading-normal text-gray-500 dark:text-gray-400">
+                        <p className="mb-2  leading-normal text-gray-500 dark:text-gray-200">
                             تاریخ آخرین وضعیت:
                         </p>
                         <p className=" font-medium text-gray-800 dark:text-white/90">
@@ -266,7 +224,7 @@ export default function RequestDetail() {
                     </div>
 
                     <div>
-                        <p className="mb-2  leading-normal text-gray-500 dark:text-gray-400">
+                        <p className="mb-2  leading-normal text-gray-500 dark:text-gray-200">
                             مشخصات کاربر:
                         </p>
                         <p className=" font-medium text-gray-800 dark:text-white/90">
@@ -274,7 +232,7 @@ export default function RequestDetail() {
                         </p>
                     </div>
                     <div>
-                        <p className="mb-2  leading-normal text-gray-500 dark:text-gray-400">
+                        <p className="mb-2  leading-normal text-gray-500 dark:text-gray-200">
                             شماره همراه
                         </p>
                         <p className=" font-medium text-gray-800 dark:text-white/90">
@@ -283,7 +241,7 @@ export default function RequestDetail() {
                     </div>
 
                     <div>
-                        <p className="mb-2 leading-normal text-gray-500 dark:text-gray-400">
+                        <p className="mb-2 leading-normal text-gray-500 dark:text-gray-200">
                             مبلغ پرداخت شده :
                         </p>
                         <p className=" font-medium text-gray-800 dark:text-white/90">
@@ -291,7 +249,7 @@ export default function RequestDetail() {
                         </p>
                     </div>
                     <div>
-                        <p className="mb-2  leading-normal text-gray-500 dark:text-gray-400">
+                        <p className="mb-2  leading-normal text-gray-500 dark:text-gray-200">
                             جزئیات درخواست:
                         </p>
                         <p className=" font-medium text-gray-800 dark:text-white/90">
@@ -318,11 +276,11 @@ export default function RequestDetail() {
                     <div className="grid grid-cols-2 gap-4">
                         {requestData.request_ready?.map((ready, index) => (
                             <div key={index}>
-                                <p className="mb-2 leading-normal text-gray-800 dark:text-gray-400"><b className="me-3">تاریخ
+                                <p className="mb-2 leading-normal text-gray-800 dark:text-gray-200"><b className="me-3">تاریخ
                                     شروع:</b> {calculateTimestamp(ready?.requst_ready_start_date)} </p>
-                                <p className="mb-2 leading-normal text-gray-800 dark:text-gray-400"><b className="me-3">تاریخ
+                                <p className="mb-2 leading-normal text-gray-800 dark:text-gray-200"><b className="me-3">تاریخ
                                     پایان:</b> {calculateTimestamp(ready?.requst_ready_end_date)} </p>
-                                <p className="mb-2 leading-normal text-gray-800 dark:text-gray-400"><b className="me-3">قیمت
+                                <p className="mb-2 leading-normal text-gray-800 dark:text-gray-200"><b className="me-3">قیمت
                                     نهایی:</b> {ready?.requst_ready_end_price} ریال</p>
                                 {/*شماره بیمه نامه*/}
                                 {/*کد یکتا بیمه نامه*/}
@@ -338,7 +296,7 @@ export default function RequestDetail() {
                 {activeTab === "images" && (
                     <div className="grid grid-cols-3 gap-4">
                         {!requestData?.request_financial_doc.length && (
-                            <div className="mb-2 leading-normal text-gray-400 dark:text-gray-400">عکس موجود
+                            <div className="mb-2 leading-normal text-gray-400 dark:text-gray-200">عکس موجود
                                 نیست.</div>)}
                         {requestData?.request_financial_doc?.map((img, index) => (
                             // todo: find out how images will pass
@@ -358,12 +316,13 @@ export default function RequestDetail() {
                 {activeTab === "records" && (
                     <>
                         {!requestData.request_stats && (
-                            <div className="mb-2 leading-normal text-gray-400 dark:text-gray-400">رکوردی موجود
+                            <div className="mb-2 leading-normal text-gray-400 dark:text-gray-200">رکوردی موجود
                                 نیست.</div>)}
-                        {requestData.request_stats && (<table className="w-full">
+                        {requestData.request_stats?.length > 0 && (<table className="w-full">
                             <thead>
                             <tr>
                                 <th>تاریخ</th>
+                                <th>وضعیت</th>
                                 <th>توضیحات</th>
                                 <th>کد نماینده</th>
                                 <th>نماینده</th>
@@ -373,7 +332,8 @@ export default function RequestDetail() {
                             <tbody>
                             {requestData.request_stats?.map((stat, index) => (
                                 <tr key={index}>
-                                    <td>{calculateTimestamp((stat?.staterequest_timestamp))}</td>
+                                    <td>{stat?.staterequest_timestamp}</td>
+                                    <td>{stat.request_state_name}</td>
                                     <td>{stat.staterequest_desc}</td>
                                     <td>{stat.agent_code || "-"}</td>
                                     <td>{stat.agent_name ? `${stat.agent_name} ${stat.agent_family}` : "-"}</td>
@@ -388,9 +348,9 @@ export default function RequestDetail() {
                 {activeTab === "financial" && (
                     <div className="grid grid-cols-2 gap-4">
                         <div>
-                            <p className="mb-2 leading-normal text-gray-800 dark:text-gray-400"><b className="me-3">مبلغ
+                            <p className="mb-2 leading-normal text-gray-800 dark:text-gray-200"><b className="me-3">مبلغ
                                 پرداخت شده: </b> {requestData?.user_pey_amount} ریال</p>
-                            <p className="mb-2 leading-normal text-gray-800 dark:text-gray-400"><b className="me-3">مبلغ
+                            <p className="mb-2 leading-normal text-gray-800 dark:text-gray-200"><b className="me-3">مبلغ
                                 نقدی پرداخت شده: </b> {requestData?.user_pey_cash} ریال</p>
                         </div>
                     </div>
@@ -399,14 +359,14 @@ export default function RequestDetail() {
                 {activeTab === "address" && (
                     <div>
                         {!requestData?.request_address && (
-                            <div className="mb-2 leading-normal text-gray-400 dark:text-gray-400">آدرس موجود
+                            <div className="mb-2 leading-normal text-gray-400 dark:text-gray-200">آدرس موجود
                                 نیست.</div>)}
 
                         {requestData?.request_address?.map((address, index) => (
                             <div key={index} className="mb-4">
                                 {/* todo: no available address */}
-                                <p>آدرس: {address?.user_address_str}</p>
-                                <p>کد پستی: {address?.user_address_code}</p>
+                                {/*<p>آدرس: {address?.user_address_str}</p>*/}
+                                {/*<p>کد پستی: {address?.user_address_code}</p>*/}
                             </div>
                         ))}
                     </div>
@@ -417,156 +377,27 @@ export default function RequestDetail() {
             <hr/>
             {/* Status Change Dropdown */}
             <div className="mb-6">
-                <Select
-                    options={requestStates}
-                    defaultValue={selectedStatus}
-                    onChange={(e) => setSelectedStatus(e)}
-                    disabled={isSubmitting}
-                    placeholder="تغییر وضعیت درخواست"
-                >
-                </Select>
+                <div className={`w-[350px]`}>
+                    <Label htmlFor="changeState">تغییر وضعیت درخواست</Label>
+                    <Select
+                        id="changeState"
+                        options={availableStates}
+                        onChange={(e) => setSelectedStatus(e)}
+                        disabled={isSubmitting}
+                        placeholder="انتخاب کنید"
+                    >
+                    </Select>
+                </div>
 
-                {selectedStatus == 11 && (
-                    <div className="mt-5">
-                        <h3>تغییر وضعیت به تحویل شده به کاربر</h3>
-                        <div className="mt-4 grid grid-cols-2 md:grid-cols-3 gap-4">
-                            <div>
-                                <Select
-                                    options={deliveryModes}
-                                    onChange={(mode) => setFormData({
-                                        ...formData,
-                                        request_delivered_mode_id: mode || ""
-                                    })}
-                                    disabled={isSubmitting}
-                                    placeholder="نوع دریافت"
-                                >
-                                </Select>
-                            </div>
-
-                            <div>
-                                <Select
-                                    options={cityStatesList}
-                                    onChange={(state) => {
-                                        fetchCityList(state)
-                                        setFormData({
-                                            ...formData,
-                                            request_delivered_state_id: state || ""
-                                        })
-                                    }}
-                                    disabled={isSubmitting}
-                                    placeholder="استان"
-                                >
-                                </Select>
-                            </div>
-                            <div>
-                                <Select
-                                    options={citiesList}
-                                    onChange={(city) => setFormData({
-                                        ...formData,
-                                        request_delivered_city_id: city || ""
-                                    })}
-                                    disabled={isSubmitting}
-                                    placeholder="شهر"
-                                >
-                                </Select>
-                            </div>
-
-                            <div>
-                                <Textarea
-                                    onChange={(desc) => setFormData({
-                                        ...formData,
-                                        request_delivered_dsc: desc || ""
-                                    })}
-                                    disabled={isSubmitting}
-                                    placeholder="توضیحات تحویل "
-                                >
-                                </Textarea>
-                            </div>
-
-                            <div>
-                                <Label>عکس را انتخاب نمایید</Label>
-                                <Label className="text-sm">Max file size: 5mb, accepted: jpg|gif|png</Label>
-                                <FileInput
-                                    onChange={(file) => setFormData({
-                                        ...formData,
-                                        request_delivered_receipt_image_code: file || ""
-                                    })}
-                                    disabled={isSubmitting}
-                                >
-                                </FileInput>
-                            </div>
-                        </div>
-
-                        <Button
-                            onClick={handleStatusChange}
-                            disabled={isSubmitting}
-                        >
-                            {isSubmitting ? "در حال ارسال..." : "ثبت وضعیت تحویل شده به کاربر"}
-                        </Button>
-                    </div>
-                )}
-
-                {selectedStatus == 9 && (
-                    <div className="mt-4 grid grid-cols-2 md:grid-cols-3 gap-4">
-                        <div>
-                            <Select
-                                options={deliveryModes}
-                                defaultValue={formData.delivery_mode}
-                                onChange={(mode) => setFormData({
-                                    ...formData,
-                                    delivery_mode: mode || ""
-                                })}
-                                disabled={isSubmitting}
-                                placeholder="نوع دریافت"
-                            >
-                            </Select>
-                        </div>
-                        <div>
-                            <DatePicker
-                                calendars="['persian']"
-                                locales="['fa']"
-                                format="YYYY/MM/DD"
-                                value={formData.start_date}
-                                onChange={(date) => setFormData({
-                                    ...formData,
-                                    start_date: date?.format("YYYY-MM-DD") || ""
-                                })}
-                                placeholder="تاریخ شروع"
-                                containerClassName="block w-full"
-                                inputClass="h-11 w-full rounded-lg border appearance-none px-4 py-2.5 text-sm shadow-theme-xs placeholder:text-gray-400 focus:outline-hidden focus:ring-3 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800"
+                {stepFields && selectedStatus && (
+                    <div className={'mt-6 p-4 w-full border border-gray-200 rounded-xl dark:border-gray-800'}>
+                        <h3>{stepFields['title']}</h3>
+                        <div className="mt-4">
+                            <RequestStepForm
+                                stepFields={stepFields['fields']}
+                                onSubmit={handleFormSubmit}
                             />
                         </div>
-
-                        <div>
-                            <DatePicker
-                                calendars="['persian']"
-                                locales="['fa']"
-                                format="YYYY/MM/DD"
-                                value={formData.end_date}
-                                onChange={(date) => setFormData({
-                                    ...formData,
-                                    end_date: date?.format("YYYY-MM-DD") || ""
-                                })}
-                                placeholder="تاریخ پایان"
-                                containerClassName="block w-full"
-                                inputClass="h-11 w-full rounded-lg border appearance-none px-4 py-2.5 text-sm shadow-theme-xs placeholder:text-gray-400 focus:outline-hidden focus:ring-3 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800"
-                            />
-                        </div>
-
-                        <input
-                            type="number"
-                            placeholder="مبلغ نهایی"
-                            value={formData.price}
-                            onChange={(e) => setFormData({...formData, price: e.target.value})}
-                            className="p-2 border rounded"
-                        />
-
-                        <Button
-                            onClick={handleStatusChange}
-                            disabled={isSubmitting}
-                        >
-                            {isSubmitting ? "در حال ارسال..." : "ثبت تغییر وضعیت"}
-                        </Button>
                     </div>
                 )}
             </div>

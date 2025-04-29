@@ -8,49 +8,40 @@ import {toast} from "react-toastify";
 import FilterComponent from "@/components/custom/filters/FilterComponent";
 
 interface UncheckedRequests {
-    request_id: any;
-    user_id: any;
-    user_name: any;
-    user_family: any;
-    user_mobile: any;
-    fieldinsurance_logo_url: any;
-    fieldinsurance_id: any;
-    request_fieldinsurance_fa: any;
-    request_description: any;
-    request_last_state_id: any;
-    request_last_state_name: any;
-    request_organ: any;
-    user_pey_amount: any;
-    user_pey_cash: any;
-    user_pey_instalment: any;
-    staterequest_last_timestamp: any;
-    request_ready: any;
-    request_financial_approval: any;
-    request_financial_doc: any;
+    request_id: any | '-';
+    user_id: any | '-';
+    user_name: any | '-';
+    user_family: any | '-';
+    user_mobile: any | '-';
+    fieldinsurance_logo_url: any | '-';
+    fieldinsurance_id: any | '-';
+    request_fieldinsurance_fa: any | '-';
+    request_description: any | '-';
+    request_last_state_id: any | '-';
+    request_last_state_name: any | '-';
+    request_organ: any | '-';
+    user_pey_amount: any | '-';
+    user_pey_cash: any | '-';
+    user_pey_instalment: any | '-';
+    staterequest_last_timestamp: any | '-';
+    request_ready: any | '-';
+    request_financial_approval: any | '-';
+    request_financial_doc: any | '-';
 }
 
 export default function UncheckedRequests() {
     const [uncheckedRequests, setUncheckedRequests] = useState<UncheckedRequests[]>([]);
     const [isLoading, setIsLoading] = useState(true);
+    const [filters, setFilters] = useState({});
 
     useEffect(() => {
         fetchUncheckedRequests();
     }, []);
 
-    const fetchUncheckedRequests = async (filters = null) => {
+    const fetchUncheckedRequests = async () => {
         try {
             setIsLoading(true);
-            const queryParams = {
-                start_date: filters?.startDate,
-                end_date: filters?.endDate,
-                fieldinsurance_id: filters?.fieldInsurance,
-                user_mobile: filters?.userMobile,
-                order_number: filters?.orderNumber
-            };
-            console.log('filters', filters)
-
-            const query = queryParams ? `&start_date=${queryParams.start_date}` : "";
-            const response = await services.Requests.getReport(`?command=getagent_request&approvaslmode=unchecked${query}`);
+            const response = await services.Requests.getReport(`?command=getagent_request&approvaslmode=unchecked`);
             if (response) {
                 const data = response.data;
                 if (data.result !== "ok") throw new Error(data.desc);
@@ -65,7 +56,7 @@ export default function UncheckedRequests() {
 
     return (
         <>
-            <FilterComponent onFilterApply={(filters) => fetchUncheckedRequests(filters)}/>
+            <FilterComponent onFilterApply={(filters) => setFilters(filters)}/>
             {isLoading ? (
                 <div className="text-center">در حال دریافت اطلاعات...</div>
             ) : (
@@ -101,10 +92,10 @@ export default function UncheckedRequests() {
                                     <TableCell>{request.request_fieldinsurance_fa}</TableCell>
                                     <TableCell>{request.user_pey_cash}</TableCell>
                                     <TableCell>{request.request_last_state_id}</TableCell>
-                                    <TableCell>{request.request_ready[0]['requst_ready_end_price']}</TableCell>
+                                    <TableCell>{request.request_ready[0]?.requst_ready_end_price}</TableCell>
                                     <TableCell>{request.user_pey_amount}</TableCell>
-                                    <TableCell>{request.user_pey_amount}</TableCell>
-                                    <TableCell>{request.request_ready[0]['requst_ready_start_date'].toLocaleDateString('fa-IR') || '-'}</TableCell>
+                                    <TableCell>{request.user_pey_instalment}</TableCell>
+                                    <TableCell>{request.request_ready[0]?.requst_ready_start_date}</TableCell>
 
                                 </TableRow>
                             )))

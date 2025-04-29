@@ -3,9 +3,9 @@ import { Metadata } from "next";
 import React, {useState} from "react";
 
 export const metadata: Metadata = {
-  title: "Profile",
+  title: "پروفایل کاربر",
   description:
-    "Profile page",
+    "صفحه پروفایل کاربر",
 };
 
 export default function Profile() {
@@ -16,9 +16,7 @@ export default function Profile() {
           پروفایل کاربر
         </h3>
         <div className="space-y-6">
-          {/*<UserMetaCard />*/}
           <UserInfoCard />
-          {/*<UserAddressCard />*/}
         </div>
       </div>
     </div>

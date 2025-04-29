@@ -12,7 +12,7 @@ export async function POST(req: NextRequest) {
 
         const data = await res.json();
 
-        console.log('login response', data)
+        // console.log('login response', data)
         if (data.result === 'ok') {
             const response = NextResponse.json(data);
 
@@ -25,7 +25,7 @@ export async function POST(req: NextRequest) {
             return NextResponse.json({error: data.desc}, {status: 401});
         }
     } catch (err) {
-        console.error('Logout API Error:', err);
+        console.error('login API Error:', err);
         return NextResponse.json(
             {error: 'خطا در ارتباط با سرور'},
             {status: 500}

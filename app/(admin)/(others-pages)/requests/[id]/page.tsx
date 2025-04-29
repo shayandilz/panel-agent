@@ -9,7 +9,7 @@ export async function generateMetadata({ params }: { params: { id: string} }) {
     let id = param?.id
     return {
         title: `جزئیات درخواست - ${id}`,
-        description: "جزئیات درخواست",
+        description: "صفحه جزئیات درخواست",
     };
 }
 

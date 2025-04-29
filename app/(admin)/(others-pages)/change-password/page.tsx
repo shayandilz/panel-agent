@@ -3,9 +3,9 @@ import { Metadata } from "next";
 import React, {useState} from "react";
 
 export const metadata: Metadata = {
-  title: "Change Password",
+  title: "تغییر رمز عبور",
   description:
-      "Change Password page",
+      "صفحه تغییر رمز عبور",
 };
 
 export default function ChangePassword() {

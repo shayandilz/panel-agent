@@ -624,3 +624,7 @@ table {
 .flip-y {
     transform: rotateY(180deg);
 }
+
+.filter-invert {
+    filter: invert(1);
+}

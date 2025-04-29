@@ -7,32 +7,33 @@ import {toast} from "react-toastify";
 import FilterComponent from "@/components/custom/filters/FilterComponent";
 
 interface ConfirmedRequests {
-    request_id: any;
-    user_id: any;
-    user_name: any;
-    user_family: any;
-    user_mobile: any;
-    fieldinsurance_logo_url: any;
-    fieldinsurance_id: any;
-    request_fieldinsurance_fa: any;
-    request_description: any;
-    request_last_state_id: any;
-    request_last_state_name: any;
-    request_organ: any;
-    user_pey_amount: any;
-    user_pey_cash: any;
-    user_pey_instalment: any;
-    staterequest_last_timestamp: any;
-    request_ready: any;
-    request_financial_approval: any;
-    request_financial_doc: any;
+    request_id: any | '-';
+    user_id: any | '-';
+    user_name: any | '-';
+    user_family: any | '-';
+    user_mobile: any | '-';
+    fieldinsurance_logo_url: any | '-';
+    fieldinsurance_id: any | '-';
+    request_fieldinsurance_fa: any | '-';
+    request_description: any | '-';
+    request_last_state_id: any | '-';
+    request_last_state_name: any | '-';
+    request_organ: any | '-';
+    user_pey_amount: any | '-';
+    user_pey_cash: any | '-';
+    user_pey_instalment: any | '-';
+    staterequest_last_timestamp: any | '-';
+    request_ready: any | '-';
+    request_financial_approval: any | '-';
+    request_financial_doc: any | '-';
 }
 
 export default function ConfirmedRequests() {
     const [confirmedRequests, setConfirmedRequests] = useState<ConfirmedRequests[]>([]);
     const [isLoading, setIsLoading] = useState(true);
+    const [filters, setFilters] = useState({});
 
-    const fetchConfirmedRequests = async (filters = null) => {
+    const fetchConfirmedRequests = async () => {
         try {
             setIsLoading(true);
             const queryParams = {
@@ -48,7 +49,7 @@ export default function ConfirmedRequests() {
             const response = await services.Requests.getReport(`?command=getagent_request&approvaslmode=checkedfinancial${query}`);
             if (response) {
                 const data = response.data;
-                console.log('getagent_request checkedfinancial', data)
+                // console.log('getagent_request checkedfinancial', data)
                 if (data.result != 'ok') {
                     throw new Error(data.desc);
                 }
@@ -69,7 +70,7 @@ export default function ConfirmedRequests() {
 
     return (
         <>
-            <FilterComponent onFilterApply={(filters) => fetchConfirmedRequests(filters)}/>
+            <FilterComponent onFilterApply={(filters) => setFilters(filters)}/>
 
             {
                 isLoading ? (
@@ -103,7 +104,7 @@ export default function ConfirmedRequests() {
                                             </TableCell>
                                             <TableCell>{request.request_fieldinsurance_fa}</TableCell>
                                             <TableCell>{request.user_pey_amount}</TableCell>
-                                            <TableCell>{request.request_ready[0]['requst_ready_end_price']}</TableCell>
+                                            <TableCell>{request.request_ready[0]?.requst_ready_end_price}</TableCell>
                                             <TableCell>{request.request_ready[0].requst_ready_start_date}</TableCell>
                                         </TableRow>
                                     ))
