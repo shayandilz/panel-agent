@@ -28,6 +28,12 @@ const nextConfig: NextConfig = {
                 port: '',
                 pathname: '/**'
             },
+            {
+                protocol: 'https',
+                hostname: 'panel-agent.vercel.app',
+                port: '',
+                pathname: '/**'
+            },
         ]
     }
 };
