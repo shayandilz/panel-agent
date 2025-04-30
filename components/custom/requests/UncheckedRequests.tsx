@@ -1,52 +1,74 @@
 "use client";
 
-import React, {useState, useEffect} from "react";
-import {Table, TableBody, TableCell, TableHeader, TableRow} from "@/components/custom/tables";
+import React, { useState, useEffect } from "react";
+import { Table, TableBody, TableCell, TableHeader, TableRow } from "@/components/custom/tables";
 import Image from "next/image";
 import services from "@/core/service";
-import {toast} from "react-toastify";
-import FilterComponent from "@/components/custom/filters/FilterComponent";
+import { toast } from "react-toastify";
+import DatePicker from "react-multi-date-picker";
+import Label from "@/components/form/Label";
+import persian from "react-date-object/calendars/persian";
+import persian_fa from "react-date-object/locales/persian_fa";
+import {convertToPersian} from "@/utils/utils";
+import {Trash} from "lucide-react";
+
+// Define types for UncheckedRequest and Filters
+interface RequestReady {
+    requst_ready_end_price: number | string;
+    requst_ready_start_date: string;
+}
 
 interface UncheckedRequests {
-    request_id: any | '-';
-    user_id: any | '-';
-    user_name: any | '-';
-    user_family: any | '-';
-    user_mobile: any | '-';
-    fieldinsurance_logo_url: any | '-';
-    fieldinsurance_id: any | '-';
-    request_fieldinsurance_fa: any | '-';
-    request_description: any | '-';
-    request_last_state_id: any | '-';
-    request_last_state_name: any | '-';
-    request_organ: any | '-';
-    user_pey_amount: any | '-';
-    user_pey_cash: any | '-';
-    user_pey_instalment: any | '-';
-    staterequest_last_timestamp: any | '-';
-    request_ready: any | '-';
-    request_financial_approval: any | '-';
-    request_financial_doc: any | '-';
+    request_id: any;
+    user_id: any;
+    user_name: any;
+    user_family: any;
+    user_mobile: any;
+    fieldinsurance_logo_url: any;
+    fieldinsurance_id: any;
+    request_fieldinsurance_fa: any;
+    request_description: any;
+    request_last_state_id: any;
+    request_last_state_name: any;
+    request_organ: any;
+    user_pey_amount: any;
+    user_pey_cash: any;
+    user_pey_instalment: any;
+    staterequest_last_timestamp: any;
+    request_ready: RequestReady[];
+    request_financial_approval: any;
+    request_financial_doc: any;
+}
+
+interface Filters {
+    orderNumber?: string;
+    userMobile?: string;
+    fieldInsurance?: string;
+    paidAmount?: string;
+    startDate?: string;
 }
 
 export default function UncheckedRequests() {
     const [uncheckedRequests, setUncheckedRequests] = useState<UncheckedRequests[]>([]);
+    const [filteredRequests, setFilteredRequests] = useState<UncheckedRequests[]>([]);
+    const [fieldInsurances, setFieldInsurances] = useState<{ value: string; label: string }[]>([]);
     const [isLoading, setIsLoading] = useState(true);
-    const [filters, setFilters] = useState({});
+    const [filters, setFilters] = useState<Filters>({});
 
-    useEffect(() => {
-        fetchUncheckedRequests();
-    }, []);
-
+    // Fetch unchecked requests and field insurance data
     const fetchUncheckedRequests = async () => {
         try {
             setIsLoading(true);
-            const response = await services.Requests.getReport(`?command=getagent_request&approvaslmode=unchecked`);
+            const response = await services.Requests.getReport(
+                "?command=getagent_request&approvaslmode=unchecked"
+            );
             if (response) {
                 const data = response.data;
                 if (data.result !== "ok") throw new Error(data.desc);
                 setUncheckedRequests(data.data || []);
-            } else toast.error("مشکلی پیش آمد. دوباره تلاش کنید.");
+            } else {
+                toast.error("مشکلی پیش آمد. دوباره تلاش کنید.");
+            }
         } catch (err) {
             toast.error("مشکلی پیش آمد. دوباره تلاش کنید.");
         } finally {
@@ -54,9 +76,146 @@ export default function UncheckedRequests() {
         }
     };
 
+    const fetchFieldInsurances = async () => {
+        try {
+            const response = await services.Requests.getReport("?command=get_fieldinsurance");
+
+            if (response?.data?.result === "ok") {
+                const insurances = response.data?.data.map((field: any) => ({
+                    value: field.fieldinsurance_id,
+                    label: field.fieldinsurance_fa,
+                }));
+                setFieldInsurances(insurances);
+            }
+        } catch (err) {
+            toast.error("خطا در دریافت رشته های بیمه");
+        }
+    };
+
+    // Apply filters to uncheckedRequests
+    useEffect(() => {
+        const applyFilters = (data: UncheckedRequests[], filters: Filters) => {
+            let filtered = data.filter((item) => {
+                if (filters.orderNumber && !item.request_id.toString().includes(filters.orderNumber)) return false;
+                if (filters.userMobile && !item.user_mobile.includes(filters.userMobile)) return false;
+                if (filters.fieldInsurance && item.fieldinsurance_id !== filters.fieldInsurance) return false;
+                if (filters.paidAmount && !item.user_pey_cash.toString().includes(filters.paidAmount)) return false;
+                if (filters.startDate) {
+                    const itemDate = convertToPersian(item.request_ready[0]?.requst_ready_start_date);
+                    if (itemDate !== filters.startDate) {
+                        return false;
+                    } else {
+                        console.log("Dates match:", itemDate, "==", filters.startDate); // Log match
+                    }
+                }
+
+                return true;
+            });
+
+            setFilteredRequests(filtered);
+        };
+
+        applyFilters(uncheckedRequests, filters);
+    }, [filters, uncheckedRequests]);
+
+
+    // Handle filter change
+    const handleFilterChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+        const { name, value } = e.target;
+        setFilters((prevFilters) => ({
+            ...prevFilters,
+            [name]: value,
+        }));
+    };
+
+    // Handle date picker change
+    const handleDateChange = (name: string, value: any) => {
+        const formattedDate = value ? value.format("YYYY/MM/DD") : "";
+        setFilters((prevFilters) => ({
+            ...prevFilters,
+            [name]: formattedDate,
+        }));
+    };
+
+    const handleClearFilters = () => {
+        setFilters({
+            orderNumber: "",
+            userMobile: "",
+            startDate: "",
+            fieldInsurance: "",
+        });
+    };
+
+
+    useEffect(() => {
+        fetchUncheckedRequests();
+        fetchFieldInsurances();
+    }, []);
+
+
+
     return (
         <>
-            <FilterComponent onFilterApply={(filters) => setFilters(filters)} filterType={"all"}/>
+            {/* Filter Inputs */}
+            <div className="mb-6 space-y-4">
+                <div className="grid grid-cols-4 gap-4">
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">شماره سفارش</label>
+                        <input
+                            type="text"
+                            name="orderNumber"
+                            value={filters.orderNumber || ""}
+                            onChange={handleFilterChange}
+                            placeholder="شماره سفارش"
+                            className="block w-full border rounded px-4 py-2"
+                        />
+                    </div>
+
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">رشته بیمه</label>
+                        <select
+                            name="fieldInsurance"
+                            value={filters.fieldInsurance || ""}
+                            onChange={handleFilterChange}
+                            className="block w-full border rounded px-4 py-2"
+                        >
+                            <option value="">انتخاب رشته بیمه</option>
+                            {fieldInsurances.map((insurance) => (
+                                <option key={insurance.value} value={insurance.value}>
+                                    {insurance.label}
+                                </option>
+                            ))}
+                        </select>
+                    </div>
+
+                    {/* Start Date Picker */}
+                    <div>
+                        <Label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                            تاریخ شروع
+                        </Label>
+                        <DatePicker
+                            value={filters.startDate}
+                            name="startDate"
+                            calendar={persian}
+                            locale={persian_fa}
+                            format="YYYY/MM/DD"
+                            onChange={(value) => handleDateChange("startDate", value)}
+                            containerClassName="block w-full"
+                            inputClass="h-11 w-full rounded-lg border appearance-none px-4 py-2.5 text-sm shadow-theme-xs placeholder:text-gray-400 focus:outline-hidden focus:ring-3 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/60 dark:focus:border-brand-800"
+                        />
+                    </div>
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">حذف فیلترها</label>
+                        <button
+                            onClick={handleClearFilters}
+                            className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
+                        >
+                            <Trash size={14} />
+                        </button>
+                    </div>
+                </div>
+            </div>
+
             {isLoading ? (
                 <div className="text-center">در حال دریافت اطلاعات...</div>
             ) : (
@@ -64,7 +223,7 @@ export default function UncheckedRequests() {
                     <TableHeader>
                         <TableRow>
                             <TableCell isHeader> شماره</TableCell>
-                            <TableCell isHeader> لوگو بیمه</TableCell>
+                            <TableCell isHeader>لوگو بیمه</TableCell>
                             <TableCell isHeader> رشته بیمه</TableCell>
                             <TableCell isHeader> مبلغ نقدی پرداخت شده</TableCell>
                             <TableCell isHeader>مبلغ اقساط پرداخت شده</TableCell>
@@ -75,7 +234,8 @@ export default function UncheckedRequests() {
                         </TableRow>
                     </TableHeader>
                     <TableBody>
-                        {uncheckedRequests.length > 0 ? (uncheckedRequests.map((request) => (
+                        {filteredRequests.length > 0 ? (
+                            filteredRequests.map((request) => (
                                 <TableRow className="text-center" key={request.request_id}>
                                     <TableCell>{request.request_id}</TableCell>
                                     <TableCell className="py-3 text-gray-500 dark:text-gray-400">
@@ -91,24 +251,22 @@ export default function UncheckedRequests() {
                                     </TableCell>
                                     <TableCell>{request.request_fieldinsurance_fa}</TableCell>
                                     <TableCell>{request.user_pey_cash}</TableCell>
-                                    <TableCell>{request.request_last_state_id}</TableCell>
-                                    <TableCell>{request.request_ready[0]?.requst_ready_end_price}</TableCell>
-                                    <TableCell>{request.user_pey_amount}</TableCell>
                                     <TableCell>{request.user_pey_instalment}</TableCell>
-                                    <TableCell>{request.request_ready[0]?.requst_ready_start_date}</TableCell>
-
+                                    <TableCell>{request.user_pey_amount}</TableCell>
+                                    <TableCell>{request.request_ready[0]?.requst_ready_end_price}</TableCell>
+                                    <TableCell>{request.request_last_state_id}</TableCell>
+                                    <TableCell>{convertToPersian(request.request_ready[0]?.requst_ready_start_date)}</TableCell>
                                 </TableRow>
-                            )))
-                            : (
-                                <TableRow key="noRecord">
-                                    <TableCell className="text-center px-5 py-4 sm:px-6">
-                          <span
-                              className="block font-medium text-gray-800 text-theme-sm dark:text-white/90">
-                            رکوردی یافت نشد
-                          </span>
-                                    </TableCell>
-                                </TableRow>
-                            )}
+                            ))
+                        ) : (
+                            <TableRow key="noRecord">
+                                <TableCell className="text-center px-5 py-4 sm:px-6">
+                                    <span className="block font-medium text-gray-800 text-theme-sm dark:text-white/90">
+                                        رکوردی یافت نشد
+                                    </span>
+                                </TableCell>
+                            </TableRow>
+                        )}
                     </TableBody>
                 </Table>
             )}

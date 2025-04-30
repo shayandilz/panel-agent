@@ -73,26 +73,26 @@ export default function AllRequests() {
     }, []);
 
     useEffect(() => {
-        const applyFilters = (data, filters: any) => {
-            let filtered =  data.filter((item) => {
-                // Example filter logic; expand as needed
-                if (filters.staterequest_last_timestamp && !item.staterequest_last_timestamp.indexOf(filters.staterequest_last_timestamp) > -1) return false;
-                // if (filters.document_number && !item.document_number.includes(filters.document_number)) return false;
-                // if (filters.request_last_state_id && !item.request_last_state_id.includes(filters.request_last_state_id)) return false;
-                if (filters.request_organ && !item.request_organ.indexOf(filters.request_organ) > -1) return false;
-                if (filters.fieldinsurance_id && !item.fieldinsurance_id.indexOf(filters.fieldinsurance_id) > -1) return false;
-                if (filters.user_mobile && !item.user_mobile.indexOf(filters.user_mobile) > -1) return false;
-                if (filters.request_id && !item.request_id.indexOf(filters.request_id) > -1) return false;
+        const applyFilters = (data: RequestData[], filters: any) => {
+            let filtered = data.filter((item) => {
+                // Corrected the filtering logic
+                if (filters.staterequest_last_timestamp && !item.staterequest_last_timestamp.includes(filters.staterequest_last_timestamp)) return false;
+                if (filters.request_organ && !item.request_organ.includes(filters.request_organ)) return false;
+                if (filters.fieldinsurance_id && !item.fieldinsurance_id.includes(filters.fieldinsurance_id)) return false;
+                if (filters.user_mobile && !item.user_mobile.includes(filters.user_mobile)) return false;
+                if (filters.request_id && !item.request_id.includes(filters.request_id)) return false;
+                if (filters.request_last_state_id && item.request_last_state_id !== filters.request_last_state_id) return false;
                 // Add more filter conditions as needed
                 return true;
             });
-            setFilteredData(filtered)
-            console.log(filtered)
-        }
 
-        console.log(filters)
-        applyFilters(requestData, filters)
-    }, [filters]);
+            setFilteredData(filtered);
+        };
+
+        applyFilters(requestData, filters); // Apply filters when filters are changed
+    }, [filters, requestData]); // Apply effect when filters or requestData changes
+
+
 
     return (
         <>
@@ -108,7 +108,7 @@ export default function AllRequests() {
                                 <Table>
                                     {/* Table Header */}
                                     <TableHeader className="border-b border-gray-100 dark:border-white/[0.05]">
-                                        <TableRow>
+                                        <TableRow className={'bg-gray-100'}>
                                             <TableCell
                                                 isHeader
                                                 className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
@@ -175,25 +175,25 @@ export default function AllRequests() {
                                                 {/* User Name */}
                                                 <TableCell className="px-5 py-4 sm:px-6 text-start">
                                                   <span
-                                                      className="block font-medium text-gray-800 text-theme-sm dark:text-white/90">
+                                                      className="block font-medium text-gray-800 dark:text-white/90">
                                                     {request.user_name} {request.user_family}
                                                   </span>
                                                 </TableCell>
 
                                                 {/* User Mobile */}
                                                 <TableCell
-                                                    className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">
+                                                    className="px-4 py-3 text-gray-500 text-start dark:text-gray-400">
                                                     {request.user_mobile}
                                                 </TableCell>
 
                                                 <TableCell
-                                                    className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">
+                                                    className="px-4 py-3 text-gray-500 text-start dark:text-gray-400">
                                                     {request.request_last_state_name}
                                                 </TableCell>
 
                                                 {/* Insurance Name */}
                                                 <TableCell
-                                                    className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">
+                                                    className="px-4 py-3 text-gray-500 text-start dark:text-gray-400">
                                                     {request.request_fieldinsurance_fa}
                                                 </TableCell>
 
@@ -213,7 +213,7 @@ export default function AllRequests() {
 
                                                 {/* Request Date */}
                                                 <TableCell
-                                                    className="px-4 py-3 text-gray-500 text-theme-sm dark:text-gray-400">
+                                                    className="px-4 py-3 text-gray-500 dark:text-gray-400">
                                                     {calculateTimestamp(request?.staterequest_last_timestamp)}
                                                 </TableCell>
 

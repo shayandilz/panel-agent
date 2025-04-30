@@ -14,7 +14,7 @@ export function middleware(request: NextRequest) {
     }
 
     // If not logged in, redirect to login
-    if (!token || token == 'undefined') {
+    if (!token) {
         return NextResponse.redirect(new URL('/signin', request.url));
     }
 

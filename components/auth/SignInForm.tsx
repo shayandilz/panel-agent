@@ -72,7 +72,7 @@ export default function SignInForm() {
             router.push('/');
         } catch (err) {
             console.log(err)
-            toast.error(err || 'مشکلی پیش آمد. دوباره تلاش کنید.');
+            toast.error('مشکلی پیش آمد. دوباره تلاش کنید.');
             setShowLoader(false)
         }
     }

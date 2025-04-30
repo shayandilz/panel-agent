@@ -10,7 +10,6 @@ import Select from "@/components/form/Select";
 import persian from "react-date-object/calendars/persian"
 import persian_fa from "react-date-object/locales/persian_fa";
 import Button from "@/components/ui/button/Button";
-import {filters} from "css-select";
 
 interface FilterProps {
     onFilterApply: (filters: {
@@ -155,12 +154,17 @@ export default function FilterComponent({filterType, onFilterApply}: FilterProps
     }, []);
 
     const handleFilter = (newFilter: any) => {
-        setFiltersObject({
-            ...filtersObject,
+        // Update filtersObject without calling onFilterApply immediately during render
+        setFiltersObject((prevFilters: any) => ({
+            ...prevFilters,
             ...newFilter,
-        });
-        onFilterApply(filtersObject);
+        }));
     };
+
+// Use useEffect to call onFilterApply after filtersObject has been updated
+    useEffect(() => {
+        onFilterApply(filtersObject);
+    }, [filtersObject]); // Call onFilterApply whenever filtersObject changes
 
     return (
         <div className="mb-6 space-y-4">
@@ -232,7 +236,7 @@ export default function FilterComponent({filterType, onFilterApply}: FilterProps
                                 defaultValue={filtersObject.request_last_state_id}
                                 options={requestStates}
                                 onChange={(value) => handleFilter({request_last_state_id: value})}
-                                placeholder="همه"
+                                placeholder="همه" className={'!pr-3'}
                             >
                             </Select>
                         </div>
@@ -247,6 +251,7 @@ export default function FilterComponent({filterType, onFilterApply}: FilterProps
                                 options={requestOrgans}
                                 onChange={(value) => handleFilter({request_organ: value})}
                                 placeholder="همه ارگان ها"
+                                className={'!pr-3'}
                             >
                             </Select>
                         </div>
@@ -263,6 +268,7 @@ export default function FilterComponent({filterType, onFilterApply}: FilterProps
                         options={fieldInsurances}
                         onChange={(value) => handleFilter({fieldinsurance_id: value})}
                         placeholder="همه"
+                        className={'!pr-3'}
                     >
                     </Select>
                 </div>
@@ -280,6 +286,7 @@ export default function FilterComponent({filterType, onFilterApply}: FilterProps
                         pattern="09[0-9]{9}"
                         onChange={(e) => handleFilter({user_mobile: e.target.value.replace(/[^0-9]/g, '')})}
                         placeholder="09123456789"
+                        className={'!pr-3'}
                     />
                 </div>
 
@@ -296,7 +303,7 @@ export default function FilterComponent({filterType, onFilterApply}: FilterProps
                     />
                 </div>
             </div>
-            <Button variant="danger" onClick={()=> {
+            <Button variant="outline" onClick={()=> {
                 setFiltersObject({});
                 onFilterApply({});
             }}>حذف فیلترها</Button>

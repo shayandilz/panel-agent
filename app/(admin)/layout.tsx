@@ -16,7 +16,6 @@ export default function AdminLayout({
 }) {
     const {isExpanded, isHovered, isMobileOpen} = useSidebar();
     const {isAuthenticated, fetchAgentStatus} = useAuth();
-    const {isLoading, setIs} = useAuth();
     const router = useRouter();
 
     // Dynamic class for main content margin based on sidebar state
