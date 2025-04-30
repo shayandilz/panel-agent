@@ -1,8 +1,6 @@
 import Cookies from "js-cookie";
 import axios from "axios";
 import {AppConstants} from "./constants";
-import {toast} from "react-toastify";
-import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 
 // const fetchRefresh = async () => {
 //     try {
@@ -72,26 +70,27 @@ axios.interceptors.response.use(undefined, (error) => {
 });
 
 const responseBody = (response: any) => {
-    const router = useRouter();
+
 
     if(response?.data && response?.data?.desc == "توکن در سیستم موجود نیست") {
         Cookies.remove('server_agent_token');
         Cookies.remove('agent_data');
         Cookies.remove('agent_id');
 
-        router.push('/signin')
+        window.location.href = '/signin';
+
     }
     return response;
 };
 const errorBody = (error: any) => {
-    const router = useRouter();
 
     if(error?.data?.desc == "توکن در سیستم موجود نیست") {
         Cookies.remove('server_agent_token');
         Cookies.remove('agent_data');
         Cookies.remove('agent_id');
 
-        router.push('/signin')
+        window.location.href = '/signin';
+
     }
     return error;
 };
