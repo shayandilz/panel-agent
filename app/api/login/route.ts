@@ -1,4 +1,5 @@
 import {NextRequest, NextResponse} from 'next/server';
+import Cookies from "js-cookie";
 
 export async function POST(req: NextRequest) {
     const {agent_mobile, agent_pass, employee_mobile} = await req.json();
@@ -22,9 +23,15 @@ export async function POST(req: NextRequest) {
 
             return response;
         } else {
+            Cookies.remove('server_agent_token');
+            Cookies.remove('agent_data');
+            Cookies.remove('agent_id');
             return NextResponse.json({error: data.desc}, {status: 401});
         }
     } catch (err) {
+        Cookies.remove('server_agent_token');
+        Cookies.remove('agent_data');
+        Cookies.remove('agent_id');
         console.error('login API Error:', err);
         return NextResponse.json(
             {error: 'خطا در ارتباط با سرور'},

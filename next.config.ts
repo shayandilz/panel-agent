@@ -23,6 +23,12 @@ const nextConfig: NextConfig = {
                 pathname: '/**'
             },
             {
+                protocol: 'http',
+                hostname: 'localhost',
+                port: '',
+                pathname: '/**'
+            },
+            {
                 protocol: 'https',
                 hostname: 'rahnama1.s3.ir-thr-at1.arvanstorage.ir',
                 port: '',

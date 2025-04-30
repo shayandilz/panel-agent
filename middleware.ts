@@ -6,7 +6,7 @@ export function middleware(request: NextRequest) {
 
     // Allow logged-in users to skip login
     if (request.nextUrl.pathname.startsWith('/signin')) {
-        if (token) {
+        if (!!token) {
             return NextResponse.redirect(new URL('/', request.url));
         }
 
@@ -14,7 +14,7 @@ export function middleware(request: NextRequest) {
     }
 
     // If not logged in, redirect to login
-    if (!token) {
+    if (!token || token == 'undefined') {
         return NextResponse.redirect(new URL('/signin', request.url));
     }
 

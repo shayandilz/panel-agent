@@ -15,6 +15,8 @@ import services from "@/core/service";
 import {calculateTimestamp} from "@/core/utils";
 import {toast} from "react-toastify";
 import FilterComponent from "@/components/custom/filters/FilterComponent";
+import Button from "@/components/ui/button/Button";
+import {router} from "next/client";
 
 interface RequestData {
     request_id: string;
@@ -37,6 +39,7 @@ interface RequestData {
 
 export default function AllRequests() {
     const [requestData, setRequestData] = useState<RequestData[]>([]);
+    const [filteredData, setFilteredData] = useState<RequestData[]>(requestData);
     const [error, setError] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [filters, setFilters] = useState({});
@@ -69,6 +72,28 @@ export default function AllRequests() {
         fetchRequestsData();
     }, []);
 
+    useEffect(() => {
+        const applyFilters = (data, filters: any) => {
+            let filtered =  data.filter((item) => {
+                // Example filter logic; expand as needed
+                if (filters.staterequest_last_timestamp && !item.staterequest_last_timestamp.indexOf(filters.staterequest_last_timestamp) > -1) return false;
+                // if (filters.document_number && !item.document_number.includes(filters.document_number)) return false;
+                // if (filters.request_last_state_id && !item.request_last_state_id.includes(filters.request_last_state_id)) return false;
+                if (filters.request_organ && !item.request_organ.indexOf(filters.request_organ) > -1) return false;
+                if (filters.fieldinsurance_id && !item.fieldinsurance_id.indexOf(filters.fieldinsurance_id) > -1) return false;
+                if (filters.user_mobile && !item.user_mobile.indexOf(filters.user_mobile) > -1) return false;
+                if (filters.request_id && !item.request_id.indexOf(filters.request_id) > -1) return false;
+                // Add more filter conditions as needed
+                return true;
+            });
+            setFilteredData(filtered)
+            console.log(filtered)
+        }
+
+        console.log(filters)
+        applyFilters(requestData, filters)
+    }, [filters]);
+
     return (
         <>
             <div className="overflow-hidden">
@@ -78,7 +103,7 @@ export default function AllRequests() {
                             <div className="text-center">در حال دریافت اطلاعات...</div>
                         ) : (
                             <>
-                                <FilterComponent filterType="requests" onFilterApply={(filters) => setFilters(filters)}/>
+                                <FilterComponent filterType="requests" onFilterApply={filters => setFilters(filters)}/>
 
                                 <Table>
                                     {/* Table Header */}
@@ -139,7 +164,7 @@ export default function AllRequests() {
 
                                     {/* Table Body */}
                                     <TableBody className="divide-y divide-gray-100 dark:divide-white/[0.05]">
-                                        {requestData.length > 0 ? (requestData?.map((request) => (
+                                        {filteredData.length > 0 ? (filteredData?.map((request) => (
                                             <TableRow key={request.request_id}>
                                                 <TableCell className="px-5 py-4 sm:px-6 text-start">
                                                   <span
@@ -195,14 +220,15 @@ export default function AllRequests() {
                                                 {/* Request Detail */}
                                                 <TableCell
                                                     className="px-4 py-3 text-gray-500 text-theme-sm dark:text-gray-400">
-                                                    <Link
-                                                        className="block px-4 py-2 mt-3 text-sm font-medium text-center text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-gray-700"
-                                                        href={'/requests/' + request.request_id}>انتخاب</Link>
+                                                    <Button variant="outline" onClick={()=> {
+                                                        setIsLoading(true)
+                                                        window.location.href = '/requests/' + request.request_id
+                                                    }}>جزئیات</Button>
                                                 </TableCell>
                                             </TableRow>
                                         ))) : (
                                             <TableRow key="noRecord">
-                                                <TableCell className="text-center px-5 py-4 sm:px-6">
+                                                <TableCell className="col-span-7 text-center px-5 py-4 sm:px-6">
                                                     <span
                                                         className="block font-medium text-gray-800 text-theme-sm dark:text-white/90">
                                                     رکوردی یافت نشد

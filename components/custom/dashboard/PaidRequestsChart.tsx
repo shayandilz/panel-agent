@@ -10,25 +10,33 @@ import {Dropdown} from "@/components/ui/dropdown/Dropdown";
 import {DropdownItem} from "@/components/ui/dropdown/DropdownItem";
 
 interface PaidRequestsChart {
-    request_id: any | '-';
-    user_id: any | '-';
-    user_name: any | '-';
-    user_family: any | '-';
-    user_mobile: any | '-';
-    fieldinsurance_logo_url: any | '-';
-    fieldinsurance_id: any | '-';
-    request_fieldinsurance_fa: any | '-';
-    request_description: any | '-';
-    request_last_state_id: any | '-';
-    request_last_state_name: any | '-';
-    request_organ: any | '-';
-    user_pey_amount: any | '-';
-    user_pey_cash: any | '-';
-    user_pey_instalment: any | '-';
-    staterequest_last_timestamp: any | '-';
-    request_ready: any | '-';
-    request_financial_approval: any | '-';
-    request_financial_doc: any | '-';
+    request_id: string;
+    user_id: string;
+    user_name: string;
+    user_family: string;
+    user_mobile: string;
+    fieldinsurance_logo_url: string;
+    fieldinsurance_id: string;
+    request_fieldinsurance_fa: string;
+    request_description: string;
+    request_last_state_id: string;
+    request_last_state_name: string;
+    request_organ: string;
+    user_pey_amount: number;
+    user_pey_cash: number;
+    user_pey_instalment: string;
+    staterequest_last_timestamp: string;
+    request_financial_approval: string;
+    request_financial_doc: string;
+    request_ready: RequestReady[] | [];
+}
+
+interface RequestReady {
+    requst_ready_start_date: string;
+    requst_ready_end_date: string;
+    requst_ready_end_price: string;
+    requst_ready_num_ins?: string;
+    requst_suspend_desc?: string;
 }
 
 export default function PaidRequests() {
@@ -152,8 +160,9 @@ export default function PaidRequests() {
                                         </TableCell>
                                         <TableCell>{request?.request_fieldinsurance_fa}</TableCell>
                                         <TableCell>{request?.user_pey_amount}</TableCell>
-                                        <TableCell>{request?.request_ready?.[0]?.requst_ready_end_price || "-"}</TableCell>
-                                        <TableCell>{request?.request_ready?.[0]?.requst_ready_start_date || "-"}</TableCell>
+                                        <TableCell>{request.request_ready?.[0]?.requst_ready_end_price}</TableCell>
+                                        <TableCell>{request.request_ready?.[0]?.requst_ready_start_date}</TableCell>
+
                                         {/* Request Detail */}
                                         {/*<TableCell className="px-4 py-3 text-gray-500 text-theme-sm dark:text-gray-400">*/}
                                         {/*    <Link className="block px-4 py-2 mt-3 text-sm font-medium text-center text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-gray-700"*/}

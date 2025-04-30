@@ -12,6 +12,7 @@ import {useRouter} from "next/navigation";
 import {toast} from "react-toastify";
 import {useAuth} from "@/context/AgentContext";
 import service from "@/core/service";
+import Cookies from "js-cookie";
 
 interface FormData {
     agent_mobile?: string;
@@ -30,7 +31,7 @@ export default function SignInForm() {
     const [formState, setFormState] = useState<FormState>('login');
     const [error, setError] = useState('');
     const [showLoader, setShowLoader] = useState(false)
-    const {login} = useAuth();
+    const {login, logout} = useAuth();
 
     useEffect(() => {
         setFormData({})
@@ -49,23 +50,29 @@ export default function SignInForm() {
         setError('');
 
         try {
-            const res = await service.General.getData(`?command=login_agent&agent_mobile=${formData?.agent_mobile}&agent_pass=${formData?.agent_pass}&employee_mobile=${formData?.employee_mobile}`);
+            const res = await fetch('/api/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(formData),
+            });
 
-            if (res) {
-                const data = res.data;
-                if (data.result != 'ok') {
-                    setShowLoader(false)
-                    toast.error(data.error || 'مشکلی پیش آمد. دوباره تلاش کنید.');
-                    return;
-                }
+            const data = await res.json();
+            console.log(data)
+            if (data.result != 'ok') {
+                // logout()
+                setShowLoader(false)
+                toast.error(data.error || 'مشکلی پیش آمد. دوباره تلاش کنید.');
+                return;
+            }
 
-                console.log('1', data)
-                toast.success(data.desc || 'با موفقیت وارد شدید');
-                login(data.data)
-                // router.push('/');
-            } else toast.error('مشکلی پیش آمد. دوباره تلاش کنید.');
+            login(data?.data);
+            toast.success(data.desc || 'با موفقیت وارد شدید');
+            router.push('/');
         } catch (err) {
-            toast.error('مشکلی پیش آمد. دوباره تلاش کنید.');
+            console.log(err)
+            toast.error(err || 'مشکلی پیش آمد. دوباره تلاش کنید.');
             setShowLoader(false)
         }
     }
