@@ -15,7 +15,7 @@ export default function AdminLayout({
     children: React.ReactNode;
 }) {
     const {isExpanded, isHovered, isMobileOpen} = useSidebar();
-    const {isAuthenticated, isLoading, fetchAgentStatus} = useAuth();
+    const {isAuthenticated, fetchAgentStatus} = useAuth();
     const router = useRouter();
 
     // Dynamic class for main content margin based on sidebar state
@@ -32,14 +32,6 @@ export default function AdminLayout({
             return () => clearInterval(interval);
         }
     }, [isAuthenticated, fetchAgentStatus])
-
-    if (isLoading) {
-        return (
-            <div className="flex z-99999 items-center justify-center inset-0 fixed bg-white-900 dark:bg-dark-900 transition-all">
-                <Loader/>
-            </div>
-        );
-    }
 
     return (
         <>

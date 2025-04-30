@@ -1,13 +1,13 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
-import { MoreDotIcon } from "@/icons";
-import { Dropdown } from "@/components/ui/dropdown/Dropdown";
-import { DropdownItem } from "@/components/ui/dropdown/DropdownItem";
+import React, {useEffect, useState} from "react";
+import {MoreDotIcon} from "@/icons";
+import {Dropdown} from "@/components/ui/dropdown/Dropdown";
+import {DropdownItem} from "@/components/ui/dropdown/DropdownItem";
 import services from "@/core/service";
-import { toast } from "react-toastify";
+import {toast} from "react-toastify";
 import Button from "@/components/ui/button/Button";
-import { useRouter } from "next/navigation";
+import {useRouter} from "next/navigation";
 
 interface Insurance {
     fieldinsurance_id: string;
@@ -20,7 +20,7 @@ interface Props {
     allRequests: Array<{ fieldinsurance_id: string }>;
 }
 
-export default function RequestsTypesChart({ allRequests = [] }: Props) {
+export default function RequestsTypesChart({allRequests}: Props) {
     const router = useRouter();
     const [visibleCount, setVisibleCount] = useState<number>(5);
     const [isOpen, setIsOpen] = useState<boolean>(false);
@@ -41,7 +41,7 @@ export default function RequestsTypesChart({ allRequests = [] }: Props) {
     }
 
     function findCount(obj: Insurance): Insurance {
-        if (!obj?.fieldinsurance_id) return { ...obj, fieldinsurance_count: 0, fieldinsurance_percent: 0 };
+        if (!obj?.fieldinsurance_id) return {...obj, fieldinsurance_count: 0, fieldinsurance_percent: 0};
         let count = 0;
         for (const Req of allRequests) {
             if (Req.fieldinsurance_id === obj?.fieldinsurance_id) count++;
@@ -55,40 +55,41 @@ export default function RequestsTypesChart({ allRequests = [] }: Props) {
 
     useEffect(() => {
         const fetchInsurancesData = async () => {
-            setIsLoading(true);
             try {
-                const res = await services.Fields.insurances();
-                if (res) {
-                    let data = res.data;
+                await services.Fields.insurances().then(
+                    (res) => {
+                        let data = res.data;
 
-                    if (data.result !== 'ok') {
-                        toast.error(data.desc);
-                        return;
-                    }
+                        if (data.result !== 'ok') {
+                            toast.error(data.desc);
+                            return;
+                        }
 
-                    if (data.data !== '') {
-                        let newData = data.data.map((ins: Insurance) => findCount(ins)).sort((a: { fieldinsurance_count: any; }, b: { fieldinsurance_count: any; }) => b.fieldinsurance_count! - a.fieldinsurance_count!);
-                        setInsurancesData(newData);
-                    } else {
-                        setInsurancesData([]);
-                    }
-                } else {
-                    toast.error('مشکلی پیش آمد. دوباره تلاش کنید.');
-                }
+                        if (data.data) {
+                            let newData = data.data.map((ins: Insurance) => findCount(ins)).sort((a: { fieldinsurance_count: any; }, b: { fieldinsurance_count: any; }) => b.fieldinsurance_count! - a.fieldinsurance_count!);
+                            setInsurancesData(newData);
+                            console.log(newData)
+                        } else {
+                            setInsurancesData([]);
+                        }
+                    }, () => {
+                        toast.error('مشکلی پیش آمد. دوباره تلاش کنید.');
+                    })
             } catch (err) {
-                toast.error( 'مشکلی پیش آمد. دوباره تلاش کنید.');
+                toast.error('مشکلی پیش آمد. دوباره تلاش کنید.');
             } finally {
-                if (insurancesData.length === 0) setError('دیتایی برای نمایش وجود ندارد');
+                // if (insurancesData.length === 0) setError('دیتایی برای نمایش وجود ندارد');
                 setIsLoading(false);
             }
         };
 
         fetchInsurancesData();
-    }, [allRequests]);
+    }, []);
 
     return (
         <>
-            <div className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] sm:p-6">
+            <div
+                className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] sm:p-6">
                 <div className="flex justify-between border-bottom mb-4">
                     <div>
                         <h3 className="text-lg font-semibold text-gray-800 dark:text-white/90">
@@ -114,7 +115,7 @@ export default function RequestsTypesChart({ allRequests = [] }: Props) {
                     </div>
                 </div>
 
-                <hr />
+                <hr/>
                 {(error && !isLoading) && <div className="text-center">{error}</div>}
                 {isLoading ? (
                     <div className="text-center">در حال دریافت اطلاعات...</div>
@@ -137,8 +138,9 @@ export default function RequestsTypesChart({ allRequests = [] }: Props) {
                                         <p className="font-medium text-gray-800 text-theme-sm dark:text-white/90">
                                             <b>{insurance?.fieldinsurance_count || 0}</b>
                                         </p>
-                                        <div className="relative block h-2 w-full max-w-[100px] rounded-sm bg-gray-200 dark:bg-gray-800">
-                                            <div style={{ width: `${insurance?.fieldinsurance_percent}%` }}
+                                        <div
+                                            className="relative block h-2 w-full max-w-[100px] rounded-sm bg-gray-200 dark:bg-gray-800">
+                                            <div style={{width: `${insurance?.fieldinsurance_percent}%`}}
                                                  className="absolute left-0 top-0 flex h-full items-center justify-center rounded-sm bg-orange-400 text-xs font-medium text-white"></div>
                                         </div>
                                         <p className="font-medium text-gray-800 text-theme-sm dark:text-white/90">
@@ -154,7 +156,8 @@ export default function RequestsTypesChart({ allRequests = [] }: Props) {
                                     onClick={() => setVisibleCount(visibleCount + 10)}>نمایش بیشتر</Button>
                         )}
                         {insurancesData.length > 5 && visibleCount >= insurancesData.length && (
-                            <Button className="w-full" size="sm" variant="outline" onClick={() => setVisibleCount(5)}>نمایش کمتر</Button>
+                            <Button className="w-full" size="sm" variant="outline" onClick={() => setVisibleCount(5)}>نمایش
+                                کمتر</Button>
                         )}
                     </>
                 ) : null}

@@ -148,8 +148,8 @@ export default function ConfirmedRequests() {
                                                 </TableCell>
                                                 <TableCell>{request?.request_fieldinsurance_fa}</TableCell>
                                                 <TableCell>{request?.user_pey_amount}</TableCell>
-                                                <TableCell>{request.request_ready[0]?.requst_ready_end_price}</TableCell>
-                                                <TableCell>{request.request_ready[0]?.requst_ready_start_date}</TableCell>
+                                                <TableCell>{request.request_ready ? request.request_ready?.[0]?.requst_ready_end_price : "-"}</TableCell>
+                                                <TableCell>{request.request_ready ? request.request_ready?.[0]?.requst_ready_start_date : "-"}</TableCell>
                                             </TableRow>))
                                         : (
                                             <TableRow key="noRecord">

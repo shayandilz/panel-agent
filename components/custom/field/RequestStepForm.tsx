@@ -154,7 +154,7 @@ export default function RequestStepForm({ stepFields, onSubmit }: RequestStepFor
 
     return (
         <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 items-start">
+            {stepFields.length > 0 && <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 items-start">
 
                 {stepFields.map(field => {
                     if (field.type === "image") {
@@ -237,14 +237,14 @@ export default function RequestStepForm({ stepFields, onSubmit }: RequestStepFor
                         </div>
                     );
                 })}
-            </div>
+            </div>}
 
             <Button
                 loading={isSubmitting}
                 disabled={isSubmitting}
                 className="w-full justify-center"
             >
-                ارسال
+                ثبت
             </Button>
         </form>
     );

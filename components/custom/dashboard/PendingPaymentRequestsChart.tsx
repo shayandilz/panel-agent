@@ -11,7 +11,15 @@ interface PendingPaymentRequestsChart {
     request_id: any;
     request_fieldinsurance_fa: any | '-';
     user_pey_amount: any | '-';
-    request_ready: any | '-';
+    request_ready: RequestReady[] | [];
+}
+
+interface RequestReady {
+    requst_ready_start_date: string;
+    requst_ready_end_date: string;
+    requst_ready_end_price: string;
+    requst_ready_num_ins?: string;
+    requst_suspend_desc?: string;
 }
 
 export default function PendingPaymentRequests() {
@@ -28,7 +36,7 @@ export default function PendingPaymentRequests() {
                 user_mobile: filters?.userMobile,
                 order_number: filters?.orderNumber
             };
-            console.log('filters',filters)
+            console.log('filters', filters)
 
             const query = queryParams?.start_date ? `&start_date=${queryParams?.start_date}` : "";
             const response = await services.Requests.getReport(`?command=getagent_request&approvaslmode=progresspaing${query}`);
@@ -71,8 +79,8 @@ export default function PendingPaymentRequests() {
                                     <TableCell>{request.request_id}</TableCell>
                                     <TableCell>{request.request_fieldinsurance_fa}</TableCell>
                                     <TableCell>{request.user_pey_amount}</TableCell>
-                                    <TableCell>{request.request_ready?.[0]?.requst_ready_end_price || "-"}</TableCell>
-                                    <TableCell>{request.request_ready?.[0]?.requst_ready_start_date || "-"}</TableCell>
+                                    <TableCell>{request.request_ready ? request.request_ready?.[0]?.requst_ready_end_price : "-"}</TableCell>
+                                    <TableCell>{request.request_ready ? request.request_ready?.[0]?.requst_ready_start_date : "-"}</TableCell>
                                 </TableRow>
                             ))
                         ) : (

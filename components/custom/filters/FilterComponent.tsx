@@ -9,17 +9,17 @@ import services from "@/core/service";
 import Select from "@/components/form/Select";
 import persian from "react-date-object/calendars/persian"
 import persian_fa from "react-date-object/locales/persian_fa";
+import Button from "@/components/ui/button/Button";
 
 interface FilterProps {
     onFilterApply: (filters: {
-        startDate?: number;
-        endDate?: number;
-        documentNum?: string;
-        requestState?: string;
-        requestOrgan?: string;
-        fieldInsurance?: string;
-        userMobile?: string;
-        orderNumber?: string;
+        staterequest_last_timestamp?: string;
+        document_number?: string;
+        request_last_state_id?: string;
+        request_organ?: string;
+        fieldinsurance_id?: string;
+        user_mobile?: string;
+        request_id?: string;
     }) => void;
     filterType: "all" | "requests";
 }
@@ -154,12 +154,17 @@ export default function FilterComponent({filterType, onFilterApply}: FilterProps
     }, []);
 
     const handleFilter = (newFilter: any) => {
-        setFiltersObject({
-            ...filtersObject,
+        // Update filtersObject without calling onFilterApply immediately during render
+        setFiltersObject((prevFilters: any) => ({
+            ...prevFilters,
             ...newFilter,
-        });
-        onFilterApply(filtersObject);
+        }));
     };
+
+// Use useEffect to call onFilterApply after filtersObject has been updated
+    useEffect(() => {
+        onFilterApply(filtersObject);
+    }, [filtersObject]); // Call onFilterApply whenever filtersObject changes
 
     return (
         <div className="mb-6 space-y-4">
@@ -168,20 +173,21 @@ export default function FilterComponent({filterType, onFilterApply}: FilterProps
                 {filterType == 'all' && (
                     <>
                         {/* Start Date */}
-                        <div>
-                            <Label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                                تاریخ شروع
-                            </Label>
-                            <DatePicker
-                                calendar={persian}
-                                locale={persian_fa}
-                                format="YYYY/MM/DD"
-                                onChange={value => handleFilter({startDate: value?.unix})}
-                                containerClassName="block w-full"
-                                inputClass="h-11 w-full rounded-lg border appearance-none px-4 py-2.5 text-sm shadow-theme-xs placeholder:text-gray-400 focus:outline-hidden focus:ring-3 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/60 dark:focus:border-brand-800"
-                            />
-                            {/*plugins={[persian()]}*/}
-                        </div>
+                        {/*<div>*/}
+                        {/*    <Label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">*/}
+                        {/*        تاریخ شروع*/}
+                        {/*    </Label>*/}
+                        {/*    <DatePicker*/}
+                        {/*        value={filtersObject?.startDate}*/}
+                        {/*        calendar={persian}*/}
+                        {/*        locale={persian_fa}*/}
+                        {/*        format="YYYY/MM/DD"*/}
+                        {/*        onChange={value => handleFilter({startDate: value?.unix})}*/}
+                        {/*        containerClassName="block w-full"*/}
+                        {/*        inputClass="h-11 w-full rounded-lg border appearance-none px-4 py-2.5 text-sm shadow-theme-xs placeholder:text-gray-400 focus:outline-hidden focus:ring-3 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/60 dark:focus:border-brand-800"*/}
+                        {/*    />*/}
+                        {/*    /!*plugins={[persian()]}*!/*/}
+                        {/*</div>*/}
 
                         {/* End Date */}
                         <div>
@@ -190,11 +196,12 @@ export default function FilterComponent({filterType, onFilterApply}: FilterProps
                                 تاریخ پایان
                             </Label>
                             <DatePicker
+                                value={filtersObject?.staterequest_last_timestamp}
                                 name='endDate'
                                 calendar={persian}
                                 locale={persian_fa}
                                 format="YYYY/MM/DD"
-                                onChange={value => handleFilter({endDate: value?.unix})}
+                                onChange={value => handleFilter({staterequest_last_timestamp: value?.unix})}
                                 containerClassName="block w-full"
                                 inputClass="h-11 w-full rounded-lg border appearance-none px-4 py-2.5 text-sm shadow-theme-xs placeholder:text-gray-400 focus:outline-hidden focus:ring-3 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/60 dark:focus:border-brand-800"
                             />
@@ -206,13 +213,14 @@ export default function FilterComponent({filterType, onFilterApply}: FilterProps
                             </Label>
                             {documents.length > 0 ?
                                 <Select
+                                    defaultValue={filtersObject.document_id}
                                     options={documents}
-                                    onChange={(value) => handleFilter({documentNum: value})}
+                                    onChange={(value) => handleFilter({document_id: value})}
                                     placeholder="همه سند ها"
                                 >
-                                </Select> : <Input
+                                </Select> : <Input defaultValue={filtersObject.document_number}
                                     type="number"
-                                    onChange={(e) => handleFilter({documentNum: e.target.value})}
+                                    onChange={(e) => handleFilter({document_number: e.target.value})}
                                     placeholder="همه سند ها"/>}
                         </div>
                     </>
@@ -225,9 +233,10 @@ export default function FilterComponent({filterType, onFilterApply}: FilterProps
                                 انتخاب وضعیت
                             </Label>
                             <Select
+                                defaultValue={filtersObject.request_last_state_id}
                                 options={requestStates}
-                                onChange={(value) => handleFilter({requestState: value})}
-                                placeholder="همه"
+                                onChange={(value) => handleFilter({request_last_state_id: value})}
+                                placeholder="همه" className={'!pr-3'}
                             >
                             </Select>
                         </div>
@@ -238,9 +247,11 @@ export default function FilterComponent({filterType, onFilterApply}: FilterProps
                                 انتخاب ارگان
                             </Label>
                             <Select
+                                defaultValue={filtersObject.request_organ}
                                 options={requestOrgans}
-                                onChange={(value) => handleFilter({requestOrgan: value})}
+                                onChange={(value) => handleFilter({request_organ: value})}
                                 placeholder="همه ارگان ها"
+                                className={'!pr-3'}
                             >
                             </Select>
                         </div>
@@ -253,25 +264,29 @@ export default function FilterComponent({filterType, onFilterApply}: FilterProps
                         انتخاب رشته بیمه
                     </Label>
                     <Select
+                        defaultValue={filtersObject.fieldinsurance_id}
                         options={fieldInsurances}
-                        onChange={(value) => handleFilter({fieldInsurance: value})}
+                        onChange={(value) => handleFilter({fieldinsurance_id: value})}
                         placeholder="همه"
+                        className={'!pr-3'}
                     >
                     </Select>
                 </div>
 
                 {/* User Mobile */}
                 <div>
-                    <Label htmlFor="userMobile"
+                    <Label htmlFor="user_mobile"
                            className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                         شماره موبایل
                     </Label>
                     <Input
-                        id="userMobile"
+                        defaultValue={filtersObject.user_mobile}
+                        id="user_mobile"
                         type="tel"
                         pattern="09[0-9]{9}"
-                        onChange={(e) => handleFilter({userMobile: e.target.value.replace(/[^0-9]/g, '')})}
+                        onChange={(e) => handleFilter({user_mobile: e.target.value.replace(/[^0-9]/g, '')})}
                         placeholder="09123456789"
+                        className={'!pr-3'}
                     />
                 </div>
 
@@ -281,13 +296,17 @@ export default function FilterComponent({filterType, onFilterApply}: FilterProps
                         شماره سفارش
                     </Label>
                     <Input
+                        defaultValue={filtersObject.request_id}
                         type="number"
-                        onChange={(e) => handleFilter({orderNumber: e.target.value})}
+                        onChange={(e) => handleFilter({request_id: e.target.value})}
                         placeholder="شماره سفارش"
                     />
                 </div>
             </div>
-
+            <Button variant="outline" onClick={()=> {
+                setFiltersObject({});
+                onFilterApply({});
+            }}>حذف فیلترها</Button>
 
         </div>
     );
