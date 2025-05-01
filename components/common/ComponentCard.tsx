@@ -9,7 +9,7 @@ import {ListIcon} from "lucide-react";
 interface ComponentCardProps {
   title: string | null;
   children: React.ReactNode;
-  showAll: string | null | undefined;
+  showAll?: string | null | undefined;
   className?: string; // Additional custom classes for styling
   desc?: string; // Description text
 }

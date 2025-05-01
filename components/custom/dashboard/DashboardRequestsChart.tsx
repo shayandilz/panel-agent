@@ -108,7 +108,7 @@ export default function DashboardRequestsChart({title, mode, showAllLink}: Props
                                                 className="mx-auto"
                                                 width={40}
                                                 height={40}
-                                                src={request?.fieldinsurance_logo_url}
+                                                src={request?.fieldinsurance_logo_url || ''}
                                                 alt={''}
                                             />
                                         </div>

@@ -190,7 +190,7 @@ export default function AllRequests() {
                                                         <Image
                                                             width={40}
                                                             height={40}
-                                                            src={request.fieldinsurance_logo_url}
+                                                            src={request.fieldinsurance_logo_url || ''}
                                                             alt={''}
 
                                                         />

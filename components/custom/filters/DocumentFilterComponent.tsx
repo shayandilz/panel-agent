@@ -34,7 +34,7 @@ export default function DocumentFilterComponent({onFilterApply}: FilterProps) {
             if (response?.data?.result === "ok") {
                 let data = response?.data?.data
 
-                setDocuments(data.map((field) => ({
+                setDocuments(data.map((field: any) => ({
                     value: field?.request_financial_doc_id,
                     label: field?.request_financial_doc_num
                 })));
@@ -51,7 +51,7 @@ export default function DocumentFilterComponent({onFilterApply}: FilterProps) {
         fetchDocumentsNumber();
     }, []);
 
-    const handleFilter = (selectedDocument) => {
+    const handleFilter = (selectedDocument: any) => {
         onFilterApply({
             request_financial_doc_id: selectedDocument
         });
@@ -68,7 +68,6 @@ export default function DocumentFilterComponent({onFilterApply}: FilterProps) {
                     <Select
                         options={documents}
                         onChange={(value) => handleFilter(value)}
-                        disabled={loadingFields}
                         placeholder={loadingFields ? "در حال دریافت..." : "همه سند ها"}
                     >
                     </Select>
