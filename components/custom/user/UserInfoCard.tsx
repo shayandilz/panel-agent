@@ -62,7 +62,7 @@ export default function UserInfoCard() {
     }
 
     if (!agentData) {
-        fetchAgentData()
+        // fetchAgentData()
         return <div>در حال بارگذاری...</div>;
     }
 

@@ -12,13 +12,19 @@ import { convertToPersian } from "@/utils/utils";
 import {Trash} from "lucide-react";
 
 interface PendingPaymentRequests {
-    request_id: any | '-';
-    request_fieldinsurance_fa: any | '-';
-    user_pey_amount: any | '-';
-    request_ready: any | '-';
-    fieldinsurance_id: any | '-'; // Make sure to include the fieldinsurance_id in the data
+    request_id: string | null;
+    request_fieldinsurance_fa: string | null;
+    user_pey_amount: string | null;
+    request_ready: RequestReady[] | [];
+    fieldinsurance_id: string | null; // Make sure to include the fieldinsurance_id in the data
 }
-
+interface RequestReady {
+    requst_ready_start_date: string;
+    requst_ready_end_date: string;
+    requst_ready_end_price: string;
+    requst_ready_num_ins?: string;
+    requst_suspend_desc?: string;
+}
 export default function PendingPaymentRequests() {
     const [pendingPaymentRequests, setPendingPaymentRequests] = useState<PendingPaymentRequests[]>([]);
     const [filteredRequests, setFilteredRequests] = useState<PendingPaymentRequests[]>([]);
@@ -166,7 +172,7 @@ export default function PendingPaymentRequests() {
                             format="YYYY/MM/DD"
                             onChange={(value) => handleDateChange("startDate", value)}
                             containerClassName="block w-full"
-                            inputClass="h-11 w-full rounded-lg border appearance-none px-4 py-2.5 text-sm shadow-theme-xs placeholder:text-gray-400 focus:outline-hidden focus:ring-3 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/60 dark:focus:border-brand-800"
+                            inputClass="h-11 w-full rounded-lg border dark:border-gray-700 appearance-none px-4 py-2.5 text-sm shadow-theme-xs placeholder:text-gray-400 focus:outline-hidden focus:ring-3 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/60 dark:focus:border-brand-800"
                         />
                     </div>
                     <div>

@@ -6,15 +6,21 @@ import {Dropdown} from "@/components/ui/dropdown/Dropdown";
 import {DropdownItem} from "@/components/ui/dropdown/DropdownItem";
 import {useAuth} from '@/context/AgentContext';
 import {
+    InfoIcon,
     LockIcon,
 } from "@/icons/index";
 import {UserCircleIcon} from "@/icons";
 import {toast} from "react-toastify";
 import Avatar from "@/components/custom/user/Avatar";
 import service from "@/core/service";
+import Cookies from "js-cookie";
+import {Modal} from "@/components/ui/modal";
+import Button from "@/components/ui/button/Button";
 
 export default function UserDropdown() {
     const [isOpen, setIsOpen] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
+    const [confirmModalState, setConfirmModalState] = useState(false);
     const [error, setError] = useState(false);
     const {token, agentData, logout, agentStatus} = useAuth();
 
@@ -27,8 +33,13 @@ export default function UserDropdown() {
         setIsOpen(false);
     }
 
-    async function signOut() {
+    function toggleConfirmModal(state: boolean = false) {
         closeDropdown()
+        setConfirmModalState(state)
+    }
+
+    async function signOut() {
+        setIsLoading(true)
         try {
             const res = await service.General.logout();
             if (res) {
@@ -40,9 +51,19 @@ export default function UserDropdown() {
 
                 toast.success(data.desc || 'با موفقیت خارج شدید');
                 logout()
-            } else toast.error('مشکلی پیش آمد. دوباره تلاش کنید.');
+                Cookies.remove('server_agent_token');
+                Cookies.remove('agent_data');
+                Cookies.remove('agent_id');
+                setTimeout(() => window.location.reload(), 2000)
+            } else {
+                toast.error('مشکلی پیش آمد. دوباره تلاش کنید.');
+                setIsLoading(false)
+                toggleConfirmModal(false)
+            }
         } catch (err) {
+            toggleConfirmModal(false)
             setError(true);
+            setIsLoading(false)
         }
     }
 
@@ -54,9 +75,10 @@ export default function UserDropdown() {
             <Avatar
                 src="/images/user.png"
                 size="medium"
-                status={agentStatus ? 'online' : 'offline' }
+                status={agentStatus ? 'online' : 'offline'}
             />
-            <span className="block mx-2 font-medium text-theme-sm">{agentData ? agentData.agent_name : ''} {agentStatus}</span>
+            <span
+                className="block mx-2 font-medium text-theme-sm">{agentData ? agentData.agent_name : ''} {agentStatus}</span>
 
             <svg
                 className={`stroke-gray-500 dark:stroke-gray-400 transition-transform duration-200 ${isOpen ? "rotate-180" : ""}`}
@@ -113,9 +135,20 @@ export default function UserDropdown() {
                         تغییر پسورد
                     </DropdownItem>
                 </li>
+                <li>
+                    <DropdownItem
+                        onItemClick={closeDropdown}
+                        tag="a"
+                        href="/agent-status"
+                        className="flex items-center gap-3 px-3 py-2 font-medium text-gray-700 rounded-lg group text-theme-sm hover:bg-gray-100 hover:text-gray-700 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-gray-300"
+                    >
+                        <InfoIcon/>
+                        سوابق وضعیت
+                    </DropdownItem>
+                </li>
             </ul>
             <Link
-                onClick={signOut}
+                onClick={e => toggleConfirmModal(true)}
                 href="#here"
                 className="flex items-center gap-3 px-3 py-2 mt-3 font-medium text-gray-700 rounded-lg group text-theme-sm hover:bg-gray-100 hover:text-gray-700 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-gray-300"
             >
@@ -137,5 +170,28 @@ export default function UserDropdown() {
                 خروج
             </Link>
         </Dropdown>
+
+
+        <Modal isOpen={confirmModalState} showCloseButton={false} onClose={() => toggleConfirmModal(false)}
+               className="max-w-[300px] m-4">
+            <div
+                className="no-scrollbar relative bg-white dark:bg-gray-900 lg:p-5 rounded-lg">
+                <div className="px-2 pl-14">
+                    <h4 className="mb-3 font-semibold text-gray-800 dark:text-white/90">
+                        آیا مایلید از برنامه خارج شوید؟
+                    </h4>
+                </div>
+                <div className="flex items-center gap-3 px-2 mt-6 lg:justify-between">
+                    <Button className="px-8" size="sm" onClick={signOut} loading={isLoading}
+                            disabled={isLoading}>
+                        بله
+                    </Button>
+                    <Button className="px-8" size="sm" variant="outline" onClick={() => toggleConfirmModal(false)}
+                            disabled={isLoading}>
+                        خیر
+                    </Button>
+                </div>
+            </div>
+        </Modal>
     </div>);
 }

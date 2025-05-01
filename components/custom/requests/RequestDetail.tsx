@@ -16,47 +16,47 @@ import {calculateTimestamp} from "@/core/utils";
 // import FilterComponent from "@/components/custom/filters/FilterComponent";
 
 interface RequestReady {
-    requst_ready_start_date: string;
-    requst_ready_end_date: string;
-    requst_ready_end_price: string;
-    requst_ready_num_ins?: string;
-    requst_suspend_desc?: string;
+    requst_ready_start_date: string | null;
+    requst_ready_end_date: string | null;
+    requst_ready_end_price: string | null;
+    requst_ready_num_ins?: string | null;
+    requst_suspend_desc?: string | null;
 }
 
 interface RequestStat {
-    staterequest_timestamp: string;
-    request_state_name: string;
-    staterequest_desc: string;
-    agent_code?: string;
-    agent_name?: string;
-    agent_family?: string;
-    employee_name?: string;
-    employee_family?: string;
+    staterequest_timestamp: string | null;
+    request_state_name: string | null;
+    staterequest_desc: string | null;
+    agent_code?: string | null;
+    agent_name?: string | null;
+    agent_family?: string | null;
+    employee_name?: string | null;
+    employee_family?: string | null;
 }
 
 interface RequestData {
     request_id: string;
-    request_fieldinsurance_fa: string | '-';
-    request_last_state_name: string | '-';
-    staterequest_last_timestamp: string | '-';
-    user_name: string | '-';
-    user_family: string | '-';
-    user_mobile: string | '-';
-    user_pey_amount: number | '-';
-    user_pey_cash: number | '-';
-    request_financial_doc: Array<any>;
+    request_fieldinsurance_fa: string | null;
+    request_last_state_name: string | null;
+    staterequest_last_timestamp: string | null;
+    user_name: string | null;
+    user_family: string | null;
+    user_mobile: string | null;
+    user_pey_amount: number | null;
+    user_pey_cash: number | null;
+    request_financial_approval: Array<any>;
     request_address: Array<any>;
-    request_description?: string | '-';
+    request_description?: string | null;
     request_ready?: RequestReady[];
     request_stats?: RequestStat[];
 }
 
 interface Filters {
-    startDate?: string;
-    endDate?: string;
-    fieldInsurance?: string;
-    userMobile?: string;
-    orderNumber?: string;
+    startDate?: string | null;
+    endDate?: string | null;
+    fieldInsurance?: string | null;
+    userMobile?: string | null;
+    orderNumber?: string | null;
 }
 
 interface StateOption {
@@ -86,7 +86,7 @@ export default function RequestDetail() {
     }
 
     const handleFormSubmit = async (formDataset: any) => {
-        if (hasEmptyValue(formDataset)) {
+        if (stepFields.length > 0 && hasEmptyValue(formDataset)) {
             toast.error("لطفا تمام فیلدهای ضروری را پر کنید");
             return;
         }
@@ -300,7 +300,7 @@ export default function RequestDetail() {
 
                 {activeTab === "images" && (
                     <div className="grid grid-cols-3 gap-4">
-                        {!requestData?.request_financial_doc.length && (
+                        {!requestData?.request_financial_approval.length && (
                             <div className="mb-2 leading-normal text-gray-400 dark:text-gray-200">عکس موجود
                                 نیست.</div>)}
                     </div>

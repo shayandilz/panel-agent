@@ -15,29 +15,29 @@ import {Trash} from "lucide-react";
 // Define types for UncheckedRequest and Filters
 interface RequestReady {
     requst_ready_end_price: number | string;
-    requst_ready_start_date: string;
+    requst_ready_start_date: string | null;
 }
 
 interface UncheckedRequests {
-    request_id: any;
-    user_id: any;
-    user_name: any;
-    user_family: any;
-    user_mobile: any;
-    fieldinsurance_logo_url: any;
-    fieldinsurance_id: any;
-    request_fieldinsurance_fa: any;
-    request_description: any;
-    request_last_state_id: any;
-    request_last_state_name: any;
-    request_organ: any;
-    user_pey_amount: any;
-    user_pey_cash: any;
-    user_pey_instalment: any;
-    staterequest_last_timestamp: any;
+    request_id: string | null;
+    user_id: string | null;
+    user_name: string | null;
+    user_family: string | null;
+    user_mobile: string | null;
+    fieldinsurance_logo_url: string | null;
+    fieldinsurance_id: string | null;
+    request_fieldinsurance_fa: string | null;
+    request_description: string | null;
+    request_last_state_id: string | null;
+    request_last_state_name: string | null;
+    request_organ: string | null;
+    user_pey_amount: number | null;
+    user_pey_cash: number | null;
+    user_pey_instalment: number | null;
+    staterequest_last_timestamp: string | null;
     request_ready: RequestReady[];
-    request_financial_approval: any;
-    request_financial_doc: any;
+    // request_financial_approval: string | null;
+    // request_financial_doc: string | null;
 }
 
 interface Filters {
@@ -96,12 +96,12 @@ export default function UncheckedRequests() {
     useEffect(() => {
         const applyFilters = (data: UncheckedRequests[], filters: Filters) => {
             let filtered = data.filter((item) => {
-                if (filters.orderNumber && !item.request_id.toString().includes(filters.orderNumber)) return false;
-                if (filters.userMobile && !item.user_mobile.includes(filters.userMobile)) return false;
+                if (filters.orderNumber && !item.request_id.toString()?.includes(filters.orderNumber)) return false;
+                if (filters.userMobile && !item?.user_mobile?.includes(filters.userMobile)) return false;
                 if (filters.fieldInsurance && item.fieldinsurance_id !== filters.fieldInsurance) return false;
-                if (filters.paidAmount && !item.user_pey_cash.toString().includes(filters.paidAmount)) return false;
+                if (filters.paidAmount && !item.user_pey_cash.toString()?.includes(filters.paidAmount)) return false;
                 if (filters.startDate) {
-                    const itemDate = convertToPersian(item.request_ready[0]?.requst_ready_start_date);
+                    const itemDate = convertToPersian(item?.request_ready[0]?.requst_ready_start_date);
                     if (itemDate !== filters.startDate) {
                         return false;
                     } else {
@@ -146,13 +146,10 @@ export default function UncheckedRequests() {
         });
     };
 
-
     useEffect(() => {
         fetchUncheckedRequests();
         fetchFieldInsurances();
     }, []);
-
-
 
     return (
         <>
@@ -201,7 +198,7 @@ export default function UncheckedRequests() {
                             format="YYYY/MM/DD"
                             onChange={(value) => handleDateChange("startDate", value)}
                             containerClassName="block w-full"
-                            inputClass="h-11 w-full rounded-lg border appearance-none px-4 py-2.5 text-sm shadow-theme-xs placeholder:text-gray-400 focus:outline-hidden focus:ring-3 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/60 dark:focus:border-brand-800"
+                            inputClass="h-11 w-full rounded-lg border dark:border-gray-700 appearance-none px-4 py-2.5 text-sm shadow-theme-xs placeholder:text-gray-400 focus:outline-hidden focus:ring-3 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/60 dark:focus:border-brand-800"
                         />
                     </div>
                     <div>
@@ -245,17 +242,17 @@ export default function UncheckedRequests() {
                                                 width={40}
                                                 height={40}
                                                 src={request.fieldinsurance_logo_url}
-                                                alt={request.request_fieldinsurance_fa}
+                                                alt={''}
                                             />
                                         </div>
                                     </TableCell>
-                                    <TableCell>{request.request_fieldinsurance_fa}</TableCell>
-                                    <TableCell>{request.user_pey_cash}</TableCell>
-                                    <TableCell>{request.user_pey_instalment}</TableCell>
-                                    <TableCell>{request.user_pey_amount}</TableCell>
-                                    <TableCell>{request.request_ready[0]?.requst_ready_end_price}</TableCell>
-                                    <TableCell>{request.request_last_state_id}</TableCell>
-                                    <TableCell>{convertToPersian(request.request_ready[0]?.requst_ready_start_date)}</TableCell>
+                                    <TableCell>{request?.request_fieldinsurance_fa}</TableCell>
+                                    <TableCell>{request?.user_pey_cash}</TableCell>
+                                    <TableCell>{request?.user_pey_instalment}</TableCell>
+                                    <TableCell>{request?.user_pey_amount}</TableCell>
+                                    <TableCell>{request?.request_ready[0]?.requst_ready_end_price}</TableCell>
+                                    <TableCell>{request?.request_last_state_id}</TableCell>
+                                    <TableCell>{convertToPersian(request?.request_ready[0]?.requst_ready_start_date)}</TableCell>
                                 </TableRow>
                             ))
                         ) : (

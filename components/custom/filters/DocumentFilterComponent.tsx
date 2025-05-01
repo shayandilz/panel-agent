@@ -8,16 +8,17 @@ import Button from "@/components/ui/button/Button";
 
 import {toast} from "react-toastify";
 import services from "@/core/service";
+import Select from "@/components/form/Select";
 
 interface FilterProps {
     onFilterApply: (filters: {
-        documentNum: string ;
+        request_financial_doc_id: string ;
     }) => void;
 }
 
 interface DocumentData {
-    document_id: string;
-    document_number: string;
+    value: string;
+    label: string;
 }
 
 export default function DocumentFilterComponent({onFilterApply}: FilterProps) {
@@ -31,10 +32,16 @@ export default function DocumentFilterComponent({onFilterApply}: FilterProps) {
                 "?command=get_doc"
             );
             if (response?.data?.result === "ok") {
-                setDocuments(response.data.data);
+                let data = response?.data?.data
+
+                setDocuments(data.map((field) => ({
+                    value: field?.request_financial_doc_id,
+                    label: field?.request_financial_doc_num
+                })));
             }
         } catch (err) {
             toast.error("خطا در دریافت لیست شماره سند ها");
+            setDocuments([])
         } finally {
             setLoadingFields(false);
         }
@@ -44,9 +51,9 @@ export default function DocumentFilterComponent({onFilterApply}: FilterProps) {
         fetchDocumentsNumber();
     }, []);
 
-    const handleFilter = () => {
+    const handleFilter = (selectedDocument) => {
         onFilterApply({
-            documentNum: selectedDocument
+            request_financial_doc_id: selectedDocument
         });
     };
 
@@ -58,39 +65,23 @@ export default function DocumentFilterComponent({onFilterApply}: FilterProps) {
                     <Label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                         شماره سند
                     </Label>
-                    <select
-                        value={selectedDocument}
-                        onChange={(e) => setSelectedDocument(e.target.value)}
-                        className={`h-11 w-full appearance-none rounded-lg border border-gray-300  px-4 py-2.5 pr-11 
-                        text-sm shadow-theme-xs placeholder:text-gray-400 
-                        focus:border-brand-300 focus:outline-hidden focus:ring-3 
-                        focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 
-                        dark:text-white/90 dark:placeholder:text-white/60 
-                        dark:focus:border-brand-800 ${
-                            selectedDocument
-                                ? "text-gray-800 dark:text-white/90"
-                                : "text-gray-400 dark:text-gray-400"
-                        }`}
+                    <Select
+                        options={documents}
+                        onChange={(value) => handleFilter(value)}
                         disabled={loadingFields}
+                        placeholder={loadingFields ? "در حال دریافت..." : "همه سند ها"}
                     >
-                        <option value="">همه سند ها</option>
-                        {loadingFields && <option>در حال دریافت...</option>}
-                        {documents.map((field) => (
-                            <option key={field.document_id} value={field.document_id}>
-                                {field.document_number}
-                            </option>
-                        ))}
-                    </select>
+                    </Select>
                 </div>
 
-                <div className="flex items-end">
-                    <Button
-                        size={"sm"}
-                        onClick={handleFilter}
-                    >
-                        اعمال فیلتر
-                    </Button>
-                </div>
+                {/*<div className="flex items-end">*/}
+                {/*    <Button*/}
+                {/*        size={"sm"}*/}
+                {/*        onClick={handleFilter}*/}
+                {/*    >*/}
+                {/*        اعمال فیلتر*/}
+                {/*    </Button>*/}
+                {/*</div>*/}
             </div>
         </div>
     );

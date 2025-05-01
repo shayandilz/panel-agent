@@ -11,13 +11,19 @@ import persian_fa from "react-date-object/locales/persian_fa";
 import { convertToPersian } from "@/utils/utils";
 import {Trash} from "lucide-react";
 interface PaidRequests {
-    request_id: any | '-';
-    request_fieldinsurance_fa: any | '-';
-    user_pey_amount: any | '-';
-    request_ready: any | '-';
-    fieldinsurance_id: any | '-'; // Ensure to include fieldinsurance_id
+    request_id: string | null;
+    request_fieldinsurance_fa: string | null;
+    user_pey_amount: string | null;
+    request_ready: RequestReady[] | [];
+    fieldinsurance_id: string | null; // Ensure to include fieldinsurance_id
 }
-
+interface RequestReady {
+    requst_ready_end_price: number | string;
+    requst_ready_start_date: string;
+    requst_ready_end_date: string;
+    requst_ready_num_ins?: string;
+    requst_suspend_desc?: string;
+}
 export default function PaidRequests() {
     const [paidRequests, setPaidRequests] = useState<PaidRequests[]>([]);
     const [filteredRequests, setFilteredRequests] = useState<PaidRequests[]>([]);
@@ -40,7 +46,7 @@ export default function PaidRequests() {
                 setPaidRequests(data.data || []);
             } else toast.error("مشکلی پیش آمد. دوباره تلاش کنید.");
         } catch (err) {
-            toast.error("مشکلی پیش آمد. دوباره تلاش کنید.");
+            toast.error(err.meessage || "مشکلی پیش آمد. دوباره تلاش کنید.");
         } finally {
             setIsLoading(false);
         }
@@ -70,10 +76,15 @@ export default function PaidRequests() {
                 if (filters.orderNumber && !item.request_id.toString().includes(filters.orderNumber)) return false;
                 // Filter by field insurance ID
                 if (filters.fieldInsurance && item.fieldinsurance_id !== filters.fieldInsurance) return false;
-                // Filter by start date
-                if (filters.startDate) {
-                    const itemDate = convertToPersian(item.request_ready?.[0]?.requst_ready_start_date);
-                    if (itemDate !== filters.startDate) return false;
+
+               // Date Filtering logic
+                if (filters.requst_ready_start_date && item?.request_ready[0]) {
+                    const itemDate = convertToPersian(item?.request_ready[0]?.requst_ready_start_date);
+                    if (itemDate !== filters.requst_ready_start_date) {
+                        return false;
+                    } else {
+                        console.log("Dates match:", itemDate, "==", filters.requst_ready_start_date); // Log match
+                    }
                 }
                 return true;
             });
@@ -92,6 +103,13 @@ export default function PaidRequests() {
         }));
     };
 
+    const handleSelectChange = (name,value) => {
+        setFilters((prevFilters) => ({
+            ...prevFilters,
+            [name]: value,
+        }));
+    };
+
     // Handle date picker change
     const handleDateChange = (name: string, value: any) => {
         const formattedDate = value ? value.format("YYYY/MM/DD") : "";
@@ -101,11 +119,7 @@ export default function PaidRequests() {
         }));
     };
     const handleClearFilters = () => {
-        setFilters({
-            orderNumber: "",
-            fieldInsurance: "",
-            startDate: "",
-        });
+        setFilters({});
     };
     // Fetch data on mount
     useEffect(() => {
@@ -162,7 +176,7 @@ export default function PaidRequests() {
                             format="YYYY/MM/DD"
                             onChange={(value) => handleDateChange("startDate", value)}
                             containerClassName="block w-full"
-                            inputClass="h-11 w-full rounded-lg border appearance-none px-4 py-2.5 text-sm shadow-theme-xs placeholder:text-gray-400 focus:outline-hidden focus:ring-3 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/60 dark:focus:border-brand-800"
+                            inputClass="h-11 w-full rounded-lg border dark:border-gray-700 appearance-none px-4 py-2.5 text-sm shadow-theme-xs placeholder:text-gray-400 focus:outline-hidden focus:ring-3 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/60 dark:focus:border-brand-800"
                         />
                     </div>
                     <div>

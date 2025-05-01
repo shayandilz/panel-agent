@@ -6,7 +6,6 @@ import Image from "next/image";
 import services from "@/core/service";
 import { toast } from "react-toastify";
 import DatePicker from "react-multi-date-picker";
-import Label from "@/components/form/Label";
 import persian from "react-date-object/calendars/persian";
 import persian_fa from "react-date-object/locales/persian_fa";
 import {convertToPersian} from "@/utils/utils";
@@ -16,13 +15,16 @@ import Select from "@/components/form/Select";
 import Button from "@/components/ui/button/Button";
 
 
-// Define types for the ConfirmedRequest and Filter parameters
+// Define types for the FinancialRequest and Filter parameters
 interface RequestReady {
     requst_ready_end_price: number | string;
     requst_ready_start_date: string;
+    requst_ready_end_date: string;
+    requst_ready_num_ins?: string;
+    requst_suspend_desc?: string;
 }
 
-interface ConfirmedRequest {
+interface FinancialRequest {
     request_id: number;
     user_id: number;
     user_name: string;
@@ -54,20 +56,24 @@ interface Filters {
     endDate?: string | null;    // We'll store the date in "YYYY-MM-DD" format
 }
 
-export default function ConfirmedRequests() {
-    const [confirmedRequests, setConfirmedRequests] = useState<ConfirmedRequest[]>([]);
-    const [filteredRequests, setFilteredRequests] = useState<ConfirmedRequest[]>([]);
+interface Props {
+    mode: string;
+}
+
+export default function FinancialRequestsContent({mode}: Props) {
+    const [financialRequests, setFinancialRequests] = useState<FinancialRequest[]>([]);
+    const [filteredRequests, setFilteredRequests] = useState<FinancialRequest[]>([]);
     const [fieldInsurances, setFieldInsurances] = useState<{ value: string, label: string }[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [filters, setFilters] = useState<Filters>({});
 
-    // Fetch confirmed requests and field insurance data
-    const fetchConfirmedRequests = async () => {
+    // Fetch financial requests and field insurance data
+    const fetchFinancialRequests = async () => {
         try {
             setIsLoading(true);
 
             const response = await services.Requests.getReport(
-                `?command=getagent_request&approvaslmode=checkedfinancial`
+                `?command=getagent_request&approvaslmode=`+ mode
             );
 
             if (response) {
@@ -75,7 +81,7 @@ export default function ConfirmedRequests() {
                 if (data.result !== "ok") {
                     throw new Error(data.desc || "مشکلی پیش آمد. دوباره تلاش کنید.");
                 }
-                setConfirmedRequests(data.data || []);
+                setFinancialRequests(data.data || []);
             } else {
                 toast.error("مشکلی پیش آمد. دوباره تلاش کنید.");
             }
@@ -102,9 +108,9 @@ export default function ConfirmedRequests() {
         }
     };
 
-    // Apply filters to confirmedRequests
+    // Apply filters to financialRequests
     useEffect(() => {
-        const applyFilters = (data: ConfirmedRequest[], filters: Filters) => {
+        const applyFilters = (data: FinancialRequest[], filters: Filters) => {
             let filtered = data.filter((item) => {
                 // Filter logic based on filters
                 if (filters.request_id && !item.request_id.toString().includes(String(filters.request_id))) return false;
@@ -130,12 +136,12 @@ export default function ConfirmedRequests() {
             setFilteredRequests(filtered);
         };
 
-        applyFilters(confirmedRequests, filters); // Apply filters whenever filters or confirmedRequests change
-    }, [filters, confirmedRequests]);
+        applyFilters(financialRequests, filters); // Apply filters whenever filters or financialRequests change
+    }, [filters, financialRequests]);
 
-    // Re-fetch confirmed requests and field insurances when the component mounts
+    // Re-fetch financial requests and field insurances when the component mounts
     useEffect(() => {
-        fetchConfirmedRequests();
+        fetchFinancialRequests();
         fetchFieldInsurances();
     }, []); // Initial fetch when the component loads
 

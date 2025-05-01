@@ -159,7 +159,7 @@ export default function RequestStepForm({ stepFields, onSubmit }: RequestStepFor
                 {stepFields.map(field => {
                     if (field.type === "image") {
                         return (
-                            <div key={field.name} className="mb-4 col-span-2">
+                            <div key={field.name} className="mb-4  md:col-span-2 lg:col-span-3">
                                 <label className="block mb-2 text-sm font-medium">
                                     {field.label}
                                 </label>
@@ -187,7 +187,7 @@ export default function RequestStepForm({ stepFields, onSubmit }: RequestStepFor
                                     format="YYYY/MM/DD"
                                     onChange={value => handleChange(field.name, value)}
                                     containerClassName="block w-full"
-                                    inputClass="h-11 w-full rounded-lg border appearance-none px-4 py-2.5 text-sm shadow-theme-xs placeholder:text-gray-400 focus:outline-hidden focus:ring-3 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/60 dark:focus:border-brand-800  bg-transparent text-gray-800 border-gray-300 focus:border-brand-300 focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:focus:border-brand-800"
+                                    inputClass="h-11 w-full rounded-lg border dark:border-gray-700 appearance-none px-4 py-2.5 text-sm shadow-theme-xs placeholder:text-gray-400 focus:outline-hidden focus:ring-3 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/60 dark:focus:border-brand-800  bg-transparent text-gray-800 border-gray-300 focus:border-brand-300 focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:focus:border-brand-800"
                                 />
                             </div>
                         );
@@ -195,11 +195,12 @@ export default function RequestStepForm({ stepFields, onSubmit }: RequestStepFor
 
                     if (field.type === "textarea") {
                         return (
-                            <div key={field.name} className="mb-4 col-span-2 order-3">
+                            <div key={field.name} className="mb-4  md:col-span-2 lg:col-span-3 order-3">
                                 <label className="block mb-2 text-sm font-medium">
                                     {field.label}
                                 </label>
                                 <Textarea
+                                    placeholder={'پیام خود را تایپ کنید'}
                                     disabled={isSubmitting}
                                     value={form[field.name] || ""}
                                     onChange={value => handleChange(field.name, value)}

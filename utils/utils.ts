@@ -8,10 +8,11 @@ export const convertToWesternDigits = (str: string) => {
     return str.replace(/[0-9]/g, (char) => persianDigits[westernDigits.indexOf(char)]);
 };
 
-export const convertToPersian = (dateString: string) => {
-    const date = new DateObject(dateString);
-    const persianDate = date.convert(persian).format("YYYY/MM/DD");
+export const convertToPersian = (dateString: string | undefined) => {
+    if(dateString) {
+        const date = new DateObject(dateString);
+        const persianDate = date.convert(persian).format("YYYY/MM/DD");
 
-    return convertToWesternDigits(persianDate); // Convert Persian digits to Western digits
-
+        return convertToWesternDigits(persianDate); // Convert Persian digits to Western digits
+    } else return ''
 };

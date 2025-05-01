@@ -6,14 +6,33 @@ import {toast} from "react-toastify";
 import DocumentFilterComponent from "@/components/custom/filters/DocumentFilterComponent";
 
 interface PayedDocument {
-    id: number;
-    documentName: string;
-    paymentDate: string;
-    amount: number;
+    "request_financial_doc_id": string,
+    "request_financial_doc_num": string,
+    "request_financial_doc_price": string,
+    "request_financial_doc_numdoc": string,
+    "request_financial_doc_date": string,
+    // "request_financial_doc": string,
+    "request_financial_doc_peydate": string,
+    "request_financial_doc_code": string,
+    "request_financial_doc_employee_id": string,
+    "employee_name": string,
+    "employee_family": string,
+    "employee_mobile": string,
+    "request_financial_doc_pey_employee_id": string,
+    "pey_employee_name": string,
+    "pey_employee_family": string,
+    "pey_employee_mobile": string,
+    "agent_id": string,
+    "agent_name": string,
+    "agent_family": string,
+    "agent_mobile": string,
+    "agent_banknum": string,
+    "agent_bankname": string,
+    "agent_banksheba": string,
 }
 
 interface Filters {
-    documentNum?: string;
+    request_financial_doc_id?: string;
 }
 
 interface ResponseData {
@@ -24,22 +43,22 @@ interface ResponseData {
 
 export default function PayedDocuments() {
     const [payedDocuments, setPayedDocuments] = useState<PayedDocument[]>([]);
+    const [filteredData, setFilteredData] = useState<PayedDocument[]>(payedDocuments);
     const [isLoading, setIsLoading] = useState(true);
 
-    const fetchPayedDocuments = async (filters: Filters = {}) => {
+    const fetchPayedDocuments = async () => {
         try {
             setIsLoading(true);
-            console.log('filters',filters)
 
             const response = await services.Requests.getReport("?command=get_doc&mode=doc_payed");
             if (response) {
                 const data = response.data;
-                console.log('get_doc doc_paying', data)
+                console.log('get_doc doc_payed', data)
                 if (data.result != 'ok') {
                     throw new Error(data.desc);
                 }
 
-                if (data.data) setPayedDocuments(data.data)
+                if (data.data) setPayedDocuments(data?.data)
                 else setPayedDocuments([])
             } else toast.error('مشکلی پیش آمد. دوباره تلاش کنید.');
         } catch (err) {
@@ -53,34 +72,51 @@ export default function PayedDocuments() {
         fetchPayedDocuments();
     }, []);
 
+    const applyFilters = (filters: Filters = {}) => {
+        let filtered = payedDocuments.filter((item) => {
+            // Corrected the filtering logic
+            if (filters.request_financial_doc_id && !item.request_financial_doc_id.includes(filters.request_financial_doc_id)) return false;
+            return true;
+        });
+
+        setFilteredData(filtered);
+    };
+    useEffect(() => {
+        applyFilters(); // Apply filters when filters are changed
+    }, [payedDocuments]); // Apply effect when filters or requestData changes
+
+
     return (
         <>
-            <DocumentFilterComponent onFilterApply={(filters) => fetchPayedDocuments(filters)} />
+            <DocumentFilterComponent onFilterApply={(filters:Filters) => applyFilters(filters)} />
             {isLoading ? (
                 <div className="text-center">در حال دریافت اطلاعات...</div>
             ) : (
                 <Table>
                     <TableHeader>
                         <TableRow>
-                            <TableCell isHeader>آیدی سند</TableCell>
                             <TableCell isHeader>شماره سند</TableCell>
-                            <TableCell isHeader>مبلغ سند</TableCell>
-                            <TableCell isHeader>تاریخ صدور سند</TableCell>
-                            <TableCell isHeader>تعداد درخواست های سند</TableCell>
                             <TableCell isHeader>نام نماینده</TableCell>
-                            <TableCell isHeader>کارمند صادر کننده سند</TableCell>
+                            <TableCell isHeader>پرداخت کننده سند</TableCell>
+                            <TableCell isHeader>مبلغ سند</TableCell>
+                            <TableCell isHeader>بانک صادر کننده سند</TableCell>
+                            <TableCell isHeader>شماره شبا بانک</TableCell>
+                            <TableCell isHeader>تاریخ پرداخت</TableCell>
+                            <TableCell isHeader>تاریخ صدور سند</TableCell>
                         </TableRow>
                     </TableHeader>
                     <TableBody>
-                        {payedDocuments.length > 0 ? (payedDocuments.map((document, index) => (
-                            <TableRow key={document.id || index}>
-                                <TableCell>{document.id}</TableCell>
-                                <TableCell>{document.paymentDate}</TableCell>
-                                <TableCell>{document.documentName}</TableCell>
-                                <TableCell>{document.amount}</TableCell>
-                                <TableCell>{document.amount}</TableCell>
-                                <TableCell>{document.amount}</TableCell>
-                                <TableCell>{document.amount}</TableCell>
+                        {filteredData.length > 0 ? (filteredData.map((document, index) => (
+                            <TableRow key={document?.request_financial_doc_id}>
+                                <TableCell>{document?.request_financial_doc_num}</TableCell>
+                                <TableCell>{document?.agent_name} {document?.agent_family}</TableCell>
+                                <TableCell>{document?.pey_employee_name} {document?.pey_employee_family}</TableCell>
+                                <TableCell>{Number(document?.request_financial_doc_price).toLocaleString()}</TableCell>
+                                <TableCell>{document?.agent_bankname}</TableCell>
+                                <TableCell>{document?.agent_banksheba}</TableCell>
+                                <TableCell>{document?.request_financial_doc_peydate}</TableCell>
+                                <TableCell>{document?.request_financial_doc_date}</TableCell>
+
                             </TableRow>
                         ))) : (
                             <TableRow>

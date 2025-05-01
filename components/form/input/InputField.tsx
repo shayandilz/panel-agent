@@ -6,7 +6,7 @@ interface InputProps {
     id?: string;
     name?: string;
     placeholder?: string;
-    defaultValue?: string | number;
+    defaultValue?: string | number | null;
     onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
     className?: string;
     min?: string;
