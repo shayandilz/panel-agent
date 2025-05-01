@@ -7,17 +7,17 @@ import {DropdownItem} from "@/components/ui/dropdown/DropdownItem";
 import {ListIcon} from "lucide-react";
 
 interface ComponentCardProps {
-  title: string;
+  title: string | null;
   children: React.ReactNode;
-  showAll: string | null;
+  showAll: string | null | undefined;
   className?: string; // Additional custom classes for styling
   desc?: string; // Description text
 }
 
 const ComponentCard: React.FC<ComponentCardProps> = ({
-  title,
+  title= '',
   children,
-  showAll = null,
+  showAll = '',
   className = "",
   desc = "",
 }) => {
@@ -48,7 +48,7 @@ const ComponentCard: React.FC<ComponentCardProps> = ({
           )}
         </div>
 
-        {showAll && <div className="relative inline-block">
+        {!!showAll && <div className="relative inline-block">
           <button onClick={toggleDropdown} className="dropdown-toggle">
             <MoreDotIcon
                 className="text-gray-400 hover:text-gray-700 dark:hover:text-gray-300"/>
