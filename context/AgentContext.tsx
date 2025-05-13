@@ -86,7 +86,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({children}
                 const data = res.data;
                 if (data?.result === 'ok') {
                     setAgentStatus(data?.data?.agent_status === '1');
-                    // console.log(agentStatus);
                 } else {
                     throw new Error(data?.desc || 'خطا در دریافت وضعیت کاربر');
                 }
@@ -121,7 +120,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({children}
         };
 
         initializeAuth();
-    }, [token, fetchAgentData]);
+    }, [token]);
 
     return (
         <AuthContext.Provider

@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import services from "@/core/service";
 import { Table, TableBody, TableCell, TableHeader, TableRow } from "@/components/custom/tables";
-import DateRangeFilterComponent from "@/components/custom/filters/DateRangeFilterComponent";
+// import DateRangeFilterComponent from "@/components/custom/filters/DateRangeFilterComponent";
 import Badge from "@/components/ui/badge/Badge";
 
 // Define types for the agent status and the response structure
@@ -34,12 +34,12 @@ export default function AgentStatus() {
     }
 
     // Fetch agent status data
-    const fetchAgentStatus = async (filters: Filters | null = null): Promise<void> => {
+    const fetchAgentStatus = async (): Promise<void> => {
         try {
             setIsLoading(true);
-            const query = filters?.startDate ? `&start_date=${filters.startDate}&end_date=${filters.endDate}` : "";
+            // const query = filters?.startDate ? `&start_date=${filters.startDate}&end_date=${filters.endDate}` : "";
             // @ts-ignore
-            const response = await services.General.getData<ApiResponse>(`?command=get_statusinfo${query}`);
+            const response = await services.General.getData<ApiResponse>(`?command=get_statusinfo`);
 
             if (response && response.data) {
                 if (response.data.result !== "ok") {
@@ -63,7 +63,7 @@ export default function AgentStatus() {
 
     return (
         <>
-            <DateRangeFilterComponent onFilterApply={(filters) => fetchAgentStatus(filters)} />
+            {/*<DateRangeFilterComponent onFilterApply={(filters) => fetchAgentStatus(filters)} />*/}
             {isLoading ? (
                 <div className="text-center">در حال دریافت اطلاعات...</div>
             ) : (

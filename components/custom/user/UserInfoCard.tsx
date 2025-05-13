@@ -62,7 +62,7 @@ export default function UserInfoCard() {
     }
 
     if (!agentData) {
-        fetchAgentData()
+        // fetchAgentData()
         return <div>در حال بارگذاری...</div>;
     }
 
@@ -121,7 +121,7 @@ export default function UserInfoCard() {
             <div className="p-5 border border-gray-200 rounded-2xl dark:border-gray-800 lg:p-6">
                 <div className="flex mb-8 flex-col gap-5 xl:flex-row xl:items-start xl:justify-between">
                     <div className="mb-4 flex flex-col items-center w-full gap-6 xl:flex-row">
-                        <div className="overflow-hidden bg-white">
+                        <div className="overflow-hidden bg-white dark:bg-gray-dark">
                             <Avatar
                                 src={agentData.agent_image || "/images/user.png"}
                                 size="xxlarge"

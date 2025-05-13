@@ -49,11 +49,11 @@ const navItems: NavItem[] = [
   //   name: "تغییر رمز",
   //   path: "/change-password",
   // },
-  {
-    name: "سوابق وضعیت نماینده",
-    icon: <InfoIcon />,
-    path: "/agent-status"
-  },
+  // {
+  //   name: "سوابق وضعیت نماینده",
+  //   icon: <InfoIcon />,
+  //   path: "/agent-status"
+  // },
   {
     name: "کارتابل درخواست ها",
     icon: <PageIcon />,

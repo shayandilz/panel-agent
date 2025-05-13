@@ -12,27 +12,33 @@ import { convertToPersian } from "@/utils/utils";
 import {Trash} from "lucide-react";
 
 interface UnconfirmedRequests {
-    request_id: any | '-';
-    user_id: any | '-';
-    user_name: any | '-';
-    user_family: any | '-';
-    user_mobile: any | '-';
-    fieldinsurance_logo_url: any | '-';
-    fieldinsurance_id: any | '-';
-    request_fieldinsurance_fa: any | '-';
-    request_description: any | '-';
-    request_last_state_id: any | '-';
-    request_last_state_name: any | '-';
-    request_organ: any | '-';
-    user_pey_amount: any | '-';
-    user_pey_cash: any | '-';
-    user_pey_instalment: any | '-';
-    staterequest_last_timestamp: any | '-';
-    request_ready: any | '-';
-    request_financial_approval: any | '-';
-    request_financial_doc: any | '-';
+    request_id: string | null;
+    user_id: string | null;
+    user_name: string | null;
+    user_family: string | null;
+    user_mobile: string | null;
+    fieldinsurance_logo_url: string | null;
+    fieldinsurance_id: string | null;
+    request_fieldinsurance_fa: string | null;
+    request_description: string | null;
+    request_last_state_id: string | null;
+    request_last_state_name: string | null;
+    request_organ: string | null;
+    user_pey_amount: string | null;
+    user_pey_cash: string | null;
+    user_pey_instalment: string | null;
+    staterequest_last_timestamp: string | null;
+    request_ready: RequestReady[] | [];
+    // request_financial_approval: string | null;
+    // request_financial_doc: string | null;
 }
-
+interface RequestReady {
+    requst_ready_start_date: string;
+    requst_ready_end_date: string;
+    requst_ready_end_price: string;
+    requst_ready_num_ins?: string;
+    requst_suspend_desc?: string;
+}
 export default function UnconfirmedRequests() {
     const [unconfirmedRequests, setUnconfirmedRequests] = useState<UnconfirmedRequests[]>([]);
     const [filteredRequests, setFilteredRequests] = useState<UnconfirmedRequests[]>([]);
@@ -86,8 +92,8 @@ export default function UnconfirmedRequests() {
     useEffect(() => {
         const applyFilters = () => {
             let filtered = unconfirmedRequests.filter((item) => {
-                if (filters.orderNumber && !item.request_id.toString().includes(filters.orderNumber)) return false;
-                if (filters.userMobile && !item.user_mobile.includes(filters.userMobile)) return false;
+                if (filters.orderNumber && !item.request_id?.toString().includes(filters.orderNumber)) return false;
+                if (filters.userMobile && !item.user_mobile?.includes(filters.userMobile)) return false;
                 if (filters.fieldInsurance && item.fieldinsurance_id !== filters.fieldInsurance) return false;
                 if (filters.startDate) {
                     const itemDate = convertToPersian(item.request_ready[0]?.requst_ready_start_date);
@@ -183,7 +189,7 @@ export default function UnconfirmedRequests() {
                             format="YYYY/MM/DD"
                             onChange={(value) => handleDateChange("startDate", value)}
                             containerClassName="block w-full"
-                            inputClass="h-11 w-full rounded-lg border appearance-none px-4 py-2.5 text-sm shadow-theme-xs placeholder:text-gray-400 focus:outline-hidden focus:ring-3 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/60 dark:focus:border-brand-800"
+                            inputClass="h-11 w-full rounded-lg border dark:border-gray-700 appearance-none px-4 py-2.5 text-sm shadow-theme-xs placeholder:text-gray-400 focus:outline-hidden focus:ring-3 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/60 dark:focus:border-brand-800"
                         />
                     </div>
                     <div>
@@ -226,8 +232,8 @@ export default function UnconfirmedRequests() {
                                                 className="mx-auto"
                                                 width={40}
                                                 height={40}
-                                                src={request.fieldinsurance_logo_url}
-                                                alt={request.request_fieldinsurance_fa}
+                                                src={request.fieldinsurance_logo_url || ''}
+                                                alt={''}
                                             />
                                         </div>
                                     </TableCell>

@@ -8,6 +8,7 @@ import services from "@/core/service";
 import {toast} from "react-toastify";
 import Button from "@/components/ui/button/Button";
 import {useRouter} from "next/navigation";
+import ComponentCard from "@/components/common/ComponentCard";
 
 interface Insurance {
     fieldinsurance_id: string;
@@ -21,24 +22,10 @@ interface Props {
 }
 
 export default function RequestsTypesChart({allRequests}: Props) {
-    const router = useRouter();
     const [visibleCount, setVisibleCount] = useState<number>(5);
-    const [isOpen, setIsOpen] = useState<boolean>(false);
     const [isLoading, setIsLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
     const [insurancesData, setInsurancesData] = useState<Insurance[]>([]);
-
-    function showAll() {
-        router.push('/requests/all');
-    }
-
-    function toggleDropdown() {
-        setIsOpen(!isOpen);
-    }
-
-    function closeDropdown() {
-        setIsOpen(false);
-    }
 
     function findCount(obj: Insurance): Insurance {
         if (!obj?.fieldinsurance_id) return {...obj, fieldinsurance_count: 0, fieldinsurance_percent: 0};
@@ -49,7 +36,7 @@ export default function RequestsTypesChart({allRequests}: Props) {
         return {
             ...obj,
             fieldinsurance_count: count,
-            fieldinsurance_percent: (count / allRequests.length) * 100,
+            fieldinsurance_percent: Math.round(((count / allRequests.length) * 100)),
         };
     }
 
@@ -88,44 +75,17 @@ export default function RequestsTypesChart({allRequests}: Props) {
 
     return (
         <>
-            <div
-                className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] sm:p-6">
-                <div className="flex justify-between border-bottom mb-4">
-                    <div>
-                        <h3 className="text-lg font-semibold text-gray-800 dark:text-white/90">
-                            همه درخواست ها
-                        </h3>
-                        <p className="mt-1 text-gray-500 text-theme-sm dark:text-gray-400">
-                            تعداد درخواست ها بر اساس نوع بیمه
-                        </p>
-                    </div>
-
-                    <div className="relative inline-block">
-                        <button onClick={toggleDropdown} className="dropdown-toggle">
-                            <MoreDotIcon className="text-gray-400 hover:text-gray-700 dark:hover:text-gray-300"/>
-                        </button>
-                        <Dropdown isOpen={isOpen} onClose={closeDropdown} className="w-40 p-2">
-                            <DropdownItem
-                                onClick={showAll}
-                                className="flex w-full font-normal text-left text-gray-500 rounded-lg hover:bg-gray-100 hover:text-gray-700 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-gray-300"
-                            >
-                                بیشتر
-                            </DropdownItem>
-                        </Dropdown>
-                    </div>
-                </div>
-
-                <hr/>
+            <ComponentCard showAll={"/requests/all"} title="همه درخواست ها" desc={"تعداد درخواست ها بر اساس نوع بیمه"}>
                 {(error && !isLoading) && <div className="text-center">{error}</div>}
                 {isLoading ? (
                     <div className="text-center">در حال دریافت اطلاعات...</div>
-                ) : !error ? (
+                ) : !error && (
                     <>
-                        <div className="space-y-5 overflow-y-auto">
+                        <div className="space-y-5 overflow-y-auto" style={{maxHeight: '190px'}}>
                             {!insurancesData.length && <div className="text-center">رکوردی وجود ندارد</div>}
                             {insurancesData.length > 0 && insurancesData.map((insurance, index) => (
                                 <div key={insurance.fieldinsurance_id}
-                                     className={`${index >= visibleCount ? 'hidden' : 'flex'} items-center justify-between`}>
+                                     className={`flex items-center justify-between`}>
                                     <div className="flex items-center gap-3">
                                         <div>
                                             <p className="text-gray-800 text-theme-sm dark:text-white/90">
@@ -151,17 +111,17 @@ export default function RequestsTypesChart({allRequests}: Props) {
                             ))}
                         </div>
 
-                        {insurancesData.length > 5 && insurancesData.length >= visibleCount + 10 && (
-                            <Button className="w-full" size="sm" variant="outline"
-                                    onClick={() => setVisibleCount(visibleCount + 10)}>نمایش بیشتر</Button>
-                        )}
-                        {insurancesData.length > 5 && visibleCount >= insurancesData.length && (
-                            <Button className="w-full" size="sm" variant="outline" onClick={() => setVisibleCount(5)}>نمایش
-                                کمتر</Button>
-                        )}
+                        {/*{insurancesData.length > 5 && insurancesData.length >= visibleCount + 10 && (*/}
+                        {/*    <Button className="w-full" size="sm" variant="outline"*/}
+                        {/*            onClick={() => setVisibleCount(visibleCount + 10)}>نمایش بیشتر</Button>*/}
+                        {/*)}*/}
+                        {/*{insurancesData.length > 5 && visibleCount >= insurancesData.length && (*/}
+                        {/*    <Button className="w-full" size="sm" variant="outline" onClick={() => setVisibleCount(5)}>نمایش*/}
+                        {/*        کمتر</Button>*/}
+                        {/*)}*/}
                     </>
-                ) : null}
-            </div>
+                )}
+            </ComponentCard>
         </>
     );
 }

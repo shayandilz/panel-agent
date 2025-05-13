@@ -22,6 +22,7 @@ interface TableBodyProps {
 interface TableRowProps {
   children: ReactNode; // Cells (th or td)
   className?: string; // Optional className for styling
+  key: number;
 }
 
 // Props for TableCell
@@ -33,12 +34,12 @@ interface TableCellProps {
 
 // Table Component
 const Table: React.FC<TableProps> = ({ children, className }) => {
-  return <table className={`min-w-full  ${className}`}>{children}</table>;
+  return <table className={`min-w-full text-center  ${className}`}>{children}</table>;
 };
 
 // TableHeader Component
 const TableHeader: React.FC<TableHeaderProps> = ({ children, className }) => {
-  return <thead className={className}>{children}</thead>;
+  return <thead className={`${className} bg-orange-400`}>{children}</thead>;
 };
 
 // TableBody Component
@@ -47,8 +48,8 @@ const TableBody: React.FC<TableBodyProps> = ({ children, className }) => {
 };
 
 // TableRow Component
-const TableRow: React.FC<TableRowProps> = ({ children, className }) => {
-  return <tr className={className}>{children}</tr>;
+const TableRow: React.FC<TableRowProps> = ({ children, className,key }) => {
+  return <tr className={`${className} ${key % 2 == 0 ? 'bg-gray-50' :'' } ${key}`}>{children}</tr>;
 };
 
 // TableCell Component
