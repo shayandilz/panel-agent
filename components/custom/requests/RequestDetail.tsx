@@ -344,12 +344,12 @@ export default function RequestDetail() {
                                         <td>{image?.image_name || '-'}</td>
                                         <td>{image?.image_tumb_url && (
                                             <div className="overflow-hidden rounded-md">
-                                                <Image
+                                                <img
                                                     className="mx-auto"
                                                     width={160}
                                                     height={160}
                                                     src={image?.image_tumb_url}
-                                                    alt={image?.image_name}
+                                                    alt={image?.image_name || ''}
                                                 />
                                             </div>
                                         )}</td>
@@ -367,7 +367,7 @@ export default function RequestDetail() {
                         {requestData.request_stats?.length == 0 && (
                             <div className="mb-2 leading-normal text-gray-400 dark:text-gray-200">رکوردی موجود
                                 نیست.</div>)}
-                        {requestData.request_stats?.length > 0 && (
+                        {(requestData.request_stats?.length ?? 0) > 0 && (
                             <>
                                 <h3>گزارش وضعیت بیمه نامه </h3>
 
@@ -431,7 +431,7 @@ export default function RequestDetail() {
 
                 {activeTab === "address" && (
                     <div>
-                        {!requestData?.request_address?.length == 0 && (
+                        {requestData?.request_address?.length == 0 && (
                             <div className="mb-2 leading-normal text-gray-400 dark:text-gray-200">آدرس موجود
                                 نیست.</div>)}
 
