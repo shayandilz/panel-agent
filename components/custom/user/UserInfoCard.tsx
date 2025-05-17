@@ -12,6 +12,13 @@ import services from "@/core/service"
 import {InfoIcon, LockIcon} from "@/icons";
 import Badge from "@/components/ui/badge/Badge";
 import Avatar from "@/components/custom/user/Avatar";
+import dynamic from "next/dynamic";
+
+const AgentLocationMap = dynamic(() => import('./AgentLocationMap'), {
+    ssr: false,
+});
+import 'leaflet/dist/leaflet.css';
+
 
 interface AgentData {
     agent_id: string | null;
@@ -44,14 +51,24 @@ interface AgentData {
     agent_deactive: string | null;
 }
 
-
-
 export default function UserInfoCard() {
     const {isOpen, openModal, closeModal} = useModal();
+    const [isConfirmOpen, setIsConfirmOpen] = useState(false);
     const {agentData, fetchAgentData, agentStatus} = useAuth();
     const [newAgentData, setNewAgentData] = useState<AgentData | {}>({});
     const [error, setError] = useState(null);
     const [showLoader, setShowLoader] = useState(false)
+    const [markerPosition, setMarkerPosition] = useState({
+        lat: Number(agentData?.agent_lat) || 35.6892,
+        lng: Number(agentData?.agent_long) || 51.3890,
+    });
+
+    useEffect(() => {
+        setMarkerPosition({
+            lat: Number(agentData?.agent_lat) || 35.6892,
+            lng: Number(agentData?.agent_long) || 51.3890,
+        });
+    }, [isOpen, agentData]);
 
     useEffect(() => {
         setNewAgentData(agentData || {});
@@ -70,9 +87,14 @@ export default function UserInfoCard() {
         setNewAgentData(agentData);
         closeModal();
     };
+    const refreshData = async () => {
+        await fetchAgentData()
+        setNewAgentData(agentData);
+        setShowLoader(false)
+    };
 
     const calculateTimestamp = (timestamp: string | null): string => {
-        return (timestamp ? new Date(Number(timestamp) * 1000).toLocaleDateString('fa-IR') : 'نا مشخص').toString()
+        return (timestamp ? new Date(Number(timestamp)).toLocaleDateString('fa-IR') : 'نا مشخص').toString()
     }
 
     const handleSave = async () => {
@@ -86,9 +108,10 @@ export default function UserInfoCard() {
                 return;
             }
 
-            setTimeout(() => window.location.reload(), 2000)
+            // setTimeout(() => window.location.reload(), 2000)
             toast.success(data.desc || 'با موفقیت انجام شد.');
             closeModal();
+            await refreshData()
 
         } catch (err) {
             toast.error('مشکلی پیش آمد. دوباره تلاش کنید.');
@@ -110,12 +133,14 @@ export default function UserInfoCard() {
             }
 
             toast.success(data.desc || 'با موفقیت انجام شد.');
-            setTimeout(() => window.location.reload(), 2000)
+            // setTimeout(() => window.location.reload(), 2000)
+            await refreshData()
         } catch (err) {
             toast.error('مشکلی پیش آمد. دوباره تلاش کنید.');
         }
 
     };
+    // @ts-ignore
     return (
         <>
             <div className="p-5 border border-gray-200 rounded-2xl dark:border-gray-800 lg:p-6">
@@ -168,8 +193,12 @@ export default function UserInfoCard() {
                         <LockIcon/>
                         تغییر رمز عبور
                     </Button>
-                    <Button disabled={showLoader} className="text-nowrap" variant="outline" size={"sm"}
-                            onClick={changeAgentStatus}
+                    <Button
+                        disabled={showLoader}
+                        className="text-nowrap"
+                        variant="outline"
+                        size={"sm"}
+                        onClick={() => setIsConfirmOpen(true)}
                     >
                         <InfoIcon/>
                         تغییر وضعیت
@@ -271,11 +300,21 @@ export default function UserInfoCard() {
 
                     <div>
                         <p className="mb-2 leading-normal text-gray-500 dark:text-gray-400">تاریخ ثبت نام</p>
-                        <p className="font-medium text-gray-800 dark:text-white/90">{calculateTimestamp(agentData?.agent_register_date)}</p>
+                        <p className="font-medium text-gray-800 dark:text-white/90">{calculateTimestamp(agentData?.agent_register_date || null)}</p>
                     </div>
+                    {/*<div className={'col-span-3'}>*/}
+                    {/*    <p className="mb-2 leading-normal text-gray-500 dark:text-gray-400">موقعیت روی نقشه</p>*/}
+                    {/*    <p className="font-medium text-gray-800 dark:text-white/90">{agentData?.agent_lat} - {agentData?.agent_long}</p>*/}
+                    {/*</div>*/}
+
                     <div className={'col-span-3'}>
                         <p className="mb-2 leading-normal text-gray-500 dark:text-gray-400">موقعیت روی نقشه</p>
-                        <p className="font-medium text-gray-800 dark:text-white/90">{agentData?.agent_lat} - {agentData?.agent_long}</p>
+                        <AgentLocationMap
+                            position={{
+                                lat: Number(agentData?.agent_lat) || 35.6892, // مقدار پیش‌فرض تهران
+                                lng: Number(agentData?.agent_long) || 51.3890,
+                            }}
+                            editable={false} onChange={undefined}                        />
                     </div>
 
                     {/*<div>*/}
@@ -341,6 +380,24 @@ export default function UserInfoCard() {
                                                        agent_address: e.target.value
                                                    })}/>
                                         </div>
+                                        <div className="col-span-2 lg:col-span-2">
+                                            {/*<Label>آدرس</Label>*/}
+                                            <AgentLocationMap
+                                                position={markerPosition}
+                                                editable={true}
+                                                // @ts-ignore
+                                                onChange={({ lat, lng }) => {
+                                                    setMarkerPosition({ lat, lng });
+                                                    setNewAgentData({
+                                                        ...newAgentData,
+                                                        agent_lat: lat,
+                                                        agent_long: lng,
+                                                    });
+                                                }}
+                                            />
+                                        </div>
+
+
                                     </div>
                                 </div>
                             </div>
@@ -354,6 +411,37 @@ export default function UserInfoCard() {
                                 </Button>
                             </div>
                         </form>
+                    </div>
+                </Modal>
+
+                <Modal isOpen={isConfirmOpen} onClose={() => setIsConfirmOpen(false)} className="max-w-[400px] m-4">
+                    <div className="p-6 text-center">
+                        <InfoIcon className="mx-auto mb-4 text-yellow-500" width={40} height={40} />
+                        <h4 className="mb-2 text-xl font-semibold text-gray-800 dark:text-white/90">
+                            تغییر وضعیت کاربر
+                        </h4>
+                        <p className="mb-6 text-gray-500 dark:text-gray-400">
+                            آیا از تغییر وضعیت کاربر اطمینان دارید؟
+                        </p>
+                        <div className="flex justify-center gap-4">
+                            <Button
+                                variant="primary"
+                                onClick={async () => {
+                                    setIsConfirmOpen(false);
+                                    await changeAgentStatus();
+                                }}
+                                disabled={showLoader}
+                            >
+                                تایید
+                            </Button>
+                            <Button
+                                variant="outline"
+                                onClick={() => setIsConfirmOpen(false)}
+                                disabled={showLoader}
+                            >
+                                انصراف
+                            </Button>
+                        </div>
                     </div>
                 </Modal>
             </div>
