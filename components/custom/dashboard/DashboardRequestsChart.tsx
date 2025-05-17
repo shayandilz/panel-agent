@@ -9,8 +9,8 @@ import {useModal} from "@/hooks/useModal";
 import {Modal} from "@/components/ui/modal";
 import ComponentCard from "@/components/common/ComponentCard";
 import Button from "@/components/ui/button/Button";
-import Label from "@/components/form/Label";
-import Input from "@/components/form/input/InputField";
+// import Label from "@/components/form/Label";
+// import Input from "@/components/form/input/InputField";
 
 interface DashboardRequestsChart {
     request_id: string | null;
@@ -108,10 +108,7 @@ export default function DashboardRequestsChart({title, mode, showAllLink}: Props
                                           key={request?.request_id}>
                                     <TableCell>{request?.request_id}</TableCell>
                                     <TableCell className="py-3 text-gray-500 dark:text-gray-400">
-                                        <div onClick={() => {
-                                            setSelectedRequest(request)
-                                            openModal()
-                                        }} className="w-full h-full overflow-hidden rounded-md">
+                                        <div className="w-full h-full overflow-hidden rounded-md">
                                             <Image
                                                 className="mx-auto"
                                                 width={40}
@@ -129,9 +126,14 @@ export default function DashboardRequestsChart({title, mode, showAllLink}: Props
                                     {/*<TableCell>{request?.user_pey_amount}</TableCell>*/}
                                     <TableCell>{request?.request_ready[0]?.requst_ready_start_date}</TableCell>
                                     <TableCell>
-                                        <Button variant="outline" onClick={() => {
-                                            window.location.href = '/requests/' + request.request_id
+                                        <Button className={'me-3'} variant="outline" onClick={() => {
+                                            setSelectedRequest(request)
+                                            openModal()
                                         }}>جزئیات</Button>
+                                        <Button variant="primary" onClick={() => {
+                                            setIsLoading(true)
+                                            window.location.href = '/requests/' + request.request_id
+                                        }}>ملیات</Button>
                                     </TableCell>
                                 </TableRow>
                             ))}
@@ -149,7 +151,6 @@ export default function DashboardRequestsChart({title, mode, showAllLink}: Props
                     </Table>
                 )}
             </ComponentCard>
-
             <Modal isOpen={isOpen} onClose={closeModal} className="max-w-[700px] m-4">
                 <div
                     className="no-scrollbar relative w-full max-w-[700px] overflow-y-auto rounded-3xl bg-white p-4 dark:bg-gray-900 lg:p-8">
@@ -256,7 +257,7 @@ export default function DashboardRequestsChart({title, mode, showAllLink}: Props
                         <div className="flex items-center gap-3 px-2 mt-6 lg:justify-between">
                             <Button className="px-8" size="sm" onClick={() => {
                                 window.location.href = '/requests/' + selectedRequest?.request_id
-                            }}>جزئیات</Button>
+                            }}>ملیات</Button>
                             <Button className="px-8" size="sm" variant="outline" onClick={closeModal}>
                                 بستن
                             </Button>
@@ -264,6 +265,7 @@ export default function DashboardRequestsChart({title, mode, showAllLink}: Props
                     </form>
                 </div>
             </Modal>
+
         </>
     );
 }

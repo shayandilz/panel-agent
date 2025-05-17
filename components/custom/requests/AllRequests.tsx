@@ -17,6 +17,8 @@ import {toast} from "react-toastify";
 import FilterComponent from "@/components/custom/filters/FilterComponent";
 import Button from "@/components/ui/button/Button";
 import {router} from "next/client";
+import {useModal} from "@/hooks/useModal";
+import {Modal} from "@/components/ui/modal";
 
 interface RequestData {
     request_id: string | null;
@@ -31,16 +33,27 @@ interface RequestData {
     request_last_state_id: string | null;
     request_last_state_name: string | null;
     request_organ: string | null;
-    user_pey_amount: number | null;
-    user_pey_cash: number | null;
-    user_pey_instalment: number | null;
-    staterequest_last_timestamp: string;
+    user_pey_amount: string | null;
+    user_pey_cash: string | null;
+    user_pey_instalment: string | null;
+    staterequest_last_timestamp: string | null;
+    request_ready: RequestReady[] | [];
+}
+
+interface RequestReady {
+    requst_ready_start_date: string;
+    requst_ready_end_date: string;
+    requst_ready_end_price: string;
+    requst_ready_num_ins?: string;
+    requst_suspend_desc?: string;
 }
 
 export default function AllRequests() {
     const [requestData, setRequestData] = useState<RequestData[]>([]);
+    const [selectedRequest, setSelectedRequest] = useState<RequestData>(null);
     const [filteredData, setFilteredData] = useState<RequestData[]>(requestData);
-    const [error, setError] = useState<string | null>(null);
+    // const [error, setError] = useState<string | null>(null);
+    const {isOpen, openModal, closeModal} = useModal();
     const [isLoading, setIsLoading] = useState(true);
     const [filters, setFilters] = useState({});
 
@@ -205,10 +218,14 @@ export default function AllRequests() {
 
                                                 {/* Request Detail */}
                                                 <TableCell>
-                                                    <Button variant="outline" onClick={() => {
+                                                    <Button className={'me-3'} variant="outline" onClick={() => {
+                                                        setSelectedRequest(request)
+                                                        openModal()
+                                                    }}>جزئیات</Button>
+                                                    <Button variant="primary" onClick={() => {
                                                         setIsLoading(true)
                                                         window.location.href = '/requests/' + request.request_id
-                                                    }}>جزئیات</Button>
+                                                    }}>ملیات</Button>
                                                 </TableCell>
                                             </TableRow>
                                         ))) : (
@@ -228,6 +245,122 @@ export default function AllRequests() {
                     </div>
                 </div>
             </div>
+
+            <Modal isOpen={isOpen} onClose={closeModal} className="max-w-[700px] m-4">
+
+                <div
+                    className="no-scrollbar relative w-full max-w-[700px] overflow-y-auto rounded-3xl bg-white p-4 dark:bg-gray-900 lg:p-8">
+                    <div className="mb-12">
+                        <h4 className="mb-2 text-xl font-semibold text-gray-800 dark:text-white/90">
+                            جزئیات درخواست - شماره
+                            {selectedRequest?.request_id}
+                        </h4>
+                    </div>
+                    <form>
+                        {/*<div>*/}
+
+                        <div className="flex items-center w-full gap-6 xl:flex-row mb-12">
+                            {selectedRequest?.fieldinsurance_logo_url && (
+                                <div className="overflow-hidden rounded-md">
+                                    <Image
+                                        className="mx-auto"
+                                        width={60}
+                                        height={60}
+                                        src={selectedRequest?.fieldinsurance_logo_url}
+                                        alt={''}
+                                    />
+                                </div>
+                            )}
+                            <div className="order-3 xl:order-2">
+                                <h4 className="mb-2 text-lg font-semibold text-center text-gray-800 dark:text-white/90 xl:text-start">
+                                    <span className="me-3">{selectedRequest?.request_fieldinsurance_fa}</span>
+                                </h4>
+                                <div
+                                    className="flex items-center gap-1 text-center xl:flex-row xl:gap-3 xl:text-start">
+                                    <p className=" text-gray-500 dark:text-gray-400">
+                                        {selectedRequest?.request_last_state_name}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        <div className="grid grid-cols-2 gap-4 lg:gap-8">
+                            <div>
+                                <p className="mb-2  leading-normal text-gray-500 dark:text-gray-400">
+                                    مشخصات کاربر
+                                </p>
+                                <p className=" font-medium text-gray-800 dark:text-white/90">
+                                    {(selectedRequest?.user_name + ' ' + selectedRequest?.user_family) || '-'}
+                                </p>
+                            </div>
+                            <div>
+                                <p className="mb-2  leading-normal text-gray-500 dark:text-gray-400">
+                                    شماره همراه
+                                </p>
+                                <p className=" font-medium text-gray-800 dark:text-white/90">
+                                    {selectedRequest?.user_mobile || '-'}
+                                </p>
+                            </div>
+                            <div>
+                                <p className="mb-2  leading-normal text-gray-500 dark:text-gray-400">
+                                    ارگان
+                                </p>
+                                <p className=" font-medium text-gray-800 dark:text-white/90">
+                                    {selectedRequest?.request_organ || '-'}
+                                </p>
+                            </div>
+                            <div>
+                                <p className="mb-2  leading-normal text-gray-500 dark:text-gray-400">
+                                    مبلغ نقدی پرداخت شده
+                                </p>
+                                <p className=" font-medium text-gray-800 dark:text-white/90">
+                                    {selectedRequest?.user_pey_cash?.toLocaleString() || '0'}ریال
+                                </p>
+                            </div>
+                            <div>
+                                <p className="mb-2  leading-normal text-gray-500 dark:text-gray-400">
+                                    مبلغ بیمه
+                                </p>
+                                <p className=" font-medium text-gray-800 dark:text-white/90">
+                                    {selectedRequest?.user_pey_amount?.toLocaleString() || '0'}ریال
+                                </p>
+                            </div>
+                            <div>
+                                <p className="mb-2  leading-normal text-gray-500 dark:text-gray-400">
+                                    قیمت اعلام شده نماینده
+                                </p>
+                                <p className=" font-medium text-gray-800 dark:text-white/90">
+                                    {selectedRequest?.request_ready[0]?.requst_ready_end_price?.toLocaleString() || '0'}ریال
+                                </p>
+                            </div>
+                            <div>
+                                <p className="mb-2  leading-normal text-gray-500 dark:text-gray-400">
+                                    تاریخ آخرین وضعیت
+                                </p>
+                                <p className=" font-medium text-gray-800 dark:text-white/90">
+                                    {selectedRequest?.staterequest_last_timestamp || '-'}
+                                </p>
+                            </div>
+                            <div>
+                                <p className="mb-2  leading-normal text-gray-500 dark:text-gray-400">
+                                    جزئیات درخواست
+                                </p>
+                                <p className=" font-medium text-gray-800 dark:text-white/90">
+                                    {selectedRequest?.request_description || '-'}
+                                </p>
+                            </div>
+                        </div>
+                        {/*</div>*/}
+                        <div className="flex items-center gap-3 px-2 mt-6 lg:justify-between">
+                            <Button className="px-8" size="sm" onClick={() => {
+                                window.location.href = '/requests/' + selectedRequest?.request_id
+                            }}>ملیات</Button>
+                            <Button className="px-8" size="sm" variant="outline" onClick={closeModal}>
+                                بستن
+                            </Button>
+                        </div>
+                    </form>
+                </div>
+            </Modal>
         </>
 
     );

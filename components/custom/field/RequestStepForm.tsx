@@ -25,11 +25,12 @@ interface Field {
 type FormState = { [key: string]: any };
 
 interface RequestStepFormProps {
+    disabled: boolean;
     stepFields: Field[];
     onSubmit: (formData: FormState) => void;
 }
 
-export default function RequestStepForm({ stepFields, onSubmit }: RequestStepFormProps) {
+export default function RequestStepForm({ stepFields, onSubmit, disabled }: RequestStepFormProps) {
     const [form, setForm] = useState<FormState>({});
     const [images, setImages] = useState<ImageListType>([]);
     const [optionsList, setOptionsList] = useState<{ [key: string]: Array<{ value: any, label: string }> }>({});
@@ -242,7 +243,7 @@ export default function RequestStepForm({ stepFields, onSubmit }: RequestStepFor
 
             <Button
                 loading={isSubmitting}
-                disabled={isSubmitting}
+                disabled={isSubmitting || disabled}
                 className="w-full justify-center"
             >
                 ثبت

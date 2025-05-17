@@ -13,8 +13,6 @@ import Select from "@/components/form/Select";
 import Label from "@/components/form/Label";
 import {calculateTimestamp} from "@/core/utils";
 
-// import FilterComponent from "@/components/custom/filters/FilterComponent";
-
 interface RequestAddress {
     user_address_city: string | null;
     user_address_city_id: string | null;
@@ -55,7 +53,8 @@ interface RequestStat {
 }
 
 interface RequestData {
-    request_id: string;
+    request_id: string | null,
+    request_description: string | null,
     request_fieldinsurance_fa: string | null;
     request_last_state_name: string | null;
     staterequest_last_timestamp: string | null;
@@ -67,19 +66,55 @@ interface RequestData {
     request_financial_approval: Array<any>;
     request_address: RequestAddress[];
     request_image: RequestImage[];
-    request_description?: string | null;
     request_ready?: RequestReady[];
     user_pey_detail?: RequestPayDetail[];
     request_stats?: RequestStat[];
 }
 
-interface Filters {
-    startDate?: string | null;
-    endDate?: string | null;
-    fieldInsurance?: string | null;
-    userMobile?: string | null;
-    orderNumber?: string | null;
+interface RequestDetail {
+    request_detail_id: string | null,
+    request_detail_request_id: string | null,
+    // json
+    request_detail_json: string | null,
+    request_detail_time: string | null,
+    request_id: string | null
+    request_user_id: string | null
+    request_company_id: string | null
+    request_agent_id: string | null
+    request_fieldinsurance: string | null
+    request_description: string | null,
+    request_price_app: string | null,
+    request_price_agent: string | null,
+    request_last_state_id: string | null,
+    request_adderss_id: string | null,
+    request_addressofinsured_id: string | null,
+    request_reagent_mobile: string | null,
+    request_jsonpricing_id: string | null,
+    request_organ: string | null,
+    request_leader_mobile: string | null,
+    request_reagent_mobile_refralcode: string | null,
+    request_packageinsurance_id: string | null,
+    request_partner: string | null,
+    request_fieldinsurance_id: string | null,
+    jsonpricing_id: string | null,
+    // json
+    jsonpricing_text:string | null,
+    jsonpricing_date: string | null,
+    jsonpricing_ip: string | null,
+    jsonpricing_fieldinsurance: string | null,
+    jsonpricing_request_id: string | null,
+    jsonpricing_employee_id: string | null,
+    // json
+    jsonpricing_request_detail:string | null
 }
+
+// interface Filters {
+//     startDate?: string | null;
+//     endDate?: string | null;
+//     fieldInsurance?: string | null;
+//     userMobile?: string | null;
+//     orderNumber?: string | null;
+// }
 
 interface StateOption {
     value: string;
@@ -93,12 +128,13 @@ export default function RequestDetail() {
     const [isLoading, setIsLoading] = useState(true);
     const [activeTab, setActiveTab] = useState("issuance");
     const [requestData, setRequestData] = useState<RequestData | null>(null);
+    const [requestDetails, setRequestDetails] = useState<RequestDetail[] | null>(null);
     const [allRequestStates, setAllRequestStates] = useState<StateOption[]>([]);
     const [availableStates, setAvailableStates] = useState<StateOption[]>([]);
     const [selectedStatus, setSelectedStatus] = useState<any | number>(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [stepFields, setStepFields] = useState<any>(null);
-    const [formData, setFormData] = useState<any>({});
+    const [formData, setFormData] = useState<object | null>(null);
     const [error, setError] = useState<string | null>(null);
     const [showLoader, setShowLoader] = useState(false);
 
@@ -126,7 +162,8 @@ export default function RequestDetail() {
 
             if (response.data.result === "ok") {
                 toast.success("وضعیت با موفقیت به روز شد");
-                setTimeout(() => window.location.reload(), 2000)
+                // setTimeout(() => window.location.reload(), 2000)
+                await fetchRequestData()
             } else {
                 throw new Error(response.data.desc);
             }
@@ -141,20 +178,41 @@ export default function RequestDetail() {
         if (!id) return;
 
         try {
+            const response = await services.Requests.getRequestDetail(id);
+            if (response?.data?.result === "ok") {
+                let requestDetails = response?.data?.data;
+                setRequestDetails(requestDetails as RequestDetail[]);
+            } else {
+                setRequestDetails(null);
+                throw new Error(response?.data?.desc || "مشکلی پیش آمد.");
+            }
+        } catch (err: any) {
+            setRequestDetails(null);
+            toast.error(err.message || "مشکلی پیش آمد. دوباره تلاش کنید.");
+            setError(err.message || "مشکلی پیش آمد. لطفا مجددا تلاش کنید.");
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    const fetchRequestData = async () => {
+        if (!id) return;
+
+        try {
             setIsLoading(true);
-            const response = await services.Requests.getReport('?command=getagent_request');
+            const response = await services.Requests.getReport('?command=getdata&request_id=' + id);
             if (response?.data?.result === "ok") {
                 let requests = response?.data?.data;
-                let reqIndex = requests.findIndex((req: { request_id: string | string[]; }) => req.request_id == id);
-                setRequestData(requests[reqIndex] as RequestData);
-                fetchRequestStates(requests[reqIndex]?.request_last_state_id);
+                setRequestData(requests[0] as RequestData);
+                await fetchRequestStates(requests[0]?.request_last_state_id);
+                await fetchRequestDetail()
             } else {
                 throw new Error(response?.data?.desc || "مشکلی پیش آمد.");
+                setIsLoading(false);
             }
         } catch (err: any) {
             toast.error(err.message || "مشکلی پیش آمد. دوباره تلاش کنید.");
             setError(err.message || "مشکلی پیش آمد. لطفا مجددا تلاش کنید.");
-        } finally {
             setIsLoading(false);
         }
     };
@@ -192,7 +250,7 @@ export default function RequestDetail() {
     };
 
     useEffect(() => {
-        fetchRequestDetail();
+        fetchRequestData();
     }, [id]);
 
     useEffect(() => {
@@ -485,6 +543,7 @@ export default function RequestDetail() {
                         <h3>{stepFields['title']}</h3>
                         <div className="mt-4">
                             <RequestStepForm
+                                disabled={!requestStepData[selectedStatus]?.command}
                                 stepFields={stepFields['fields']}
                                 onSubmit={handleFormSubmit}
                             />
