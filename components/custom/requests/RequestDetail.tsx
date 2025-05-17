@@ -264,6 +264,7 @@ export default function RequestDetail() {
 
     if (!requestData) return <div className="text-center">اطلاعاتی یافت نشد.</div>;
 
+    // @ts-ignore
     return (
         <>
             <div className="mb-6">
@@ -543,6 +544,7 @@ export default function RequestDetail() {
                         <h3>{stepFields['title']}</h3>
                         <div className="mt-4">
                             <RequestStepForm
+                                // @ts-ignore
                                 disabled={!requestStepData[selectedStatus]?.command}
                                 stepFields={stepFields['fields']}
                                 onSubmit={handleFormSubmit}
