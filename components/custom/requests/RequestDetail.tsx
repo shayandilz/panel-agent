@@ -424,7 +424,7 @@ export default function RequestDetail() {
                             <div className="mb-2 leading-normal text-gray-400 dark:text-gray-200">اطلاعاتی موجود
                                 نیست.</div>)}
 
-                        {requestData?.request_delivered?.length > 0 && <>
+                        {(requestData?.request_delivered?.length ?? 0) > 0 && <>
                             {/*<h3 className="mb-2 leading-normal text-gray-400 dark:text-gray-200">اطلاعات صدور </h3>*/}
                             <Table className="w-full">
                                 <TableHeader>
@@ -454,7 +454,7 @@ export default function RequestDetail() {
                                                         width={60}
                                                         height={60}
                                                         src={detail?.user_pey_image_turl}
-                                                        alt={detail?.request_delivered_dsc}
+                                                        alt={detail?.request_delivered_dsc || ''}
                                                     />
                                                 </div>
                                             )}</TableCell>
@@ -472,7 +472,7 @@ export default function RequestDetail() {
                             <div className="mb-2 leading-normal text-gray-400 dark:text-gray-200">اطلاعاتی موجود
                                 نیست.</div>)}
 
-                        {requestData?.request_ready?.length > 0 && <>
+                        {(requestData?.request_ready?.length ?? 0 > 0) && <>
                             {/*<h3 className="mb-2 leading-normal text-gray-400 dark:text-gray-200">اطلاعات سفارش </h3>*/}
                             <Table className="w-full">
                                 <TableHeader>
@@ -539,7 +539,7 @@ export default function RequestDetail() {
                                                         width={60}
                                                         height={60}
                                                         src={image?.image_tumb_url}
-                                                        alt={image?.image_name}
+                                                        alt={image?.image_name || ''}
                                                     />
                                                 </div>
                                             )}</TableCell>
@@ -557,7 +557,7 @@ export default function RequestDetail() {
                         {requestData.request_stats?.length == 0 && (
                             <div className="mb-2 leading-normal text-gray-400 dark:text-gray-200">رکوردی موجود
                                 نیست.</div>)}
-                        {requestData.request_stats?.length > 0 && (
+                        {(requestData.request_stats?.length ?? 0) > 0 && (
                             <>
                                 {/*<h3 className="mb-2 leading-normal text-gray-400 dark:text-gray-200">گزارش وضعیت بیمه*/}
                                 {/*    نامه </h3>*/}
@@ -600,7 +600,7 @@ export default function RequestDetail() {
                             </div>
                         </div>
 
-                        {requestData?.user_pey_detail?.length > 0 && <>
+                        {(requestData?.user_pey_detail?.length ?? 0) > 0 && <>
                             <hr/>
                             <Table className="w-full">
                                 <TableHeader>
@@ -670,7 +670,7 @@ export default function RequestDetail() {
                             <div className="mb-2 leading-normal text-gray-400 dark:text-gray-200">اطلاعاتی موجود
                                 نیست.</div>)}
 
-                        {councilDetails?.length > 0 && <>
+                        {(councilDetails?.length ?? 0) > 0 && <>
                             {/*<h3 className="mb-2 leading-normal text-gray-400 dark:text-gray-200">شورا </h3>*/}
                             <Table className="w-full">
                                 <TableHeader>
@@ -700,7 +700,7 @@ export default function RequestDetail() {
                                                         width={60}
                                                         height={60}
                                                         src={council?.requestcouncil_image}
-                                                        alt={council?.requestcouncil_desc}
+                                                        alt={council?.requestcouncil_desc || ''}
                                                     />
                                                 </div>
                                             )}</TableCell>
