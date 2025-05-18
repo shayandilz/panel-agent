@@ -2,6 +2,7 @@
 
 import React, {useState, useEffect} from "react";
 import {FileIcon, TaskIcon, DollarLineIcon, PieChartIcon, InfoIcon, PlusIcon} from "@/icons";
+import Cookies from "js-cookie";
 import {toast} from "react-toastify";
 import services from "@/core/service"
 import {requestStepData} from "@/core/utils"
@@ -16,6 +17,8 @@ import {calculateTimestamp} from "@/core/utils";
 import {Table, TableBody, TableCell, TableHeader, TableRow} from "@/components/custom/tables";
 import {LocateIcon, SendIcon, UsersIcon} from "lucide-react";
 import DetailDefaultFields from "@/components/custom/requests/DetailDefaultFields";
+import CouncilCommentsTable from "@/components/custom/requests/CouncilCommentsTable";
+
 
 interface RequestAddress {
     user_address_city: string | null;
@@ -428,6 +431,13 @@ export default function RequestDetail() {
                     <Tab value="council" icon={<UsersIcon/>}>شورا</Tab>
                 </Tabs>
             </div>
+
+            {activeTab === "council" && (
+                <div>
+                    <CouncilCommentsTable requestId={requestData?.request_id || ""} agentId={Cookies.get("agent_id") || ""}
+                    />
+                </div>
+            )}
 
             {/* Tab Contents */}
             <div className="my-6">
