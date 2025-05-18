@@ -15,6 +15,7 @@ import Label from "@/components/form/Label";
 import {calculateTimestamp} from "@/core/utils";
 import {Table, TableBody, TableCell, TableHeader, TableRow} from "@/components/custom/tables";
 import {LocateIcon, SendIcon, UsersIcon} from "lucide-react";
+import DetailDefaultFields from "@/components/custom/requests/DetailDefaultFields";
 
 interface RequestAddress {
     user_address_city: string | null;
@@ -144,6 +145,15 @@ interface CouncilDetail {
     "requestcouncil_timage": string | null;
 }
 
+export interface InstallmentCondition {
+    instalment_conditions_amount: number;
+    instalment_conditions_id: string;
+    instalment_conditions_percent: string;
+    instalment_conditions_desc: string;
+    instalment_conditions_date: string;
+    instalment_conditions_mode_id: string;
+}
+
 // interface Filters {
 //     startDate?: string | null;
 //     endDate?: string | null;
@@ -174,6 +184,8 @@ export default function RequestDetail() {
     const [formData, setFormData] = useState<object | null>(null);
     const [error, setError] = useState<string | null>(null);
     const [showLoader, setShowLoader] = useState(false);
+    const [test, setTest] = useState<InstallmentCondition[] | null>(null); // State for test array
+
 
     function hasEmptyValue(obj: Record<string, any>): boolean {
         if (Object.values(obj).length == 0) return true
@@ -216,6 +228,7 @@ export default function RequestDetail() {
 
         try {
             const response = await services.Requests.getRequestDetail(id);
+
             if (response?.data?.result === "ok") {
                 let requestDetails = response?.data?.data;
                 setRequestDetails(requestDetails as RequestDetail[]);
@@ -468,45 +481,107 @@ export default function RequestDetail() {
 
                 {activeTab === "details" && (
                     <>
-                        {requestData?.request_ready?.length == 0 && (
+                        {(requestDetails ?? 0) === 0 ?  (
                             <div className="mb-2 leading-normal text-gray-400 dark:text-gray-200">اطلاعاتی موجود
-                                نیست.</div>)}
+                                نیست.</div>) : (
+                                    <div>
+                                        <div className="mt-6 p-4 border border-gray-200 rounded-xl dark:border-gray-800">
+                                            <DetailDefaultFields details={requestDetails?.[0] ?? null} />
+                                        </div>
+                                        {requestDetails && requestDetails.length > 0 && (() => {
+                                            let pricingData = null;
+                                            try {
+                                                pricingData = requestDetails[0].jsonpricing_text ? JSON.parse(requestDetails[0].jsonpricing_text) : null;
+                                            } catch {
+                                                pricingData = null;
+                                            }
 
-                        {(requestData?.request_ready?.length ?? 0 > 0) && <>
-                            {/*<h3 className="mb-2 leading-normal text-gray-400 dark:text-gray-200">اطلاعات سفارش </h3>*/}
-                            <Table className="w-full">
-                                <TableHeader>
-                                    <TableRow>
-                                        <TableCell isHeader>ردیف</TableCell>
-                                        <TableCell isHeader> تاریخ شروع</TableCell>
-                                        <TableCell isHeader> تاریخ پایان</TableCell>
-                                        <TableCell isHeader> قیمت تمام شده</TableCell>
-                                        <TableCell isHeader> شماره بیمه</TableCell>
-                                        <TableCell isHeader> کد یکتا</TableCell>
-                                        <TableCell isHeader> کد رایانه</TableCell>
-                                        <TableCell isHeader> نام بیمه شونده</TableCell>
-                                        <TableCell isHeader> کد بیمه شونده</TableCell>
-                                        <TableCell isHeader> کد پنالتی</TableCell>
-                                    </TableRow>
-                                </TableHeader>
-                                <TableBody>
-                                    {requestData?.request_ready?.map((detail, index) => (
-                                        <TableRow key={index}>
-                                            <TableCell isHeader>{index + 1}</TableCell>
-                                            <TableCell isHeader>{detail?.requst_ready_start_date}</TableCell>
-                                            <TableCell isHeader>{detail?.requst_ready_end_date}</TableCell>
-                                            <TableCell isHeader>{detail?.requst_ready_end_price}</TableCell>
-                                            <TableCell isHeader>{detail?.requst_ready_num_ins}</TableCell>
-                                            <TableCell isHeader>{detail?.requst_ready_code_yekta}</TableCell>
-                                            <TableCell isHeader>{detail?.requst_ready_code_rayane}</TableCell>
-                                            <TableCell isHeader>{detail?.requst_ready_name_insurer}</TableCell>
-                                            <TableCell isHeader>{detail?.requst_ready_code_insurer}</TableCell>
-                                            <TableCell isHeader>{detail?.requst_ready_code_penalty}</TableCell>
-                                        </TableRow>
-                                    ))}
-                                </TableBody>
-                            </Table>
-                        </>}
+                                            if (!pricingData) return null;
+
+                                            return (
+                                                <div className="mt-6 p-4 border border-gray-200 rounded-xl dark:border-gray-800">
+                                                    <div className={'font-bold text-center my-2 border-b border-secondary/10 pb-2'}>
+                                                        جزئیات قیمت بیمه
+                                                    </div>
+                                                    <ul className="list-disc pr-5 text-gray-600 dark:text-gray-300 grid-cols-3 max-lg:grid-cols-2 max-sm:grid-cols-1 grid">
+                                                        <li><strong>نام شرکت بیمه:</strong> {pricingData.company_name || "-"}</li>
+                                                        <li><strong>قیمت بیمه نامه:</strong> {pricingData.price?.toLocaleString()} ریال</li>
+                                                        <li><strong>جریمه دیرکرد:</strong> {pricingData.pricefine?.toLocaleString()} ریال</li>
+                                                        <li><strong>تعداد روزها:</strong> {pricingData.numberOfDays || "-"}</li>
+                                                        <li><strong>تاریخ پایان ثالث:</strong> {pricingData.thirdparty_last_date_end2 || "-"}</li>
+                                                        <li><strong>توضیحات اقساط:</strong> {pricingData.instalment_desc || "-"}</li>
+                                                    </ul>
+
+                                                    {pricingData.instalment_conditions && pricingData.instalment_conditions.length > 0 && (
+                                                        <>
+                                                            <h4 className="mt-4 mb-2 font-semibold text-gray-700 dark:text-gray-300">شرایط اقساط</h4>
+                                                            <table className="w-full text-sm border-collapse border border-gray-300 dark:border-gray-600 rounded-lg">
+                                                                <thead>
+                                                                <tr className="bg-gray-100 dark:bg-gray-700">
+                                                                    <th className="border border-gray-300 dark:border-gray-600 p-2 text-right">شرح</th>
+                                                                    <th className="border border-gray-300 dark:border-gray-600 p-2 text-right">مبلغ (ریال)</th>
+                                                                    <th className="border border-gray-300 dark:border-gray-600 p-2 text-right">درصد (%)</th>
+                                                                    <th className="border border-gray-300 dark:border-gray-600 p-2 text-right">تاریخ قسط</th>
+                                                                </tr>
+                                                                </thead>
+                                                                <tbody>
+                                                                {pricingData.instalment_conditions.toReversed().map((cond: any, idx: number) => (
+                                                                    <tr key={idx} className={idx % 2 === 0 ? "bg-white dark:bg-gray-800" : "bg-gray-50 dark:bg-gray-900"}>
+                                                                        <td className="border border-gray-300 dark:border-gray-600 p-2 text-right">{cond.instalment_conditions_desc}</td>
+                                                                        <td className="border border-gray-300 dark:border-gray-600 p-2 text-right">{cond.instalment_conditions_amount?.toLocaleString() || "-"}</td>
+                                                                        <td className="border border-gray-300 dark:border-gray-600 p-2 text-right">{cond.instalment_conditions_percent || "-"}</td>
+                                                                        <td className="border border-gray-300 dark:border-gray-600 p-2 text-right">{cond.instalment_conditions_date || "-"}</td>
+                                                                    </tr>
+                                                                ))}
+                                                                </tbody>
+                                                            </table>
+                                                        </>
+                                                    )}
+                                                </div>
+                                            );
+                                        })()}
+
+                                    </div>
+                        )}
+
+                        {(requestData?.request_ready?.length ?? 0) > 0 &&
+                            (
+                                <>
+                                    {/*<h3 className="mb-2 leading-normal text-gray-400 dark:text-gray-200">اطلاعات سفارش </h3>*/}
+                                    <Table className="w-full">
+                                        <TableHeader>
+                                            <TableRow>
+                                                <TableCell isHeader>ردیف</TableCell>
+                                                <TableCell isHeader> تاریخ شروع</TableCell>
+                                                <TableCell isHeader> تاریخ پایان</TableCell>
+                                                <TableCell isHeader> قیمت تمام شده</TableCell>
+                                                <TableCell isHeader> شماره بیمه</TableCell>
+                                                <TableCell isHeader> کد یکتا</TableCell>
+                                                <TableCell isHeader> کد رایانه</TableCell>
+                                                <TableCell isHeader> نام بیمه شونده</TableCell>
+                                                <TableCell isHeader> کد بیمه شونده</TableCell>
+                                                <TableCell isHeader> کد پنالتی</TableCell>
+                                            </TableRow>
+                                        </TableHeader>
+                                        <TableBody>
+                                            {requestData?.request_ready?.map((detail, index) => (
+                                                <TableRow key={index}>
+                                                    <TableCell isHeader>{index + 1}</TableCell>
+                                                    <TableCell isHeader>{detail?.requst_ready_start_date}</TableCell>
+                                                    <TableCell isHeader>{detail?.requst_ready_end_date}</TableCell>
+                                                    <TableCell isHeader>{detail?.requst_ready_end_price}</TableCell>
+                                                    <TableCell isHeader>{detail?.requst_ready_num_ins}</TableCell>
+                                                    <TableCell isHeader>{detail?.requst_ready_code_yekta}</TableCell>
+                                                    <TableCell isHeader>{detail?.requst_ready_code_rayane}</TableCell>
+                                                    <TableCell isHeader>{detail?.requst_ready_name_insurer}</TableCell>
+                                                    <TableCell isHeader>{detail?.requst_ready_code_insurer}</TableCell>
+                                                    <TableCell isHeader>{detail?.requst_ready_code_penalty}</TableCell>
+                                                </TableRow>
+                                            ))}
+                                        </TableBody>
+                                    </Table>
+                                </>
+                            )}
                     </>
                 )}
 

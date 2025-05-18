@@ -140,7 +140,6 @@ export default function RequestStepForm({ stepFields, onSubmit, disabled }: Requ
             ...prev,
             [name]: imageList[0] ? imageList[0]?.image_code || null : null
         }));
-        console.log('handleImagesChange', images, form)
     };
 
     const handleSubmit = async (e: React.FormEvent) => {

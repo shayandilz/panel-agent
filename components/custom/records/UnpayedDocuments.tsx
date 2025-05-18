@@ -53,7 +53,6 @@ export default function UnpayedDocuments() {
             const response = await services.Requests.getReport("?command=get_doc&mode=doc_paying");
             if (response) {
                 const data = response.data;
-                console.log('get_doc doc_paying', data)
                 if (data.result != 'ok') {
                     throw new Error(data.desc);
                 }

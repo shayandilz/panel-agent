@@ -10,7 +10,6 @@ export async function POST(request: NextRequest) {
 
     try {
         const url = `https://api.rahnamayefarda.ir/api/agentlogin?command=getagent&agent_id=${agentId}`;
-        console.log(url)
         const res = await fetch(url, {
             method: 'POST',
             redirect: 'follow',
