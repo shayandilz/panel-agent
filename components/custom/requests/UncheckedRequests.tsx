@@ -96,12 +96,12 @@ export default function UncheckedRequests() {
     useEffect(() => {
         const applyFilters = (data: UncheckedRequests[], filters: Filters) => {
             let filtered = data.filter((item) => {
-                if (filters.orderNumber && !item.request_id.toString()?.includes(filters.orderNumber)) return false;
+                if (filters.orderNumber && !item.request_id?.toString()?.includes(filters.orderNumber)) return false;
                 if (filters.userMobile && !item?.user_mobile?.includes(filters.userMobile)) return false;
                 if (filters.fieldInsurance && item.fieldinsurance_id !== filters.fieldInsurance) return false;
-                if (filters.paidAmount && !item.user_pey_cash.toString()?.includes(filters.paidAmount)) return false;
+                if (filters.paidAmount && !item.user_pey_cash?.toString()?.includes(filters.paidAmount)) return false;
                 if (filters.startDate) {
-                    const itemDate = convertToPersian(item?.request_ready[0]?.requst_ready_start_date);
+                    const itemDate = convertToPersian(item?.request_ready[0]?.requst_ready_start_date || '');
                     if (itemDate !== filters.startDate) {
                         return false;
                     } else {
@@ -241,7 +241,7 @@ export default function UncheckedRequests() {
                                                 className="mx-auto"
                                                 width={40}
                                                 height={40}
-                                                src={request.fieldinsurance_logo_url}
+                                                src={request.fieldinsurance_logo_url || ''}
                                                 alt={''}
                                             />
                                         </div>
@@ -252,7 +252,7 @@ export default function UncheckedRequests() {
                                     <TableCell>{request?.user_pey_amount}</TableCell>
                                     <TableCell>{request?.request_ready[0]?.requst_ready_end_price}</TableCell>
                                     <TableCell>{request?.request_last_state_id}</TableCell>
-                                    <TableCell>{convertToPersian(request?.request_ready[0]?.requst_ready_start_date)}</TableCell>
+                                    <TableCell>{convertToPersian(request?.request_ready[0]?.requst_ready_start_date || '')}</TableCell>
                                 </TableRow>
                             ))
                         ) : (

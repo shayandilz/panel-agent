@@ -1,15 +1,16 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
-import { Table, TableBody, TableCell, TableHeader, TableRow } from "@/components/custom/tables";
+import React, {useEffect, useState} from "react";
+import {Table, TableBody, TableCell, TableHeader, TableRow} from "@/components/custom/tables";
 import services from "@/core/service";
-import { toast } from "react-toastify";
+import {toast} from "react-toastify";
 import DatePicker from "react-multi-date-picker";
 import Label from "@/components/form/Label";
 import persian from "react-date-object/calendars/persian";
 import persian_fa from "react-date-object/locales/persian_fa";
-import { convertToPersian } from "@/utils/utils";
+import {convertToPersian} from "@/utils/utils";
 import {Trash} from "lucide-react";
+
 interface PaidRequests {
     request_id: string | null;
     request_fieldinsurance_fa: string | null;
@@ -17,6 +18,7 @@ interface PaidRequests {
     request_ready: RequestReady[] | [];
     fieldinsurance_id: string | null; // Ensure to include fieldinsurance_id
 }
+
 interface RequestReady {
     requst_ready_end_price: number | string;
     requst_ready_start_date: string;
@@ -24,6 +26,7 @@ interface RequestReady {
     requst_ready_num_ins?: string;
     requst_suspend_desc?: string;
 }
+
 export default function PaidRequests() {
     const [paidRequests, setPaidRequests] = useState<PaidRequests[]>([]);
     const [filteredRequests, setFilteredRequests] = useState<PaidRequests[]>([]);
@@ -33,6 +36,7 @@ export default function PaidRequests() {
         orderNumber: "",
         fieldInsurance: "",
         startDate: "",
+        requst_ready_start_date: undefined
     });
 
     // Fetch paid requests
@@ -46,7 +50,7 @@ export default function PaidRequests() {
                 setPaidRequests(data.data || []);
             } else toast.error("مشکلی پیش آمد. دوباره تلاش کنید.");
         } catch (err) {
-            toast.error(err.meessage || "مشکلی پیش آمد. دوباره تلاش کنید.");
+            toast.error("مشکلی پیش آمد. دوباره تلاش کنید.");
         } finally {
             setIsLoading(false);
         }
@@ -73,11 +77,11 @@ export default function PaidRequests() {
         const applyFilters = () => {
             let filtered = paidRequests.filter((item) => {
                 // Filter by order number
-                if (filters.orderNumber && !item.request_id.toString().includes(filters.orderNumber)) return false;
+                if (filters.orderNumber && !item.request_id?.toString().includes(filters.orderNumber)) return false;
                 // Filter by field insurance ID
                 if (filters.fieldInsurance && item.fieldinsurance_id !== filters.fieldInsurance) return false;
 
-               // Date Filtering logic
+                // Date Filtering logic
                 if (filters.requst_ready_start_date && item?.request_ready[0]) {
                     const itemDate = convertToPersian(item?.request_ready[0]?.requst_ready_start_date);
                     if (itemDate !== filters.requst_ready_start_date) {
@@ -96,14 +100,14 @@ export default function PaidRequests() {
 
     // Handle filter changes
     const handleFilterChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-        const { name, value } = e.target;
+        const {name, value} = e.target;
         setFilters((prevFilters) => ({
             ...prevFilters,
             [name]: value,
         }));
     };
 
-    const handleSelectChange = (name,value) => {
+    const handleSelectChange = (name: string, value: string) => {
         setFilters((prevFilters) => ({
             ...prevFilters,
             [name]: value,
@@ -119,7 +123,7 @@ export default function PaidRequests() {
         }));
     };
     const handleClearFilters = () => {
-        setFilters({});
+        setFilters({fieldInsurance: "", orderNumber: "", requst_ready_start_date: undefined, startDate: ""});
     };
     // Fetch data on mount
     useEffect(() => {
@@ -134,7 +138,8 @@ export default function PaidRequests() {
                 <div className="grid grid-cols-4 gap-4">
                     {/* Order Number Filter */}
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">شماره سفارش</label>
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">شماره
+                            سفارش</label>
                         <input
                             type="text"
                             name="orderNumber"
@@ -147,7 +152,8 @@ export default function PaidRequests() {
 
                     {/* Field Insurance Filter */}
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">رشته بیمه</label>
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">رشته
+                            بیمه</label>
                         <select
                             name="fieldInsurance"
                             value={filters.fieldInsurance || ""}
@@ -180,12 +186,13 @@ export default function PaidRequests() {
                         />
                     </div>
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">حذف فیلترها</label>
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">حذف
+                            فیلترها</label>
                         <button
                             onClick={handleClearFilters}
                             className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
                         >
-                            <Trash size={14} />
+                            <Trash size={14}/>
                         </button>
                     </div>
 

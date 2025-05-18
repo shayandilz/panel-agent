@@ -12,7 +12,11 @@ import services from "@/core/service"
 import {InfoIcon, LockIcon} from "@/icons";
 import Badge from "@/components/ui/badge/Badge";
 import Avatar from "@/components/custom/user/Avatar";
-import AgentLocationMap from './AgentLocationMap';
+import dynamic from "next/dynamic";
+
+const AgentLocationMap = dynamic(() => import('./AgentLocationMap'), {
+    ssr: false,
+});
 import 'leaflet/dist/leaflet.css';
 
 
@@ -136,6 +140,7 @@ export default function UserInfoCard() {
         }
 
     };
+    // @ts-ignore
     return (
         <>
             <div className="p-5 border border-gray-200 rounded-2xl dark:border-gray-800 lg:p-6">
@@ -309,8 +314,7 @@ export default function UserInfoCard() {
                                 lat: Number(agentData?.agent_lat) || 35.6892, // مقدار پیش‌فرض تهران
                                 lng: Number(agentData?.agent_long) || 51.3890,
                             }}
-                            editable={false}
-                        />
+                            editable={false} onChange={undefined}                        />
                     </div>
 
                     {/*<div>*/}
@@ -381,6 +385,7 @@ export default function UserInfoCard() {
                                             <AgentLocationMap
                                                 position={markerPosition}
                                                 editable={true}
+                                                // @ts-ignore
                                                 onChange={({ lat, lng }) => {
                                                     setMarkerPosition({ lat, lng });
                                                     setNewAgentData({

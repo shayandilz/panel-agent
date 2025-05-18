@@ -53,6 +53,7 @@ interface Props {
 export default function DashboardRequestsChart({title, mode, showAllLink}: Props) {
     const [dashboardRequests, setDashboardRequests] = useState<DashboardRequestsChart[]>([]);
     const [isLoading, setIsLoading] = useState(true);
+    // @ts-ignore
     const [selectedRequest, setSelectedRequest] = useState<DashboardRequestsChart>(null);
     const {isOpen, openModal, closeModal} = useModal();
     const router = useRouter();
@@ -101,7 +102,7 @@ export default function DashboardRequestsChart({title, mode, showAllLink}: Props
                                 <TableCell isHeader>قیمت اعلام شده نماینده</TableCell>
                                 {/*<TableCell isHeader>اختلاف قیمت</TableCell>*/}
                                 <TableCell isHeader> تاریخ شروع</TableCell>
-                                <TableCell isHeader></TableCell>
+                                <TableCell isHeader children={undefined}></TableCell>
                             </TableRow>
                         </TableHeader>
                         <TableBody>
@@ -115,7 +116,7 @@ export default function DashboardRequestsChart({title, mode, showAllLink}: Props
                                                 className="mx-auto"
                                                 width={40}
                                                 height={40}
-                                                src={request?.fieldinsurance_logo_url}
+                                                src={request?.fieldinsurance_logo_url || ''}
                                                 alt={''}
                                             />
                                         </div>

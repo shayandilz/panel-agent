@@ -80,7 +80,7 @@ export default function ConfirmedRequests() {
                 toast.error("مشکلی پیش آمد. دوباره تلاش کنید.");
             }
         } catch (err) {
-            toast.error(err.meessage || "مشکلی پیش آمد. دوباره تلاش کنید.");
+            toast.error("مشکلی پیش آمد. دوباره تلاش کنید.");
         } finally {
             setIsLoading(false);
         }
@@ -148,7 +148,7 @@ export default function ConfirmedRequests() {
         }));
     };
 
-    const handleSelectChange = (name,value) => {
+    const handleSelectChange = (name: string,value: string) => {
         setFilters((prevFilters) => ({
             ...prevFilters,
             [name]: value,
@@ -200,8 +200,7 @@ export default function ConfirmedRequests() {
                         {/*<label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">رشته بیمه</label>*/}
                         <Select
                             options={fieldInsurances}
-                            name="fieldinsurance_id"
-                            defaultValue={filters?.fieldinsurance_id}
+                            defaultValue={filters?.fieldinsurance_id || ''}
                             onChange={val=>handleSelectChange('fieldinsurance_id', val)}
                             placeholder={'انتخاب رشته بیمه'}
                         >
@@ -253,7 +252,6 @@ export default function ConfirmedRequests() {
                         {/*<label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">حذف فیلترها</label>*/}
                         <Button
                             size={'sm'}
-                            variant='danger'
                             onClick={handleClearFilters}
                         >
                             <Trash size={14} /> حذف فیلترها

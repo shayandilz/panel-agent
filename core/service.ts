@@ -166,7 +166,7 @@ const Requests = {
     getOrgan: (params: string = '') => axiosRequests.post(`${AppConstants.base_url_api}/organ${params}`,{}),
     sendImage: (params: string = '',data: any = {}) => axiosRequests.post(`${AppConstants.base_url_api}/image${params}`,data),
     sendRequest: (params: string = '') => axiosRequests.post(`${AppConstants.base_url_api}/agentrequestreport${params}`,{}),
-    getRequestDetail: (id: string = '') => axiosRequests.post(`${AppConstants.base_url_api}/getrequestagent?command=get_request&request_id=${id}`,{}),
+    getRequestDetail: (id?: string | Array<string>) => axiosRequests.post(`${AppConstants.base_url_api}/getrequestagent?command=get_request&request_id=${id}`,{}),
 }
 
 const Fields = {

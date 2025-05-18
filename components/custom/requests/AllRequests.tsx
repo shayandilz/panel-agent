@@ -50,6 +50,7 @@ interface RequestReady {
 
 export default function AllRequests() {
     const [requestData, setRequestData] = useState<RequestData[]>([]);
+    // @ts-ignore
     const [selectedRequest, setSelectedRequest] = useState<RequestData>(null);
     const [filteredData, setFilteredData] = useState<RequestData[]>(requestData);
     // const [error, setError] = useState<string | null>(null);
@@ -90,7 +91,7 @@ export default function AllRequests() {
         const applyFilters = (data: RequestData[], filters: any) => {
             let filtered = data.filter((item) => {
                 // Corrected the filtering logic
-                if (filters.staterequest_last_timestamp && !item.staterequest_last_timestamp.includes(filters.staterequest_last_timestamp)) return false;
+                if (filters.staterequest_last_timestamp && !item.staterequest_last_timestamp?.includes(filters.staterequest_last_timestamp)) return false;
                 if (filters.request_organ && !item.request_organ?.includes(filters.request_organ)) return false;
                 if (filters.fieldinsurance_id && !item.fieldinsurance_id?.includes(filters.fieldinsurance_id)) return false;
                 if (filters.user_mobile && !item.user_mobile?.includes(filters.user_mobile)) return false;
@@ -204,7 +205,7 @@ export default function AllRequests() {
                                                         <Image
                                                             width={40}
                                                             height={40}
-                                                            src={request.fieldinsurance_logo_url}
+                                                            src={request.fieldinsurance_logo_url || ''}
                                                             alt={''}
 
                                                         />

@@ -264,7 +264,6 @@ export default function RequestDetail() {
                 setRequestData(requests[0] as RequestData);
                 await fetchRequestStates(requests[0]?.request_last_state_id);
                 await fetchRequestDetail()
-                await fetchRequestCouncilDetail()
             } else {
                 throw new Error(response?.data?.desc || "مشکلی پیش آمد.");
                 setIsLoading(false);
@@ -323,6 +322,7 @@ export default function RequestDetail() {
 
     if (!requestData) return <div className="text-center">اطلاعاتی یافت نشد.</div>;
 
+    // @ts-ignore
     return (
         <>
             <div className="mb-6">
@@ -736,6 +736,7 @@ export default function RequestDetail() {
                                 <h3 className="mb-2 leading-normal text-gray-400 dark:text-gray-200">{stepFields['title']}</h3>
                                 <div className="mt-4">
                                     <RequestStepForm
+                                        // @ts-ignore
                                         disabled={!requestStepData[selectedStatus]?.command}
                                         stepFields={stepFields['fields']}
                                         onSubmit={handleFormSubmit}

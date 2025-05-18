@@ -92,8 +92,8 @@ export default function UnconfirmedRequests() {
     useEffect(() => {
         const applyFilters = () => {
             let filtered = unconfirmedRequests.filter((item) => {
-                if (filters.orderNumber && !item.request_id.toString().includes(filters.orderNumber)) return false;
-                if (filters.userMobile && !item.user_mobile.includes(filters.userMobile)) return false;
+                if (filters.orderNumber && !item.request_id?.toString().includes(filters.orderNumber)) return false;
+                if (filters.userMobile && !item.user_mobile?.includes(filters.userMobile)) return false;
                 if (filters.fieldInsurance && item.fieldinsurance_id !== filters.fieldInsurance) return false;
                 if (filters.startDate) {
                     const itemDate = convertToPersian(item.request_ready[0]?.requst_ready_start_date);
@@ -232,7 +232,7 @@ export default function UnconfirmedRequests() {
                                                 className="mx-auto"
                                                 width={40}
                                                 height={40}
-                                                src={request.fieldinsurance_logo_url}
+                                                src={request.fieldinsurance_logo_url || ''}
                                                 alt={''}
                                             />
                                         </div>

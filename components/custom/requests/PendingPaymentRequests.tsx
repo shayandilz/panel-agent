@@ -74,7 +74,7 @@ export default function PendingPaymentRequests() {
         const applyFilters = () => {
             let filtered = pendingPaymentRequests.filter((item) => {
                 // Filter by order number
-                if (filters.orderNumber && !item.request_id.toString().includes(filters.orderNumber)) return false;
+                if (filters.orderNumber && !item.request_id?.toString().includes(filters.orderNumber)) return false;
                 // Filter by field insurance (compare with the fieldinsurance_id)
                 if (filters.fieldInsurance && item.fieldinsurance_id !== filters.fieldInsurance) return false;
                 // Filter by start date
