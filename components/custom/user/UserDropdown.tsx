@@ -16,6 +16,7 @@ import service from "@/core/service";
 import Cookies from "js-cookie";
 import {Modal} from "@/components/ui/modal";
 import Button from "@/components/ui/button/Button";
+import {useRouter} from "next/navigation";
 
 export default function UserDropdown() {
     const [isOpen, setIsOpen] = useState(false);
@@ -23,6 +24,7 @@ export default function UserDropdown() {
     const [confirmModalState, setConfirmModalState] = useState(false);
     const [error, setError] = useState(false);
     const {token, agentData, logout, agentStatus} = useAuth();
+    const router = useRouter();
 
     function toggleDropdown(e: React.MouseEvent<HTMLButtonElement, MouseEvent>) {
         e.stopPropagation();
@@ -54,7 +56,7 @@ export default function UserDropdown() {
                 Cookies.remove('server_agent_token');
                 Cookies.remove('agent_data');
                 Cookies.remove('agent_id');
-                setTimeout(() => window.location.reload(), 2000)
+                setTimeout(() =>  router.push('/signin'), 2000)
             } else {
                 toast.error('مشکلی پیش آمد. دوباره تلاش کنید.');
                 setIsLoading(false)

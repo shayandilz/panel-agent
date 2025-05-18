@@ -6,12 +6,15 @@ import {toast} from "react-toastify";
 import services from "@/core/service"
 import {requestStepData} from "@/core/utils"
 import {useParams} from "next/navigation";
+import Image from "next/image";
 import Badge from "@/components/ui/badge/Badge";
 import RequestStepForm from "@/components/custom/field/RequestStepForm";
 import {Tab, Tabs} from "@/components/ui/tabs/Tabs";
 import Select from "@/components/form/Select";
 import Label from "@/components/form/Label";
 import {calculateTimestamp} from "@/core/utils";
+import {Table, TableBody, TableCell, TableHeader, TableRow} from "@/components/custom/tables";
+import {LocateIcon, SendIcon, UsersIcon} from "lucide-react";
 
 interface RequestAddress {
     user_address_city: string | null;
@@ -41,8 +44,26 @@ interface RequestReady {
     requst_ready_start_date: string | null;
     requst_ready_end_date: string | null;
     requst_ready_end_price: string | null;
-    requst_ready_num_ins?: string | null;
-    requst_suspend_desc?: string | null;
+    requst_ready_num_ins: string | null;
+    requst_ready_code_yekta: string | null;
+    requst_ready_code_rayane: string | null;
+    requst_ready_name_insurer: string | null;
+    requst_ready_code_insurer: string | null;
+    requst_ready_code_penalty: string | null;
+    // request_ready_image_tb?: array | null;
+    // request_ready_file_tb?: array | null;
+}
+
+interface RequestDelivered {
+    request_delivered_timesatmp: string | null;
+    request_delivered_mode: string | null;
+    request_delivered_dsc: string | null;
+    request_delivered_state: string | null;
+    request_delivered_city: string | null;
+    request_delivered_state_id: string | null;
+    request_delivered_city_id: string | null;
+    user_pey_image_turl: string | null;
+    user_pey_image_url: string | null;
 }
 
 interface RequestStat {
@@ -57,6 +78,7 @@ interface RequestData {
     request_description: string | null,
     request_fieldinsurance_fa: string | null;
     request_last_state_name: string | null;
+    request_last_state_id: string | null;
     staterequest_last_timestamp: string | null;
     user_name: string | null;
     user_family: string | null;
@@ -64,9 +86,10 @@ interface RequestData {
     user_pey_amount: number | null;
     user_pey_cash: number | null;
     request_financial_approval: Array<any>;
-    request_address: RequestAddress[];
+    request_adderss: RequestAddress[];
     request_image: RequestImage[];
     request_ready?: RequestReady[];
+    request_delivered?: RequestDelivered[];
     user_pey_detail?: RequestPayDetail[];
     request_stats?: RequestStat[];
 }
@@ -87,7 +110,7 @@ interface RequestDetail {
     request_price_agent: string | null,
     request_last_state_id: string | null,
     request_adderss_id: string | null,
-    request_addressofinsured_id: string | null,
+    request_adderssofinsured_id: string | null,
     request_reagent_mobile: string | null,
     request_jsonpricing_id: string | null,
     request_organ: string | null,
@@ -98,14 +121,27 @@ interface RequestDetail {
     request_fieldinsurance_id: string | null,
     jsonpricing_id: string | null,
     // json
-    jsonpricing_text:string | null,
+    jsonpricing_text: string | null,
     jsonpricing_date: string | null,
     jsonpricing_ip: string | null,
     jsonpricing_fieldinsurance: string | null,
     jsonpricing_request_id: string | null,
     jsonpricing_employee_id: string | null,
     // json
-    jsonpricing_request_detail:string | null
+    jsonpricing_request_detail: string | null
+}
+
+interface CouncilDetail {
+    "requestcouncil_id": string | null;
+    "requestcouncil_timestamp": string | null;
+    "requestcouncil_desc": string | null;
+    "agent_code": string | null;
+    "agent_name": string | null;
+    "agent_family": string | null;
+    "employee_name": string | null;
+    "employee_family": string | null;
+    "requestcouncil_image": string | null;
+    "requestcouncil_timage": string | null;
 }
 
 // interface Filters {
@@ -126,9 +162,10 @@ export default function RequestDetail() {
     const id = params?.id;
 
     const [isLoading, setIsLoading] = useState(true);
-    const [activeTab, setActiveTab] = useState("issuance");
+    const [activeTab, setActiveTab] = useState("details");
     const [requestData, setRequestData] = useState<RequestData | null>(null);
     const [requestDetails, setRequestDetails] = useState<RequestDetail[] | null>(null);
+    const [councilDetails, setRequestCouncilDetails] = useState<CouncilDetail[] | null>(null);
     const [allRequestStates, setAllRequestStates] = useState<StateOption[]>([]);
     const [availableStates, setAvailableStates] = useState<StateOption[]>([]);
     const [selectedStatus, setSelectedStatus] = useState<any | number>(null);
@@ -195,6 +232,27 @@ export default function RequestDetail() {
         }
     };
 
+    const fetchRequestCouncilDetail = async () => {
+        if (!id) return;
+
+        try {
+            const response = await services.Requests.getReport('?command=getcouncilrequest&request_id=' + id);
+            if (response?.data?.result === "ok") {
+                let councilDetails = response?.data?.data;
+                setRequestCouncilDetails(councilDetails as CouncilDetail[]);
+            } else {
+                setRequestCouncilDetails(null);
+                throw new Error(response?.data?.desc || "مشکلی پیش آمد.");
+            }
+        } catch (err: any) {
+            setRequestCouncilDetails(null);
+            // toast.error(err.message || "مشکلی پیش آمد. دوباره تلاش کنید.");
+            console.log(err.message || "مشکلی پیش آمد. لطفا مجددا تلاش کنید.");
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
     const fetchRequestData = async () => {
         if (!id) return;
 
@@ -206,6 +264,7 @@ export default function RequestDetail() {
                 setRequestData(requests[0] as RequestData);
                 await fetchRequestStates(requests[0]?.request_last_state_id);
                 await fetchRequestDetail()
+                await fetchRequestCouncilDetail()
             } else {
                 throw new Error(response?.data?.desc || "مشکلی پیش آمد.");
                 setIsLoading(false);
@@ -347,77 +406,150 @@ export default function RequestDetail() {
 
             <div className="mb-6">
                 <Tabs value={activeTab} onChange={setActiveTab}>
-                    <Tab value="issuance" icon={<FileIcon/>}>جزئیات صدور</Tab>
+                    <Tab value="details" icon={<InfoIcon/>}>جزئیات بیمه</Tab>
+                    <Tab value="delivered" icon={<SendIcon/>}>جزئیات صدور</Tab>
                     <Tab value="records" icon={<PieChartIcon/>}>وضعیت ها</Tab>
                     <Tab value="financial" icon={<DollarLineIcon/>}>مالی</Tab>
                     <Tab value="images" icon={<TaskIcon/>}>عکس ها</Tab>
-                    <Tab value="address" icon={<InfoIcon/>}>آدرس</Tab>
+                    <Tab value="address" icon={<LocateIcon/>}>آدرس</Tab>
+                    <Tab value="council" icon={<UsersIcon/>}>شورا</Tab>
                 </Tabs>
             </div>
 
             {/* Tab Contents */}
             <div className="my-6">
-                {activeTab === "issuance" && (
-                    <div className="grid grid-cols-2 gap-4">
-                        {requestData.request_ready?.map((ready, index) => (
-                            <div key={index}>
-                                <p className="mb-2 leading-normal text-gray-800 dark:text-gray-200"><b className="me-3">تاریخ
-                                    شروع:</b> {calculateTimestamp(ready?.requst_ready_start_date)} </p>
-                                <p className="mb-2 leading-normal text-gray-800 dark:text-gray-200"><b className="me-3">تاریخ
-                                    پایان:</b> {calculateTimestamp(ready?.requst_ready_end_date)} </p>
-                                <p className="mb-2 leading-normal text-gray-800 dark:text-gray-200"><b className="me-3">قیمت
-                                    نهایی:</b> {ready?.requst_ready_end_price} ریال</p>
-                                {/*شماره بیمه نامه*/}
-                                {/*کد یکتا بیمه نامه*/}
-                                {/*کد رایانه بیمه نامه*/}
-                                {/*مبلغی که شامل کارمزد نمیشود*/}
-                                {/*نحوه تسویه*/}
-                                {/*توضیحات صدور*/}
-                            </div>
-                        ))}
-                    </div>
+                {activeTab === "delivered" && (
+                    <>
+                        {requestData?.request_delivered?.length == 0 && (
+                            <div className="mb-2 leading-normal text-gray-400 dark:text-gray-200">اطلاعاتی موجود
+                                نیست.</div>)}
+
+                        {requestData?.request_delivered?.length > 0 && <>
+                            {/*<h3 className="mb-2 leading-normal text-gray-400 dark:text-gray-200">اطلاعات صدور </h3>*/}
+                            <Table className="w-full">
+                                <TableHeader>
+                                    <TableRow>
+                                        <TableCell isHeader>ردیف</TableCell>
+                                        <TableCell isHeader> تاریخ ارسال</TableCell>
+                                        <TableCell isHeader> نوع ارسال</TableCell>
+                                        <TableCell isHeader> توضیحات</TableCell>
+                                        <TableCell isHeader> استان</TableCell>
+                                        <TableCell isHeader>شهر</TableCell>
+                                        <TableCell isHeader> رسید پرداخت</TableCell>
+                                    </TableRow>
+                                </TableHeader>
+                                <TableBody>
+                                    {requestData?.request_delivered?.map((detail, index) => (
+                                        <TableRow key={index}>
+                                            <TableCell isHeader>{index + 1}</TableCell>
+                                            <TableCell isHeader>{detail?.request_delivered_timesatmp}</TableCell>
+                                            <TableCell isHeader>{detail?.request_delivered_mode}</TableCell>
+                                            <TableCell isHeader>{detail?.request_delivered_dsc}</TableCell>
+                                            <TableCell isHeader>{detail?.request_delivered_state}</TableCell>
+                                            <TableCell isHeader>{detail?.request_delivered_city}</TableCell>
+                                            <TableCell isHeader>{detail?.user_pey_image_turl && (
+                                                <div className="overflow-hidden rounded-md">
+                                                    <Image
+                                                        className="mx-auto"
+                                                        width={60}
+                                                        height={60}
+                                                        src={detail?.user_pey_image_turl}
+                                                        alt={detail?.request_delivered_dsc}
+                                                    />
+                                                </div>
+                                            )}</TableCell>
+                                        </TableRow>
+                                    ))}
+                                </TableBody>
+                            </Table>
+                        </>}
+                    </>
+                )}
+
+                {activeTab === "details" && (
+                    <>
+                        {requestData?.request_ready?.length == 0 && (
+                            <div className="mb-2 leading-normal text-gray-400 dark:text-gray-200">اطلاعاتی موجود
+                                نیست.</div>)}
+
+                        {requestData?.request_ready?.length > 0 && <>
+                            {/*<h3 className="mb-2 leading-normal text-gray-400 dark:text-gray-200">اطلاعات سفارش </h3>*/}
+                            <Table className="w-full">
+                                <TableHeader>
+                                    <TableRow>
+                                        <TableCell isHeader>ردیف</TableCell>
+                                        <TableCell isHeader> تاریخ شروع</TableCell>
+                                        <TableCell isHeader> تاریخ پایان</TableCell>
+                                        <TableCell isHeader> قیمت تمام شده</TableCell>
+                                        <TableCell isHeader> شماره بیمه</TableCell>
+                                        <TableCell isHeader> کد یکتا</TableCell>
+                                        <TableCell isHeader> کد رایانه</TableCell>
+                                        <TableCell isHeader> نام بیمه شونده</TableCell>
+                                        <TableCell isHeader> کد بیمه شونده</TableCell>
+                                        <TableCell isHeader> کد پنالتی</TableCell>
+                                    </TableRow>
+                                </TableHeader>
+                                <TableBody>
+                                    {requestData?.request_ready?.map((detail, index) => (
+                                        <TableRow key={index}>
+                                            <TableCell isHeader>{index + 1}</TableCell>
+                                            <TableCell isHeader>{detail?.requst_ready_start_date}</TableCell>
+                                            <TableCell isHeader>{detail?.requst_ready_end_date}</TableCell>
+                                            <TableCell isHeader>{detail?.requst_ready_end_price}</TableCell>
+                                            <TableCell isHeader>{detail?.requst_ready_num_ins}</TableCell>
+                                            <TableCell isHeader>{detail?.requst_ready_code_yekta}</TableCell>
+                                            <TableCell isHeader>{detail?.requst_ready_code_rayane}</TableCell>
+                                            <TableCell isHeader>{detail?.requst_ready_name_insurer}</TableCell>
+                                            <TableCell isHeader>{detail?.requst_ready_code_insurer}</TableCell>
+                                            <TableCell isHeader>{detail?.requst_ready_code_penalty}</TableCell>
+                                        </TableRow>
+                                    ))}
+                                </TableBody>
+                            </Table>
+                        </>}
+                    </>
                 )}
 
                 {activeTab === "images" && (
-                    <div className="grid grid-cols-3 gap-4">
+                    <>
                         {requestData?.request_image?.length == 0 && (
                             <div className="mb-2 leading-normal text-gray-400 dark:text-gray-200">عکس موجود
                                 نیست.</div>)}
 
-                        {requestData?.request_image?.length && <>
-                            <h3>عکس های سفارش </h3>
-                            <table className="w-full">
-                                <thead>
-                                <tr>
-                                    <th>شماره</th>
-                                    <th> نام عکس</th>
-                                    <th> عکس</th>
-                                    <th> توضیحات</th>
-                                </tr>
-                                </thead>
-                                <tbody>
-                                {requestData?.request_image.map((image, index) => (
-                                    <tr key={index}>
-                                        <td>{index + 1}</td>
-                                        <td>{image?.image_name || '-'}</td>
-                                        <td>{image?.image_tumb_url && (
-                                            <div className="overflow-hidden rounded-md">
-                                                <Image
-                                                    className="mx-auto"
-                                                    width={160}
-                                                    height={160}
-                                                    src={image?.image_tumb_url}
-                                                    alt={image?.image_name}
-                                                />
-                                            </div>
-                                        )}</td>
-                                        <td>{image?.image_desc || '-'}</td>
-                                    </tr>
-                                ))}
-                                </tbody>
-                            </table>
+                        {requestData?.request_image?.length > 0 && <>
+                            {/*<h3 className="mb-2 leading-normal text-gray-400 dark:text-gray-200">عکس های سفارش </h3>*/}
+                            <Table className="w-full">
+                                <TableHeader>
+                                    <TableRow>
+                                        <TableCell isHeader>ردیف</TableCell>
+                                        <TableCell isHeader> نام عکس</TableCell>
+                                        <TableCell isHeader> عکس</TableCell>
+                                        <TableCell isHeader> توضیحات</TableCell>
+                                    </TableRow>
+                                </TableHeader>
+                                <TableBody>
+                                    {requestData?.request_image.map((image, index) => (
+                                        <TableRow key={index}>
+                                            <TableCell isHeader>{index + 1}</TableCell>
+                                            <TableCell isHeader>{image?.image_name || '-'}</TableCell>
+                                            <TableCell isHeader>{image?.image_tumb_url && (
+                                                <div className="overflow-hidden rounded-md">
+                                                    <Image
+                                                        className="mx-auto"
+                                                        width={60}
+                                                        height={60}
+                                                        src={image?.image_tumb_url}
+                                                        alt={image?.image_name}
+                                                    />
+                                                </div>
+                                            )}</TableCell>
+                                            <TableCell isHeader>{image?.image_desc || '-'}</TableCell>
+                                        </TableRow>
+                                    ))}
+                                </TableBody>
+                            </Table>
                         </>}
-                    </div>
+                    </>
                 )}
 
                 {activeTab === "records" && (
@@ -427,35 +559,39 @@ export default function RequestDetail() {
                                 نیست.</div>)}
                         {requestData.request_stats?.length > 0 && (
                             <>
-                                <h3>گزارش وضعیت بیمه نامه </h3>
+                                {/*<h3 className="mb-2 leading-normal text-gray-400 dark:text-gray-200">گزارش وضعیت بیمه*/}
+                                {/*    نامه </h3>*/}
 
-                                <table className="w-full">
-                                    <thead>
-                                    <tr>
-                                        <th>شماره</th>
-                                        <th>وضعیت</th>
-                                        <th>تاریخ</th>
-                                        <th>توضیحات</th>
-                                    </tr>
-                                    </thead>
-                                    <tbody>
-                                    {requestData.request_stats?.map((stat, index) => (
-                                        <tr key={index}>
-                                            <td>{index + 1}</td>
-                                            <td>{stat?.request_state_name}</td>
-                                            <td>{stat?.staterequest_timestamp}</td>
-                                            <td>{stat?.staterequest_desc}</td>
-                                        </tr>
-                                    ))}
-                                    </tbody>
-                                </table>
+                                <Table className="w-full text-start">
+
+                                    <TableHeader>
+                                        <TableRow>
+                                            <TableCell isHeader>ردیف</TableCell>
+                                            <TableCell isHeader>وضعیت</TableCell>
+                                            <TableCell isHeader>تاریخ</TableCell>
+                                            <TableCell isHeader>توضیحات</TableCell>
+                                        </TableRow>
+                                    </TableHeader>
+                                    <TableBody>
+                                        {requestData.request_stats?.map((stat, index) => (
+                                            <TableRow key={index}>
+                                                <TableCell isHeader>{index + 1}</TableCell>
+                                                <TableCell isHeader>{stat?.request_state_name}</TableCell>
+                                                <TableCell isHeader>{stat?.staterequest_timestamp}</TableCell>
+                                                <TableCell isHeader>{stat?.staterequest_desc}</TableCell>
+                                            </TableRow>
+                                        ))}
+                                    </TableBody>
+                                </Table>
                             </>)}
                     </>
                 )}
 
                 {activeTab === "financial" && (
                     <>
-                        <div className="grid grid-cols-2 gap-4">
+                        {/*<h3 className="mb-2 leading-normal text-gray-400 dark:text-gray-200">اطلاعات مالی سفارش </h3>*/}
+
+                        <div className="grid grid-cols-2 gap-4 mb-3">
                             <div>
                                 <p className="mb-2 leading-normal text-gray-800 dark:text-gray-200"><b className="me-3">مبلغ
                                     پرداخت شده: </b> {requestData?.user_pey_amount} ریال</p>
@@ -463,25 +599,27 @@ export default function RequestDetail() {
                                     نقدی پرداخت شده: </b> {requestData?.user_pey_cash} ریال</p>
                             </div>
                         </div>
-                        {requestData?.user_pey_detail?.length && <>
-                            <table className="w-full">
-                                <thead>
-                                <tr>
-                                    <th>شماره</th>
-                                    <th>مبلغ پرداخت شده</th>
-                                    <th>مبلغ نقدی پرداخت شده</th>
-                                </tr>
-                                </thead>
-                                <tbody>
-                                {requestData?.user_pey_detail.map((pay, index) => (
-                                    <tr key={index}>
-                                        <td>{index + 1}</td>
-                                        <td>{pay?.user_pey_amount || '-'}</td>
-                                        <td>{pay?.user_pey_cash || '-'}</td>
-                                    </tr>
-                                ))}
-                                </tbody>
-                            </table>
+
+                        {requestData?.user_pey_detail?.length > 0 && <>
+                            <hr/>
+                            <Table className="w-full">
+                                <TableHeader>
+                                    <TableRow>
+                                        <TableCell isHeader>ردیف</TableCell>
+                                        <TableCell isHeader>مبلغ پرداخت شده</TableCell>
+                                        <TableCell isHeader>مبلغ نقدی پرداخت شده</TableCell>
+                                    </TableRow>
+                                </TableHeader>
+                                <TableBody>
+                                    {requestData?.user_pey_detail?.map((pay, index) => (
+                                        <TableRow key={index}>
+                                            <TableCell isHeader>{index + 1}</TableCell>
+                                            <TableCell isHeader>{pay?.user_pey_amount || '-'}</TableCell>
+                                            <TableCell isHeader>{pay?.user_pey_cash || '-'}</TableCell>
+                                        </TableRow>
+                                    ))}
+                                </TableBody>
+                            </Table>
                         </>}
                     </>
 
@@ -489,68 +627,187 @@ export default function RequestDetail() {
 
                 {activeTab === "address" && (
                     <div>
-                        {!requestData?.request_address?.length == 0 && (
+                        {requestData?.request_adderss?.length == 0 && (
                             <div className="mb-2 leading-normal text-gray-400 dark:text-gray-200">آدرس موجود
                                 نیست.</div>)}
 
-                        {requestData?.request_address?.length && <>
-                            <h3>آدرس ارسال بیمه نامه </h3>
-                            <table className="w-full">
-                                <thead>
-                                <tr>
-                                    <th>شماره</th>
-                                    <th> تلفن</th>
-                                    <th> شماره همراه</th>
-                                    <th> استان</th>
-                                    <th> آدرس</th>
-                                    <th> کدپستی</th>
-                                </tr>
-                                </thead>
-                                <tbody>
-                                {requestData?.request_address.map((address, index) => (
-                                    <tr key={index}>
-                                        <td>{index + 1}</td>
-                                        <td>{address?.user_address_tell || '-'}</td>
-                                        <td>{address?.user_address_mobile || '-'}</td>
-                                        <td>{address?.user_address_state || '-'}</td>
-                                        <td>{address?.user_address_str || '-'}</td>
-                                        <td>{address?.user_address_code || '-'}</td>
-                                    </tr>
-                                ))}
-                                </tbody>
-                            </table>
+                        {requestData?.request_adderss?.length > 0 && <>
+                            {/*<h3 className="mb-2 leading-normal text-gray-400 dark:text-gray-200">آدرس ارسال بیمه*/}
+                            {/*    نامه </h3>*/}
+                            <Table className="w-full">
+                                <TableHeader>
+                                    <TableRow>
+                                        <TableCell isHeader>ردیف</TableCell>
+                                        <TableCell isHeader> نام</TableCell>
+                                        <TableCell isHeader> تلفن</TableCell>
+                                        <TableCell isHeader> شماره همراه</TableCell>
+                                        <TableCell isHeader> استان</TableCell>
+                                        <TableCell isHeader> آدرس</TableCell>
+                                        <TableCell isHeader> کدپستی</TableCell>
+                                    </TableRow>
+                                </TableHeader>
+                                <TableBody>
+                                    {requestData?.request_adderss.map((address, index) => (
+                                        <TableRow key={index}>
+                                            <TableCell isHeader>{index + 1}</TableCell>
+                                            <TableCell isHeader>{address?.user_address_name || '-'}</TableCell>
+                                            <TableCell isHeader>{address?.user_address_tell || '-'}</TableCell>
+                                            <TableCell isHeader>{address?.user_address_mobile || '-'}</TableCell>
+                                            <TableCell isHeader>{address?.user_address_state || '-'}</TableCell>
+                                            <TableCell isHeader>{address?.user_address_str || '-'}</TableCell>
+                                            <TableCell isHeader>{address?.user_address_code || '-'}</TableCell>
+                                        </TableRow>
+                                    ))}
+                                </TableBody>
+                            </Table>
+                        </>}
+                    </div>
+                )}
+
+                {activeTab === "council" && (
+                    <div>
+                        {councilDetails?.length == 0 && (
+                            <div className="mb-2 leading-normal text-gray-400 dark:text-gray-200">اطلاعاتی موجود
+                                نیست.</div>)}
+
+                        {councilDetails?.length > 0 && <>
+                            {/*<h3 className="mb-2 leading-normal text-gray-400 dark:text-gray-200">شورا </h3>*/}
+                            <Table className="w-full">
+                                <TableHeader>
+                                    <TableRow>
+                                        <TableCell isHeader>ردیف</TableCell>
+                                        <TableCell isHeader>کاربر</TableCell>
+                                        <TableCell isHeader> نماینده</TableCell>
+                                        <TableCell isHeader> توضیحات</TableCell>
+                                        <TableCell isHeader> عکس</TableCell>
+                                        <TableCell isHeader> تاریخ</TableCell>
+                                    </TableRow>
+                                </TableHeader>
+                                <TableBody>
+                                    {councilDetails?.map((council, index) => (
+                                        <TableRow key={index}>
+                                            <TableCell isHeader>{index + 1}</TableCell>
+                                            {/*<TableCell isHeader>{council?.agent_code || '-'}</TableCell>*/}
+                                            <TableCell
+                                                isHeader>{council?.agent_name && (council?.agent_name + ' ' + council?.agent_family) || '-'}</TableCell>
+                                            <TableCell
+                                                isHeader>{council?.employee_name && (council?.employee_name + ' ' + council?.employee_family) || '-'}</TableCell>
+                                            <TableCell isHeader>{council?.requestcouncil_desc || '-'}</TableCell>
+                                            <TableCell isHeader>{council?.requestcouncil_image && (
+                                                <div className="overflow-hidden rounded-md">
+                                                    <Image
+                                                        className="mx-auto"
+                                                        width={60}
+                                                        height={60}
+                                                        src={council?.requestcouncil_image}
+                                                        alt={council?.requestcouncil_desc}
+                                                    />
+                                                </div>
+                                            )}</TableCell>
+                                            <TableCell isHeader>{council?.requestcouncil_timestamp || '-'}</TableCell>
+                                            {/*<TableCell isHeader>{council?.requestcouncil_timage || '-'}</TableCell>*/}
+                                        </TableRow>
+                                    ))}
+                                </TableBody>
+                            </Table>
                         </>}
                     </div>
                 )}
             </div>
 
 
-            <hr/>
             {/* Status Change Dropdown */}
-            <div className="mb-6">
-                <div className={`w-[350px]`}>
-                    <Label htmlFor="changeState">تغییر وضعیت درخواست</Label>
-                    <Select
-                        options={availableStates}
-                        onChange={(e) => setSelectedStatus(e)}
-                        placeholder="انتخاب کنید"
-                    >
-                    </Select>
-                </div>
-
-                {stepFields && selectedStatus && (
-                    <div className={'mt-6 p-4 w-full border border-gray-200 rounded-xl dark:border-gray-800'}>
-                        <h3>{stepFields['title']}</h3>
-                        <div className="mt-4">
-                            <RequestStepForm
-                                disabled={!requestStepData[selectedStatus]?.command}
-                                stepFields={stepFields['fields']}
-                                onSubmit={handleFormSubmit}
-                            />
+            {requestData && requestData?.request_last_state_id != '11' &&
+                <>
+                    <hr/>
+                    <div className="mb-6">
+                        <div className={`w-[350px]`}>
+                            <Label htmlFor="changeState">تغییر وضعیت درخواست</Label>
+                            <Select
+                                options={availableStates}
+                                onChange={(e) => setSelectedStatus(e)}
+                                placeholder="انتخاب کنید"
+                            >
+                            </Select>
                         </div>
+
+                        {stepFields && selectedStatus && (
+                            <div className={'mt-6 p-4 w-full border border-gray-200 rounded-xl dark:border-gray-800'}>
+                                <h3 className="mb-2 leading-normal text-gray-400 dark:text-gray-200">{stepFields['title']}</h3>
+                                <div className="mt-4">
+                                    <RequestStepForm
+                                        disabled={!requestStepData[selectedStatus]?.command}
+                                        stepFields={stepFields['fields']}
+                                        onSubmit={handleFormSubmit}
+                                    />
+                                </div>
+                            </div>
+                        )}
                     </div>
-                )}
-            </div>
+                </>
+            }
+
+            {/*{requestDetails?.length > 0 && (*/}
+            {/*    <>*/}
+            {/*        {requestDetails?.map((requestDetail, index) => (*/}
+            {/*            <div className="mt-8" key={index}>*/}
+            {/*                <h3 className="font-bold mb-4">اطلاعات تکمیلی بیمه‌نامه</h3>*/}
+            {/*                <div className="grid grid-cols-2 gap-4 lg:grid-cols-3 lg:gap-8 2xl:gap-x-32">*/}
+            {/*                    <div>*/}
+            {/*                        <p className="mb-2 text-gray-500">نوع ساختمان:</p>*/}
+            {/*                        <p className="font-medium">{requestDetail?.firehome_kind_name}</p>*/}
+            {/*                    </div>*/}
+            {/*                    <div>*/}
+            {/*                        <p className="mb-2 text-gray-500">نوع سازه:</p>*/}
+            {/*                        <p className="font-medium">{requestDetail?.firehome_typeofcons_name}</p>*/}
+            {/*                    </div>*/}
+            {/*                    <div>*/}
+            {/*                        <p className="mb-2 text-gray-500">متراژ واحد:</p>*/}
+            {/*                        <p className="font-medium">{requestDetail?.firehome_area}</p>*/}
+            {/*                    </div>*/}
+            {/*                    <div>*/}
+            {/*                        <p className="mb-2 text-gray-500">ارزش لوازم منزل:</p>*/}
+            {/*                        <p className="font-medium">{requestDetail?.firehome_cost_furniture} ریال</p>*/}
+            {/*                    </div>*/}
+            {/*                    <div>*/}
+            {/*                        <p className="mb-2 text-gray-500">عمر بنا:</p>*/}
+            {/*                        <p className="font-medium">{requestDetail?.firehome_buildinglife_name}</p>*/}
+            {/*                    </div>*/}
+            {/*                    <div>*/}
+            {/*                        <p className="mb-2 text-gray-500">فقط اثاثیه:</p>*/}
+            {/*                        <p className="font-medium">{requestDetail?.firehome_only_furniture === "1" ? "بله" : "خیر"}</p>*/}
+            {/*                    </div>*/}
+            {/*                </div>*/}
+            {/*                <hr className="my-4"/>*/}
+            {/*                <h4 className="font-semibold mb-2">پوشش‌های اضافی:</h4>*/}
+            {/*                <ul className="list-disc pl-5">*/}
+            {/*                    {JSON.parse(requestDetail?.request_detail_json)?.body?.firehome_coverage_id?.map((cov) => (*/}
+            {/*                        <li key={cov.id}>{cov.name}</li>*/}
+            {/*                    ))}*/}
+            {/*                </ul>*/}
+            {/*                <hr className="my-4"/>*/}
+            {/*                <h4 className="font-semibold mb-2">مشخصات شرکت بیمه:</h4>*/}
+            {/*                <div className="flex items-center gap-4">*/}
+            {/*                    <img src={companyLogoUrl} alt="لوگو شرکت" width={40}/>*/}
+            {/*                    <div>*/}
+            {/*                        <div>نام شرکت: {companyName}</div>*/}
+            {/*                        <div>سطح توانگری: {companyLevel}</div>*/}
+            {/*                        <div>تعداد شعب خسارت: {companyBranches}</div>*/}
+            {/*                        <div>رضایت مشتریان: {companySatisfaction} از 10</div>*/}
+            {/*                        <div>سرعت پاسخگویی به شکایات: {companyAnswerSpeed} از 10</div>*/}
+            {/*                    </div>*/}
+            {/*                </div>*/}
+            {/*                <hr className="my-4"/>*/}
+            {/*                <h4 className="font-semibold mb-2">تخفیف:</h4>*/}
+            {/*                <div>*/}
+            {/*                    <div>عنوان تخفیف: {discountTitle}</div>*/}
+            {/*                    <div>مبلغ تخفیف: {discountAmount} ریال</div>*/}
+            {/*                </div>*/}
+            {/*            </div>*/}
+            {/*        ))}*/}
+
+            {/*    </>*/}
+            {/*)}*/}
         </>
     );
 }

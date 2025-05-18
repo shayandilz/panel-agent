@@ -114,44 +114,44 @@ const axiosRequests = {
             }
         });
 
-        return axios.post(url, formData, {headers: {"Content-type": "multipart/form-data"},}).then(responseBody);
+        return axios.post(url, formData, {headers: {"Content-type": "multipart/form-data"}}).then(responseBody);
     },
-    putForm: (url: string, data: any) => {
-        let formData = new FormData();
-        Object.keys(data).forEach((key) => {
-            if (data[key] !== null) {
-                if (Array.isArray(data[key])) {
-                    data[key].forEach((item: any) => {
-                        formData.append(`${key}`, item);
-                    });
-                } else {
-                    formData.append(key, data[key]);
-                }
-            }
-        });
-
-        return axios
-            .put(url, formData, {
-                headers: {"Content-type": "multipart/form-data"},
-            })
-            .then(responseBody);
-    },
-    postFormVideo: (url: string, Video: string | Blob) => {
-        let formData = new FormData();
-        formData.append('Video', Video);
-        return axios
-            .post(url, formData, {
-                headers: {"Content-type": "multipart/form-data"},
-            })
-            .then(responseBody);
-    },
-    pdf: (url: string) => {
-        return axios
-            .get(url, {
-                headers: {"Content-type": "application/pdf"},
-            })
-            .then(responseBody);
-    },
+    // putForm: (url: string, data: any) => {
+    //     let formData = new FormData();
+    //     Object.keys(data).forEach((key) => {
+    //         if (data[key] !== null) {
+    //             if (Array.isArray(data[key])) {
+    //                 data[key].forEach((item: any) => {
+    //                     formData.append(`${key}`, item);
+    //                 });
+    //             } else {
+    //                 formData.append(key, data[key]);
+    //             }
+    //         }
+    //     });
+    //
+    //     return axios
+    //         .put(url, formData, {
+    //             headers: {"Content-type": "multipart/form-data"},
+    //         })
+    //         .then(responseBody);
+    // },
+    // postFormVideo: (url: string, Video: string | Blob) => {
+    //     let formData = new FormData();
+    //     formData.append('Video', Video);
+    //     return axios
+    //         .post(url, formData, {
+    //             headers: {"Content-type": "multipart/form-data"},
+    //         })
+    //         .then(responseBody);
+    // },
+    // pdf: (url: string) => {
+    //     return axios
+    //         .get(url, {
+    //             headers: {"Content-type": "application/pdf"},
+    //         })
+    //         .then(responseBody);
+    // },
 };
 
 const General = {
@@ -176,7 +176,7 @@ const Fields = {
 }
 
 const Agent = {
-    edit: (params: string = '',data: any = {}) => axiosRequests.postForm(`${AppConstants.base_url_api}/agentlogin${params}`, data),
+    edit: (params: string = '',data: object = {}) => axiosRequests.postForm(`${AppConstants.base_url_api}/agentlogin${params}`, data),
 }
 
 export default {
