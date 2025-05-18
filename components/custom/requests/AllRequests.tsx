@@ -16,9 +16,9 @@ import {calculateTimestamp} from "@/core/utils";
 import {toast} from "react-toastify";
 import FilterComponent from "@/components/custom/filters/FilterComponent";
 import Button from "@/components/ui/button/Button";
-import {router} from "next/client";
 import {useModal} from "@/hooks/useModal";
 import {Modal} from "@/components/ui/modal";
+import {useRouter} from "next/navigation";
 
 interface RequestData {
     request_id: string | null;
@@ -57,6 +57,7 @@ export default function AllRequests() {
     const {isOpen, openModal, closeModal} = useModal();
     const [isLoading, setIsLoading] = useState(true);
     const [filters, setFilters] = useState({});
+    const router = useRouter();
 
     useEffect(() => {
         const fetchRequestsData = async () => {
@@ -224,9 +225,10 @@ export default function AllRequests() {
                                                         openModal()
                                                     }}>جزئیات</Button>
                                                     <Button variant="primary" onClick={() => {
-                                                        setIsLoading(true)
-                                                        window.location.href = '/requests/' + request.request_id
-                                                    }}>ملیات</Button>
+                                                        // setIsLoading(true)
+                                                        router.push('/requests/' + request?.request_id);
+                                                        // window.location.href = 'requests/' + request.request_id
+                                                    }}>عملیات</Button>
                                                 </TableCell>
                                             </TableRow>
                                         ))) : (
@@ -353,8 +355,9 @@ export default function AllRequests() {
                         {/*</div>*/}
                         <div className="flex items-center gap-3 px-2 mt-6 lg:justify-between">
                             <Button className="px-8" size="sm" onClick={() => {
-                                window.location.href = '/requests/' + selectedRequest?.request_id
-                            }}>ملیات</Button>
+                                router.push('/requests/' + selectedRequest?.request_id);
+                                // window.location.href = 'requests/' + selectedRequest?.request_id
+                            }}>عملیات</Button>
                             <Button className="px-8" size="sm" variant="outline" onClick={closeModal}>
                                 بستن
                             </Button>

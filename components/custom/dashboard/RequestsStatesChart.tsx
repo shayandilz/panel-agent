@@ -69,7 +69,6 @@ export default function RequestsTypesChart({allRequests}: Props) {
                 toast.error("مشکلی پیش آمد. دوباره تلاش کنید.");
             } finally {
                 setIsLoading(false);
-                console.log(allRequests)
             }
         };
 

@@ -15,8 +15,8 @@ interface TabsProps {
 }
 
 export const Tab = ({ value, icon, children }: TabProps) => (
-    <div className="flex items-center gap-1">
-        {icon && <span className={'small'}>{icon}</span>}
+    <div className="flex items-center gap-1 px-3">
+        {icon && <span className={'small me-2'}>{icon}</span>}
         <span>{children}</span>
     </div>
 );

@@ -29,7 +29,6 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
         const image = value[index];
         if (!image?.file_url) return;
 
-        console.log('handleUpload',image)
 
         setUploadingIndex(index);
 
@@ -48,7 +47,6 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
                     ...response.data.data,
                     isUploaded: true
                 }];
-                console.log(updatedImages)
                 onChange(updatedImages);
             } else {
                 toast.error(response?.data?.desc || "مشکلی پیش آمد. دوباره تلاش کنید.");

@@ -55,7 +55,6 @@ export default function RequestsTypesChart({allRequests}: Props) {
                         if (data.data) {
                             let newData = data.data.map((ins: Insurance) => findCount(ins)).sort((a: { fieldinsurance_count: any; }, b: { fieldinsurance_count: any; }) => b.fieldinsurance_count! - a.fieldinsurance_count!);
                             setInsurancesData(newData);
-                            console.log(newData)
                         } else {
                             setInsurancesData([]);
                         }

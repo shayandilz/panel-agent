@@ -48,7 +48,6 @@ export default function ChangePasswordForm() {
                 }
 
                 toast.success(data.desc || 'پسورد با موفقیت تغییر کرد');
-                console.log('handleChangePassword success', data)
                 router.push('/');
             } else toast.error('مشکلی پیش آمد. دوباره تلاش کنید.');
         } catch (err) {

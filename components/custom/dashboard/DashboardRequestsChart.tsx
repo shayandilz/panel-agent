@@ -11,6 +11,7 @@ import ComponentCard from "@/components/common/ComponentCard";
 import Button from "@/components/ui/button/Button";
 // import Label from "@/components/form/Label";
 // import Input from "@/components/form/input/InputField";
+import {useRouter} from "next/navigation";
 
 interface DashboardRequestsChart {
     request_id: string | null;
@@ -55,6 +56,7 @@ export default function DashboardRequestsChart({title, mode, showAllLink}: Props
     // @ts-ignore
     const [selectedRequest, setSelectedRequest] = useState<DashboardRequestsChart>(null);
     const {isOpen, openModal, closeModal} = useModal();
+    const router = useRouter();
 
     const fetchDashboardRequests = async () => {
         try {
@@ -132,9 +134,10 @@ export default function DashboardRequestsChart({title, mode, showAllLink}: Props
                                             openModal()
                                         }}>جزئیات</Button>
                                         <Button variant="primary" onClick={() => {
-                                            setIsLoading(true)
-                                            window.location.href = '/requests/' + request.request_id
-                                        }}>ملیات</Button>
+                                            // setIsLoading(true)
+                                            router.push('/requests/' + request?.request_id);
+                                            // window.location.href = 'requests/' + request.request_id
+                                        }}>عملیات</Button>
                                     </TableCell>
                                 </TableRow>
                             ))}
@@ -194,12 +197,12 @@ export default function DashboardRequestsChart({title, mode, showAllLink}: Props
                                     مشخصات کاربر
                                 </p>
                                 <p className=" font-medium text-gray-800 dark:text-white/90">
-                                    {(selectedRequest?.user_name + ' ' +  selectedRequest?.user_family) || '-'}
+                                    {(selectedRequest?.user_name + ' ' + selectedRequest?.user_family) || '-'}
                                 </p>
                             </div>
                             <div>
                                 <p className="mb-2  leading-normal text-gray-500 dark:text-gray-400">
-                                    شماره  همراه
+                                    شماره همراه
                                 </p>
                                 <p className=" font-medium text-gray-800 dark:text-white/90">
                                     {selectedRequest?.user_mobile || '-'}
@@ -257,8 +260,9 @@ export default function DashboardRequestsChart({title, mode, showAllLink}: Props
                         {/*</div>*/}
                         <div className="flex items-center gap-3 px-2 mt-6 lg:justify-between">
                             <Button className="px-8" size="sm" onClick={() => {
-                                window.location.href = '/requests/' + selectedRequest?.request_id
-                            }}>ملیات</Button>
+                                router.push('/requests/' + selectedRequest?.request_id);
+                                // window.location.href = 'requests/' + selectedRequest?.request_id
+                            }}>عملیات</Button>
                             <Button className="px-8" size="sm" variant="outline" onClick={closeModal}>
                                 بستن
                             </Button>

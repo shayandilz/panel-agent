@@ -59,7 +59,6 @@ export default function SignInForm() {
             });
 
             const data = await res.json();
-            console.log(data)
             if (data.result != 'ok') {
                 // logout()
                 setShowLoader(false)
