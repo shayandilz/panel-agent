@@ -147,6 +147,8 @@ export default function RequestStepForm({ stepFields, onSubmit, disabled }: Requ
         setIsSubmitting(true);
         try {
             await onSubmit(form);
+            window.location.reload();
+
         } finally {
             setIsSubmitting(false);
         }
