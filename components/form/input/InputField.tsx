@@ -16,6 +16,8 @@ interface InputProps {
     success?: boolean;
     error?: boolean;
     hint?: string; // Optional hint text
+    onlyNumbers?: boolean;
+
 }
 
 const Input: FC<InputProps> = ({
@@ -34,7 +36,42 @@ const Input: FC<InputProps> = ({
                                    success = false,
                                    error = false,
                                    hint,
+                                   onlyNumbers = false,
+
                                }) => {
+
+    const handleKeyDown = onChange && onlyNumbers
+        ? (e: React.KeyboardEvent<HTMLInputElement>) => {
+            // Allow control keys: backspace, tab, enter, arrows, delete
+            if (
+                [8, 9, 13, 27, 37, 38, 39, 40, 46].includes(e.keyCode) ||
+                // Allow: Ctrl+A, Ctrl+C, Ctrl+X (but NOT Ctrl+V here)
+                (e.ctrlKey && ['a', 'c', 'x'].includes(e.key.toLowerCase()))
+            ) return;
+
+            // Do NOT block Ctrl+V (paste) here, so allow it through
+
+            // Block any other non-digit key
+            if (!/^\d$/.test(e.key)) {
+                e.preventDefault();
+            }
+        }
+        : undefined;
+
+
+    const handleChange = onChange && onlyNumbers
+        ? (e: React.ChangeEvent<HTMLInputElement>) => {
+            const sanitized = e.target.value.replace(/\D/g, '');
+            const syntheticEvent = {
+                ...e,
+                target: {
+                    ...e.target,
+                    value: sanitized,
+                },
+            };
+            onChange(syntheticEvent as React.ChangeEvent<HTMLInputElement>);
+        }
+        : onChange;
     // Determine input styles based on state (disabled, success, error)
     let inputClasses = `h-11 w-full rounded-lg border appearance-none px-4 py-2.5 text-sm shadow-theme-xs placeholder:text-gray-400 focus:outline-hidden focus:ring-3 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/60 dark:focus:border-brand-800 ${className}`;
 
@@ -58,7 +95,8 @@ const Input: FC<InputProps> = ({
                 name={name}
                 placeholder={placeholder}
                 defaultValue={defaultValue || ''}
-                onChange={onChange}
+                onChange={handleChange}
+                onKeyDown={handleKeyDown}
                 min={min}
                 max={max}
                 step={step}

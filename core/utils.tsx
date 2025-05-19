@@ -381,7 +381,7 @@ export const requestStepData = {
         ]
     },
     16: {
-        command:'requestissuing16',
+        command:'requestvisit16',
         title: 'وضعیت نیاز به بازدید',
         fields: [
             // {
@@ -392,6 +392,21 @@ export const requestStepData = {
             // },
         ]
     },
+    17: {
+        command: 'requestdeletevisit16',
+        title: 'حذف بازدید',
+        fields: [
+            // your fields if any
+        ]
+    },
+    18: {
+        command: 'requestdeletedepositdeficit6',
+        title: 'حذف کسری واریزی',
+        fields: [
+            // your fields if any
+        ]
+    }
+
 }
 
 

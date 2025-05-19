@@ -37,12 +37,8 @@ const InputsSummary: React.FC<InputsSummaryProps> = ({details}) => {
         }
     }, [requestSlug]);
 
-    console.log(steps)
-
     // Parse the JSON details object
     const detail = details?.jsonpricing_request_detail ? JSON.parse(details.jsonpricing_request_detail) : {};
-
-    console.log(detail)
     // Utility functions...
     const cleanFieldName = (fieldName: string): string => {
         if (fieldName.includes('command=')) {

@@ -4,7 +4,7 @@
 import Input from "@/components/form/input/InputField";
 import Label from "@/components/form/Label";
 import Button from "@/components/ui/button/Button";
-import {ChevronLeftIcon, EyeCloseIcon, EyeIcon} from "@/icons";
+import {EyeCloseIcon, EyeIcon} from "@/icons";
 import Link from "next/link";
 import Image from "next/image";
 import React, {useEffect, useState} from "react";
@@ -12,7 +12,6 @@ import {useRouter} from "next/navigation";
 import {toast} from "react-toastify";
 import {useAuth} from "@/context/AgentContext";
 import service from "@/core/service";
-import Cookies from "js-cookie";
 
 interface FormData {
     agent_mobile?: string;
@@ -97,6 +96,19 @@ export default function SignInForm() {
         }
     }
 
+    function handleOnlyNumberKey(e: React.KeyboardEvent<HTMLInputElement>) {
+        if (
+            [8, 9, 13, 27, 37, 38, 39, 40, 46].includes(e.keyCode) ||
+            (e.ctrlKey && ['a', 'c', 'v', 'x'].includes(e.key.toLowerCase()))
+        ) {
+            return;
+        }
+        if (!/^\d$/.test(e.key)) {
+            e.preventDefault();
+        }
+    }
+
+
     return (
         <div className="flex flex-col flex-1 lg:w-1/2 w-full">
             {/*<div className="w-full max-w-md sm:pt-10 mx-auto mb-5">*/}
@@ -141,10 +153,9 @@ export default function SignInForm() {
                                     type="tel"
                                     error={!!error && !formData?.agent_mobile}
                                     hint={error && !formData?.agent_mobile ? error : ''}
-                                    onChange={(e) => setFormData({
-                                        ...formData,
-                                        agent_mobile: e.target.value
-                                    })}
+                                    onChange={e => setFormData({...formData, agent_mobile: e.target.value})}
+
+                                    onlyNumbers
                                 />
                             </div>
                             <div>
@@ -194,10 +205,14 @@ export default function SignInForm() {
                                     hint={error && !formData?.employee_mobile ? error : ''}
                                     type="tel"
                                     id="employeeMobile"
-                                    onChange={(e) => setFormData({
-                                        ...formData,
-                                        employee_mobile: e.target.value
-                                    })}
+                                    onChange={(e) => {
+                                        const onlyNums = e.target.value.replace(/\D/g, '');
+                                        setFormData({
+                                            ...formData,
+                                            employee_mobile: onlyNums
+                                        });
+                                    }}
+                                    onlyNumbers
                                 />
                             </div>
 
@@ -236,6 +251,7 @@ export default function SignInForm() {
                                         ...formData,
                                         agent_email: e.target.value
                                     })}
+
                                 />
                             </div>}
 
@@ -249,10 +265,14 @@ export default function SignInForm() {
                                     type="tel"
                                     error={!!error && !formData?.agent_mobile}
                                     hint={error && !formData?.agent_mobile ? error : ''}
-                                    onChange={(e) => setFormData({
-                                        ...formData,
-                                        agent_mobile: e.target.value
-                                    })}
+                                    onChange={(e) => {
+                                        const onlyNums = e.target.value.replace(/\D/g, '');
+                                        setFormData({
+                                            ...formData,
+                                            agent_mobile: onlyNums
+                                        });
+                                    }}
+                                    onlyNumbers
                                 />
                             </div>}
 

@@ -301,17 +301,31 @@ export default function RequestDetail() {
                         label: stat?.request_state_name
                     }
                 })
-                let filteredStates = await states.filter((state: { value: string; }) => {
-                    // console.log(state, currentState)
-                    if (currentState == state.value) return false
-                    else if (currentState == '1' || currentState == '2') return state.value == '3'
-                    else if (currentState == '3') return state.value == '4' || state.value == '5' || state.value == '6' || state.value == '7' || state.value == '8' || state.value == '9' || state.value == '16'  // اضافه واریزی
-                    else if (currentState == '7' || currentState == '8') return state.value == '5' || state.value == '6' || state.value == '7' || state.value == '8' || state.value == '9' || state.value == '16'   // اضافه واریزی
-                    else if (currentState == '9') return state.value == '10'
-                    else if (currentState == '10') return state.value == '11'
-                    else if (currentState == '11') return false
-                    else return false
-                })
+                states.push({ value: '17', label: 'حذف بازدید' }); // or your correct label for state 17
+                states.push({ value: '18', label: 'حذف کسری واریزی' }); // or your correct label for state 17
+
+                let filteredStates;
+
+                if (currentState === '16') {
+                    // Only show state 17 as the next available option
+                    filteredStates = states.filter((state: { value: string; }) => state.value === '17');
+                } else if(currentState === '6'){
+                    filteredStates = states.filter((state: { value: string; }) => state.value === '18');
+
+                }
+                    else {
+                    // Your existing filtering logic for other states
+                    filteredStates = states.filter((state: { value: string; }) => {
+                        if (currentState === state.value) return false;
+                        else if (currentState === '1' || currentState === '2') return state.value === '3';
+                        else if (currentState === '3') return ['4','5','6','7','8','9','16'].includes(state.value);
+                        else if (currentState === '7' || currentState === '8') return ['5','6','7','8','9','16'].includes(state.value);
+                        else if (currentState === '9') return state.value === '10';
+                        else if (currentState === '10') return state.value === '11';
+                        else if (currentState === '11') return false;
+                        else return false;
+                    });
+                }
                 // console.log(states, filteredStates);
                 setAvailableStates(filteredStates)
             } else {
