@@ -11,6 +11,8 @@ const nextConfig: NextConfig = {
     env: {
         NEXT_PUBLIC_API_BASE_URL: 'https://api.rahnamayefarda.ir',
     },
+    reactStrictMode: true,
+
     images: {
         dangerouslyAllowSVG: true,
         contentDispositionType: 'attachment',
@@ -22,12 +24,12 @@ const nextConfig: NextConfig = {
                 port: '',
                 pathname: '/**'
             },
-            {
-                protocol: 'http',
-                hostname: 'localhost',
-                port: '',
-                pathname: '/**'
-            },
+            // {
+            //     protocol: 'http',
+            //     hostname: 'localhost',
+            //     port: '',
+            //     pathname: '/**'
+            // },
             {
                 protocol: 'https',
                 hostname: 'rahnama1.s3.ir-thr-at1.arvanstorage.ir',
