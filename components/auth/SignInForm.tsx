@@ -12,7 +12,7 @@ import {useRouter} from "next/navigation";
 import {toast} from "react-toastify";
 import {useAuth} from "@/context/AgentContext";
 import service from "@/core/service";
-
+import Logo from '../../public/images/logo/logo.png'
 interface FormData {
     agent_mobile?: string;
     agent_pass?: string;
@@ -127,7 +127,7 @@ export default function SignInForm() {
                         <Image
                             width={300}
                             height={50}
-                            src="/images/logo/logo.png"
+                            src={Logo}
                             alt="Logo"
                         />
                     </div>
